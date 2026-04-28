@@ -2,13 +2,17 @@
 session_start();
 @include 'config.php';
 ?>
+
 <?php
-if(isset($conn)){
-   echo "DB CONNECTED";
-}else{
-   echo "NO DB CONNECTION";
+// ✅ Proper PDO connection test
+try {
+    $conn->query("SELECT 1");
+    $db_status = "DB CONNECTED";
+} catch (Exception $e) {
+    $db_status = "NO DB CONNECTION";
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,7 +33,7 @@ if(isset($conn)){
 
 body{
    font-family:'Poppins',sans-serif;
-   background: url('image products/picture7.jpg') no-repeat center center fixed;
+   background: url('image_products/picture7.jpg') no-repeat center center fixed;
    background-size: cover;
    color:#2c3e50;
 }
@@ -144,10 +148,23 @@ body::before{
 .btn:hover{
    background:#27ae60;
 }
+
+/* DB STATUS (optional debug style) */
+.db-status{
+   text-align:center;
+   padding:10px;
+   font-weight:bold;
+   background:rgba(255,255,255,0.8);
+}
 </style>
 </head>
 
 <body>
+
+<!-- DB STATUS (REMOVE IN PRODUCTION) -->
+<div class="db-status">
+   <?= $db_status; ?>
+</div>
 
 <!-- HEADER -->
 <header class="header">
