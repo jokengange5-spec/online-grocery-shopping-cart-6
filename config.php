@@ -1,6 +1,6 @@
 <?php
 
-$host = "dpg-xxxxxx-a.oregon-postgres.render.com";
+$host = "dpg-d7ocn33bc2fs73basvog-a.singapore-postgres.render.com";
 $db_name = "onlineshop_am8u";
 $username = "onlineshop_am8u_user";
 $password = "OquhdogSYiICZFfiWPg0j0cbvume6VIY";
@@ -14,9 +14,11 @@ try {
         $password
     );
 
+    // Set error mode
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    echo "Connected successfully!";
+    // Optional test message (remove in production)
+    // echo "Connected successfully!";
 
 } catch (PDOException $e) {
 
