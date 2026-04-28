@@ -86,16 +86,9 @@ body{
    color:#1f2d3d;
 }
 
-/* DARK OVERLAY (CLEAN NOT FOGGY) */
+/* REMOVE FOG COMPLETELY */
 body::before{
-   content:'';
-   position:fixed;
-   top:0;
-   left:0;
-   width:100%;
-   height:100%;
-   background:rgba(0,0,0,0.25);
-   z-index:-1;
+   display:none;
 }
 
 /* HERO */
@@ -111,10 +104,9 @@ body::before{
    text-align:center;
    max-width:800px;
    padding:45px;
-   border-radius:18px;
-   background:rgba(255,255,255,0.88);
-   backdrop-filter: blur(6px);
-   box-shadow:0 15px 35px rgba(0,0,0,0.2);
+   border-radius:16px;
+   background:#ffffff;
+   box-shadow:0 10px 30px rgba(0,0,0,0.2);
 }
 
 .home h3{
@@ -147,12 +139,11 @@ body::before{
 
 /* CARD */
 .box{
-   background:#fff;
-   border-radius:16px;
+   background:#ffffff;
+   border-radius:14px;
    padding:15px;
    text-align:center;
-   box-shadow:0 10px 20px rgba(0,0,0,0.08);
-   transition:0.3s;
+   box-shadow:0 8px 20px rgba(0,0,0,0.1);
 }
 
 .box:hover{
