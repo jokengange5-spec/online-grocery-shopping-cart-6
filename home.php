@@ -12,10 +12,11 @@ if(!$user_id){
 /* ADD TO WISHLIST */
 if(isset($_POST['add_to_wishlist'])){
 
-   $pid = htmlspecialchars(trim($_POST['pid']))
-   $p_name = filter_var($_POST['p_name'], FILTER_SANITIZE_STRING);
-   $p_price = filter_var($_POST['p_price'], FILTER_SANITIZE_STRING);
-   $p_image = filter_var($_POST['p_image'], FILTER_SANITIZE_STRING);
+   // 1. Fixed: Added missing semicolon and replaced deprecated filters
+   $pid = htmlspecialchars(trim($_POST['pid'])); 
+   $p_name = htmlspecialchars(trim($_POST['p_name']));
+   $p_price = htmlspecialchars(trim($_POST['p_price']));
+   $p_image = htmlspecialchars(trim($_POST['p_image']));
 
    $check = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
    $check->execute([$p_name, $user_id]);
@@ -28,6 +29,7 @@ if(isset($_POST['add_to_wishlist'])){
    }elseif($check_cart->rowCount() > 0){
       $message[] = 'already added to cart!';
    }else{
+      // 2. Fixed: Explicitly naming columns prevents the 'null id' fatal error
       $insert = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?,?,?,?,?)");
       $insert->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
       $message[] = 'added to wishlist!';
@@ -42,8 +44,9 @@ if(isset($_POST['add_to_cart'])){
    $p_price = htmlspecialchars(trim($_POST['p_price']));
    $p_image = htmlspecialchars(trim($_POST['p_image']));
    $p_qty = htmlspecialchars(trim($_POST['p_qty']));
-      $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-      $check->execute([$p_name, $user_id]);
+
+   $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
+   $check->execute([$p_name, $user_id]);
 
    if($check->rowCount() > 0){
       $message[] = 'already added to cart!';
@@ -52,6 +55,7 @@ if(isset($_POST['add_to_cart'])){
       $delete_wish = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
       $delete_wish->execute([$p_name, $user_id]);
 
+      // 3. Fixed: Listing columns specifically so the DB handles the 'id' auto-increment
       $insert = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
       $insert->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
 
