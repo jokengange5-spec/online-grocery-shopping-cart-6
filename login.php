@@ -5,31 +5,34 @@ session_start();
 
 if(isset($_POST['submit'])){
 
-   $email = filter_var($_POST['email'], FILTER_SANITIZE_STRING);
-   $pass = md5($_POST['pass']);
-   $pass = filter_var($pass, FILTER_SANITIZE_STRING);
+   // ✅ FIX: no deprecated filter
+   $email = trim($_POST['email']);
+   $pass = $_POST['pass'];
+
+   // 🔐 TEMP SAFE (MD5 compatibility with your DB)
+   $hashed_pass = md5($pass);
 
    $sql = "SELECT * FROM users WHERE email = ? AND password = ?";
    $stmt = $conn->prepare($sql);
-   $stmt->execute([$email, $pass]);
-   $rowCount = $stmt->rowCount();  
+   $stmt->execute([$email, $hashed_pass]);
 
    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-   if($rowCount > 0){
+   if($row){
 
       if($row['user_type'] == 'admin'){
          $_SESSION['admin_id'] = $row['id'];
          header('location:admin_page.php');
-
-      }elseif($row['user_type'] == 'user'){
-         $_SESSION['user_id'] = $row['id'];
-         header('location:home.php');
-
-      }else{
-         $message[] = 'no user found!';
+         exit;
       }
 
+      if($row['user_type'] == 'user'){
+         $_SESSION['user_id'] = $row['id'];
+         header('location:home.php');
+         exit;
+      }
+
+      $message[] = 'no user found!';
    }else{
       $message[] = 'incorrect email or password!';
    }
@@ -55,47 +58,42 @@ if(isset($_POST['submit'])){
    font-family:'Poppins',sans-serif;
 }
 
-/* SAME BACKGROUND SA INDEX */
+/* CLEAN BACKGROUND (NO FOG ISSUE) */
 body{
    height:100vh;
    display:flex;
    align-items:center;
    justify-content:center;
-   background: url('image products/picture7.jpg') no-repeat center center fixed;
+   background: url('image_products/picture7.jpg') no-repeat center center fixed;
    background-size: cover;
 }
 
+/* DARK OVERLAY */
 body::before{
    content:'';
    position:fixed;
    width:100%;
    height:100%;
-   background:rgba(0,0,0,0.5);
+   background:rgba(0,0,0,0.45);
    z-index:-1;
 }
 
-/* LOGIN CARD */
+/* LOGIN BOX */
 .form-container{
    width:370px;
    padding:40px;
-   border-radius:25px;
+   border-radius:20px;
    background: rgba(255,255,255,0.15);
-   backdrop-filter: blur(18px);
-   box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+   backdrop-filter: blur(15px);
+   box-shadow: 0 10px 40px rgba(0,0,0,0.3);
    text-align:center;
    color:white;
-   animation:fadeIn 0.6s ease;
 }
 
-@keyframes fadeIn{
-   from{opacity:0; transform:translateY(20px);}
-   to{opacity:1; transform:translateY(0);}
-}
-
+/* TITLE */
 .form-container h3{
    font-size:26px;
    margin-bottom:20px;
-   font-weight:700;
 }
 
 /* INPUT */
@@ -104,14 +102,8 @@ body::before{
    padding:12px;
    margin:10px 0;
    border:none;
-   border-radius:12px;
+   border-radius:10px;
    outline:none;
-   background: rgba(255,255,255,0.25);
-   color:white;
-}
-
-.box::placeholder{
-   color:#eee;
 }
 
 /* BUTTON */
@@ -119,33 +111,15 @@ body::before{
    width:100%;
    padding:12px;
    border:none;
-   border-radius:12px;
-   background: linear-gradient(45deg,#2ecc71,#27ae60);
+   border-radius:10px;
+   background:#2ecc71;
    color:white;
-   font-weight:700;
+   font-weight:bold;
    cursor:pointer;
-   transition:0.3s;
 }
 
 .btn:hover{
-   transform:scale(1.05);
-   box-shadow:0 8px 20px rgba(0,0,0,0.3);
-}
-
-/* LINK */
-p{
-   margin-top:15px;
-   font-size:14px;
-}
-
-p a{
-   color:#2ecc71;
-   text-decoration:none;
-   font-weight:600;
-}
-
-p a:hover{
-   text-decoration:underline;
+   background:#27ae60;
 }
 
 /* MESSAGE */
@@ -153,11 +127,10 @@ p a:hover{
    position:absolute;
    top:20px;
    background:#e74c3c;
-   padding:10px 20px;
-   border-radius:12px;
    color:#fff;
+   padding:10px 15px;
+   border-radius:10px;
    display:flex;
-   align-items:center;
    gap:10px;
 }
 
@@ -185,14 +158,14 @@ if(isset($message)){
 <section class="form-container">
 
    <form action="" method="POST">
-      <h3><i class="fas fa-user-circle"></i> Login</h3>
+      <h3><i class="fas fa-user"></i> Login</h3>
 
       <input type="email" name="email" class="box" placeholder="Enter your email" required>
       <input type="password" name="pass" class="box" placeholder="Enter your password" required>
 
-      <input type="submit" value="Login Now" class="btn" name="submit">
+      <input type="submit" value="Login" class="btn" name="submit">
 
-      <p>Don't have an account? <a href="register.php">Register now</a></p>
+      <p style="margin-top:15px;">Don't have an account? <a href="register.php" style="color:#2ecc71;">Register</a></p>
    </form>
 
 </section>
