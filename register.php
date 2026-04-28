@@ -1,48 +1,43 @@
 <?php
 
-include 'config.php';
+@include 'config.php';
+session_start();
 
 if(isset($_POST['submit'])){
 
-   $name = $_POST['name'];
-   $name = filter_var($name, FILTER_SANITIZE_STRING);
-   $email = $_POST['email'];
-   $email = filter_var($email, FILTER_SANITIZE_STRING);
-   $pass = md5($_POST['pass']);
-   $pass = filter_var($pass, FILTER_SANITIZE_STRING);
-   $cpass = md5($_POST['cpass']);
-   $cpass = filter_var($cpass, FILTER_SANITIZE_STRING);
+   // ✅ FIX: no deprecated filters
+   $name = trim($_POST['name']);
+   $email = trim($_POST['email']);
+   $pass = md5($_POST['pass']); // keep MD5 for now (your DB already uses it)
+   $user_type = $_POST['user_type'];
 
+   // ✅ IMAGE UPLOAD
    $image = $_FILES['image']['name'];
-   $image = filter_var($image, FILTER_SANITIZE_STRING);
-   $image_size = $_FILES['image']['size'];
    $image_tmp_name = $_FILES['image']['tmp_name'];
    $image_folder = 'uploaded_img/'.$image;
 
-   // FIXED: Removed backticks from `users`
-   $select = $conn->prepare("SELECT * FROM users WHERE email = ?");
-   $select->execute([$email]);
+   // ❗ check if email exists
+   $check = $conn->prepare("SELECT * FROM users WHERE email = ?");
+   $check->execute([$email]);
 
-   if($select->rowCount() > 0){
-      $message[] = 'user email already exist!';
+   if($check->rowCount() > 0){
+      $message[] = 'user already exists!';
    }else{
-      if($pass != $cpass){
-         $message[] = 'confirm password not matched!';
-      }else{
-         // FIXED: Removed backticks from `users`
-         $insert = $conn->prepare("INSERT INTO users(name, email, password, image) VALUES(?,?,?,?)");
-         $insert->execute([$name, $email, $pass, $image]);
 
-         if($insert){
-            if($image_size > 2000000){
-               $message[] = 'image size is too large!';
-            }else{
-               move_uploaded_file($image_tmp_name, $image_folder);
-               $message[] = 'registered successfully!';
-               header('location:login.php');
-            }
-         }
-      }
+      // ❗ IMPORTANT: DO NOT insert id (PostgreSQL auto-generates it)
+      $insert = $conn->prepare("
+         INSERT INTO users(name, email, password, user_type, image)
+         VALUES(?,?,?,?,?)
+      ");
+
+      $insert->execute([$name, $email, $pass, $user_type, $image]);
+
+      // upload image
+      move_uploaded_file($image_tmp_name, $image_folder);
+
+      $message[] = 'registered successfully!';
+      header('location:login.php');
+      exit;
    }
 }
 ?>
@@ -50,159 +45,108 @@ if(isset($_POST['submit'])){
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>register</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register</title>
 
-   <!-- font awesome -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
-   <!-- your css (still included) -->
-   <link rel="stylesheet" href="css/components.css">
+<style>
+body{
+   font-family:Poppins,sans-serif;
+   display:flex;
+   align-items:center;
+   justify-content:center;
+   height:100vh;
+   background:url('image_products/picture7.jpg') no-repeat center center fixed;
+   background-size:cover;
+}
 
-   <!-- 💎 MAJESTIC UI DESIGN -->
-   <style>
-   body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #e8f5e9, #e3f2fd);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-   }
+body::before{
+   content:'';
+   position:fixed;
+   width:100%;
+   height:100%;
+   background:rgba(0,0,0,0.4);
+   z-index:-1;
+}
 
-   .form-container {
-      width: 100%;
-      max-width: 420px;
-      padding: 20px;
-   }
+.form-container{
+   width:380px;
+   padding:30px;
+   background:rgba(255,255,255,0.15);
+   backdrop-filter:blur(15px);
+   border-radius:18px;
+   text-align:center;
+   color:#fff;
+}
 
-   form {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 30px 25px;
-      border-radius: 20px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-      backdrop-filter: blur(10px);
-      text-align: center;
-      animation: fadeIn 0.6s ease;
-   }
+.box{
+   width:100%;
+   padding:10px;
+   margin:8px 0;
+   border:none;
+   border-radius:10px;
+}
 
-   @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-   }
+.btn{
+   width:100%;
+   padding:10px;
+   background:#2ecc71;
+   border:none;
+   color:white;
+   border-radius:10px;
+   cursor:pointer;
+   font-weight:bold;
+}
 
-   form h3 {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #2c3e50;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-   }
+.btn:hover{
+   background:#27ae60;
+}
 
-   .box {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      outline: none;
-      transition: 0.3s;
-      font-size: 14px;
-   }
+.message{
+   background:#e74c3c;
+   padding:10px;
+   border-radius:10px;
+   margin-bottom:10px;
+}
+</style>
 
-   .box:focus {
-      border-color: #2ecc71;
-      box-shadow: 0 0 8px rgba(46, 204, 113, 0.3);
-   }
-
-   .btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      margin-top: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(45deg, #2ecc71, #27ae60);
-      color: white;
-      transition: 0.3s;
-   }
-
-   .btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
-   }
-
-   form p {
-      margin-top: 12px;
-      font-size: 14px;
-   }
-
-   form p a {
-      color: #2ecc71;
-      text-decoration: none;
-      font-weight: 600;
-   }
-
-   form p a:hover {
-      text-decoration: underline;
-   }
-
-   /* MESSAGE STYLE */
-   .message {
-      background: #fff;
-      padding: 10px;
-      margin: 10px auto;
-      max-width: 400px;
-      border-radius: 10px;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-   }
-
-   .message i {
-      cursor: pointer;
-      color: red;
-   }
-   </style>
 </head>
 <body>
 
 <?php
-
 if(isset($message)){
-   foreach($message as $message){
-      echo '
-      <div class="message">
-         <span>'.$message.'</span>
-         <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
-      </div>
-      ';
+   foreach($message as $msg){
+      echo "<div class='message'>$msg</div>";
    }
 }
-
 ?>
-   
-<section class="form-container">
 
-   <form action="" enctype="multipart/form-data" method="POST">
-      <h3>register now</h3>
-      <input type="text" name="name" class="box" placeholder="enter your name" required>
-      <input type="email" name="email" class="box" placeholder="enter your email" required>
-      <input type="password" name="pass" class="box" placeholder="enter your password" required>
-      <input type="password" name="cpass" class="box" placeholder="confirm your password" required>
-      <input type="file" name="image" class="box" required accept="image/jpg, image/jpeg, image/png">
-      <input type="submit" value="register now" class="btn" name="submit">
-      <p>already have an account? <a href="login.php">login now</a></p>
+<div class="form-container">
+
+   <form method="POST" enctype="multipart/form-data">
+
+      <h3>Register</h3>
+
+      <input type="text" name="name" class="box" placeholder="Enter name" required>
+      <input type="email" name="email" class="box" placeholder="Enter email" required>
+      <input type="password" name="pass" class="box" placeholder="Enter password" required>
+
+      <select name="user_type" class="box">
+         <option value="user">user</option>
+         <option value="admin">admin</option>
+      </select>
+
+      <input type="file" name="image" class="box" required>
+
+      <input type="submit" name="submit" value="Register" class="btn">
+
+      <p>Already have account? <a href="login.php">Login</a></p>
+
    </form>
 
-</section>
-
+</div>
 
 </body>
 </html>
