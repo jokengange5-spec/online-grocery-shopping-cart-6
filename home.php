@@ -1,7 +1,5 @@
 <?php
-
 @include 'config.php';
-
 session_start();
 
 $user_id = $_SESSION['user_id'] ?? null;
@@ -11,6 +9,7 @@ if(!$user_id){
    exit;
 }
 
+/* ADD TO WISHLIST */
 if(isset($_POST['add_to_wishlist'])){
 
    $pid = filter_var($_POST['pid'], FILTER_SANITIZE_STRING);
@@ -18,23 +17,24 @@ if(isset($_POST['add_to_wishlist'])){
    $p_price = filter_var($_POST['p_price'], FILTER_SANITIZE_STRING);
    $p_image = filter_var($_POST['p_image'], FILTER_SANITIZE_STRING);
 
-   $check_wishlist_numbers = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
-   $check_wishlist_numbers->execute([$p_name, $user_id]);
+   $check = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
+   $check->execute([$p_name, $user_id]);
 
-   $check_cart_numbers = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-   $check_cart_numbers->execute([$p_name, $user_id]);
+   $check_cart = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
+   $check_cart->execute([$p_name, $user_id]);
 
-   if($check_wishlist_numbers->rowCount() > 0){
+   if($check->rowCount() > 0){
       $message[] = 'already added to wishlist!';
-   }elseif($check_cart_numbers->rowCount() > 0){
+   }elseif($check_cart->rowCount() > 0){
       $message[] = 'already added to cart!';
    }else{
-      $insert_wishlist = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?,?,?,?,?)");
-      $insert_wishlist->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
+      $insert = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?,?,?,?,?)");
+      $insert->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
       $message[] = 'added to wishlist!';
    }
 }
 
+/* ADD TO CART */
 if(isset($_POST['add_to_cart'])){
 
    $pid = filter_var($_POST['pid'], FILTER_SANITIZE_STRING);
@@ -43,61 +43,30 @@ if(isset($_POST['add_to_cart'])){
    $p_image = filter_var($_POST['p_image'], FILTER_SANITIZE_STRING);
    $p_qty = filter_var($_POST['p_qty'], FILTER_SANITIZE_STRING);
 
-   $check_cart_numbers = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-   $check_cart_numbers->execute([$p_name, $user_id]);
+   $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
+   $check->execute([$p_name, $user_id]);
 
-   if($check_cart_numbers->rowCount() > 0){
+   if($check->rowCount() > 0){
       $message[] = 'already added to cart!';
    }else{
 
-      $check_wishlist_numbers = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
-      $check_wishlist_numbers->execute([$p_name, $user_id]);
+      $delete_wish = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
+      $delete_wish->execute([$p_name, $user_id]);
 
-      if($check_wishlist_numbers->rowCount() > 0){
-         $delete_wishlist = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
-         $delete_wishlist->execute([$p_name, $user_id]);
-      }
+      $insert = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
+      $insert->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
 
-      $insert_cart = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
-      $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
       $message[] = 'added to cart!';
    }
-  
 }
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>shop</title>
-
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
-   <!-- custom css file link  -->
-   <link rel="stylesheet" href="css/style.css">
-
-
-<html lang="en">
-   <head>
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>shop</title>
-
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
-   <!-- custom css file link  -->
-   <link rel="stylesheet" href="css/style.css">
-
-
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home Dashboard</title>
+<title>Shop</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
@@ -110,14 +79,14 @@ if(isset($_POST['add_to_cart'])){
    box-sizing:border-box;
 }
 
-/*body{
+body{
    font-family:'Poppins',sans-serif;
    background: url('image_products/picture7.jpg') no-repeat center center fixed;
    background-size: cover;
    color:#1f2d3d;
 }
 
-/* LESS FOGGY OVERLAY */
+/* DARK OVERLAY (CLEAN NOT FOGGY) */
 body::before{
    content:'';
    position:fixed;
@@ -129,7 +98,7 @@ body::before{
    z-index:-1;
 }
 
-/* HERO CLEAN */
+/* HERO */
 .home-bg{
    min-height:85vh;
    display:flex;
@@ -148,36 +117,25 @@ body::before{
    box-shadow:0 15px 35px rgba(0,0,0,0.2);
 }
 
-.home .content span{
-   color:#27ae60;
-   font-weight:600;
-   font-size:14px;
-   letter-spacing:1px;
-}
-
 .home h3{
-   font-size:2.6rem;
+   font-size:2.4rem;
    margin:15px 0;
-   color:#1f2d3d;
 }
 
 .home p{
    color:#444;
 }
 
-/* TITLE CLEAN */
-.title{
-   text-align:center;
-   font-size:2.3rem;
-   font-weight:800;
-   margin:25px 0;
-   color:#1f2d3d;
-   letter-spacing:1px;
-}
-
-/* PRODUCT SECTION */
+/* PRODUCTS */
 .products{
    padding:60px 40px;
+}
+
+.title{
+   text-align:center;
+   font-size:2.2rem;
+   font-weight:800;
+   margin:25px 0;
 }
 
 /* GRID */
@@ -187,142 +145,113 @@ body::before{
    gap:25px;
 }
 
-/* PRODUCT CARD CLEAN */
+/* CARD */
 .box{
-   background:#ffffff;
+   background:#fff;
    border-radius:16px;
    padding:15px;
    text-align:center;
-   transition:0.3s;
    box-shadow:0 10px 20px rgba(0,0,0,0.08);
+   transition:0.3s;
 }
 
 .box:hover{
    transform:translateY(-8px);
-   box-shadow:0 18px 35px rgba(0,0,0,0.15);
 }
 
+/* IMAGE */
 .box img{
    width:100%;
    height:180px;
    object-fit:cover;
    border-radius:12px;
-   margin-top:20px;
+   margin-top:15px;
 }
 
-/* PRICE */
-.price{
-   position:absolute;
-   top:12px;
-   left:12px;
-   background:#2ecc71;
-   color:white;
-   padding:6px 12px;
-   border-radius:20px;
-   font-weight:bold;
-   font-size:13px;
-}
-
-/* BUTTONS CLEAN */
-.btn{
-   background:#2ecc71;
-   color:white;
+/* BUTTON */
+.btn, .option-btn{
    width:100%;
-   padding:11px;
+   padding:10px;
    margin-top:8px;
    border:none;
-   border-radius:12px;
-   font-weight:700;
+   border-radius:10px;
+   font-weight:bold;
    cursor:pointer;
-   transition:0.3s;
 }
 
-.btn:hover{
-   background:#27ae60;
-   transform:scale(1.03);
+.btn{
+   background:#2ecc71;
+   color:#fff;
 }
 
 .option-btn{
    background:#f1c40f;
    color:#2c3e50;
-   width:100%;
-   padding:11px;
-   margin-top:8px;
-   border:none;
-   border-radius:12px;
-   font-weight:700;
-   cursor:pointer;
-   transition:0.3s;
 }
 
-.option-btn:hover{
-   transform:scale(1.03);
-} GLOBAL */
-
-  
-
-
-
-
-
-  
-/* GRID */
-
-
-
-/* PRICE */
-
-
-
-
 </style>
-
 </head>
 
 <body>
 
 <?php include 'header.php'; ?>
 
-
+<!-- HERO -->
 <div class="home-bg">
    <section class="home">
       <div class="content">
-         <span>don't panic, go organize</span>
-         <h3>Reach For A Healthier You With Organic Foods</h3>
-         <p>Fresh, organic and delivered with care — upgrade your lifestyle today.</p>
-         <a href="about.php" class="btn">about us</a>
+         <h3>Fresh Organic Grocery Shop</h3>
+         <p>Affordable and fresh products delivered to you.</p>
       </div>
    </section>
 </div>
 
-   <?php
-      $select_products = $conn->prepare("SELECT * FROM products");
-      $select_products->execute();
+<!-- PRODUCTS -->
+<section class="products">
 
-      if($select_products->rowCount() > 0){
-         while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){
-   ?>
+<h1 class="title">latest products</h1>
 
+<div class="box-container">
 
+<?php
+$select_products = $conn->prepare("SELECT * FROM products");
+$select_products->execute();
 
-   <?php
-      }
-   }else{
-   
+if($select_products->rowCount() > 0){
+   while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){
+?>
+
+<div class="box">
+
+   <p class="price">₱<?= $fetch_products['price']; ?></p>
+
+   <img src="uploaded_img/<?= $fetch_products['image']; ?>" alt="">
+
+   <div class="name"><?= $fetch_products['name']; ?></div>
+
+   <form method="POST">
+      <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
+      <input type="hidden" name="p_name" value="<?= $fetch_products['name']; ?>">
+      <input type="hidden" name="p_price" value="<?= $fetch_products['price']; ?>">
+      <input type="hidden" name="p_image" value="<?= $fetch_products['image']; ?>">
+
+      <input type="number" name="p_qty" value="1" min="1">
+
+      <button type="submit" name="add_to_cart" class="btn">add to cart</button>
+      <button type="submit" name="add_to_wishlist" class="option-btn">wishlist</button>
+   </form>
+
+</div>
+
+<?php
    }
-   ?>
+}else{
+   echo '<p class="empty">no products found!</p>';
+}
+?>
 
-   </div>
+</div>
 </section>
-
-
-
-
-
-
-
-
-
 
 </body>
 </html>
