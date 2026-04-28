@@ -12,7 +12,7 @@ if(!$user_id){
 /* ADD TO WISHLIST */
 if(isset($_POST['add_to_wishlist'])){
 
-   $pid = filter_var($_POST['pid'], FILTER_SANITIZE_STRING);
+   $pid = htmlspecialchars(trim($_POST['pid']))
    $p_name = filter_var($_POST['p_name'], FILTER_SANITIZE_STRING);
    $p_price = filter_var($_POST['p_price'], FILTER_SANITIZE_STRING);
    $p_image = filter_var($_POST['p_image'], FILTER_SANITIZE_STRING);
