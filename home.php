@@ -110,13 +110,14 @@ if(isset($_POST['add_to_cart'])){
    box-sizing:border-box;
 }
 
-/* GLOBAL */
-body{
+/*body{
    font-family:'Poppins',sans-serif;
-   background: url('image products/picture7.jpg') no-repeat center center fixed;
+   background: url('image_products/picture7.jpg') no-repeat center center fixed;
    background-size: cover;
-   color:#2c3e50;
+   color:#1f2d3d;
 }
+
+/* LESS FOGGY OVERLAY */
 body::before{
    content:'';
    position:fixed;
@@ -124,11 +125,11 @@ body::before{
    left:0;
    width:100%;
    height:100%;
-   background:rgba(0,0,0,0.4);
+   background:rgba(0,0,0,0.25);
    z-index:-1;
 }
 
-/* HERO */
+/* HERO CLEAN */
 .home-bg{
    min-height:85vh;
    display:flex;
@@ -140,54 +141,43 @@ body::before{
 .home .content{
    text-align:center;
    max-width:800px;
-   padding:40px;
-   border-radius:25px;
-   background: rgba(255,255,255,0.6);
-   backdrop-filter: blur(15px);
-   box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+   padding:45px;
+   border-radius:18px;
+   background:rgba(255,255,255,0.88);
+   backdrop-filter: blur(6px);
+   box-shadow:0 15px 35px rgba(0,0,0,0.2);
 }
 
 .home .content span{
-   color:#2ecc71;
-   letter-spacing:2px;
+   color:#27ae60;
+   font-weight:600;
    font-size:14px;
+   letter-spacing:1px;
 }
 
 .home h3{
-   font-size:2.8rem;
+   font-size:2.6rem;
    margin:15px 0;
+   color:#1f2d3d;
 }
 
 .home p{
-   color:#555;
+   color:#444;
 }
 
-/* PRODUCTS */
-.products{
-   padding:60px 40px;
-}
-
-/* TITLE */
+/* TITLE CLEAN */
 .title{
    text-align:center;
-   font-size:2.4rem;
+   font-size:2.3rem;
    font-weight:800;
    margin:25px 0;
-   letter-spacing:2px;
-   text-transform:uppercase;
-   background:linear-gradient(90deg,#2ecc71,#3498db);
-   -webkit-background-clip:text;
-   -webkit-text-fill-color:transparent;
+   color:#1f2d3d;
+   letter-spacing:1px;
 }
 
-.title::after{
-   content:'';
-   width:80px;
-   height:3px;
-   background:#2ecc71;
-   display:block;
-   margin:10px auto;
-   border-radius:5px;
+/* PRODUCT SECTION */
+.products{
+   padding:60px 40px;
 }
 
 /* GRID */
@@ -197,28 +187,26 @@ body::before{
    gap:25px;
 }
 
-/* CARD */
+/* PRODUCT CARD CLEAN */
 .box{
-   position:relative;
-   background:rgba(255,255,255,0.95);
-   border-radius:22px;
+   background:#ffffff;
+   border-radius:16px;
    padding:15px;
    text-align:center;
-   transition:0.35s;
-   box-shadow:0 10px 25px rgba(0,0,0,0.08);
+   transition:0.3s;
+   box-shadow:0 10px 20px rgba(0,0,0,0.08);
 }
 
 .box:hover{
-   transform:translateY(-10px) scale(1.02);
-   box-shadow:0 20px 40px rgba(0,0,0,0.15);
+   transform:translateY(-8px);
+   box-shadow:0 18px 35px rgba(0,0,0,0.15);
 }
 
-/* IMAGE */
 .box img{
    width:100%;
    height:180px;
    object-fit:cover;
-   border-radius:16px;
+   border-radius:12px;
    margin-top:20px;
 }
 
@@ -227,90 +215,65 @@ body::before{
    position:absolute;
    top:12px;
    left:12px;
-   background:linear-gradient(45deg,#27ae60,#2ecc71);
+   background:#2ecc71;
    color:white;
-   padding:6px 14px;
-   border-radius:30px;
+   padding:6px 12px;
+   border-radius:20px;
    font-weight:bold;
    font-size:13px;
 }
 
-/* VIEW ICON */
-.box .fa-eye{
-   position:absolute;
-   top:12px;
-   right:12px;
-   background:white;
-   padding:9px;
-   border-radius:50%;
-   color:#2c3e50;
-   box-shadow:0 6px 14px rgba(0,0,0,0.1);
-   transition:0.3s;
-}
-
-.box .fa-eye:hover{
+/* BUTTONS CLEAN */
+.btn{
    background:#2ecc71;
    color:white;
-}
-
-/* NAME */
-.name{
-   margin:12px 0;
-   font-weight:700;
-   font-size:17px;
-}
-
-/* QTY */
-.qty{
-   width:70px;
-   padding:6px;
-   border-radius:10px;
-   border:1px solid #ddd;
-   text-align:center;
-   margin:10px auto;
-   display:block;
-}
-
-/* BUTTONS */
-.btn,
-.option-btn{
    width:100%;
    padding:11px;
    margin-top:8px;
    border:none;
-   border-radius:14px;
-   cursor:pointer;
+   border-radius:12px;
    font-weight:700;
+   cursor:pointer;
    transition:0.3s;
 }
 
-/* CART BUTTON */
-.btn{
-   background:linear-gradient(45deg,#2ecc71,#27ae60);
-   color:white;
-}
-
 .btn:hover{
-   transform:scale(1.05);
+   background:#27ae60;
+   transform:scale(1.03);
 }
 
-/* WISHLIST BUTTON */
 .option-btn{
-   background:linear-gradient(45deg,#f1c40f,#f39c12);
+   background:#f1c40f;
    color:#2c3e50;
+   width:100%;
+   padding:11px;
+   margin-top:8px;
+   border:none;
+   border-radius:12px;
+   font-weight:700;
+   cursor:pointer;
+   transition:0.3s;
 }
 
 .option-btn:hover{
-   transform:scale(1.05);
-}
+   transform:scale(1.03);
+} GLOBAL */
 
-/* EMPTY */
-.empty{
-   text-align:center;
-   font-size:18px;
-   color:#888;s
-   margin-top:30px;
-}
+  
+
+
+
+
+
+  
+/* GRID */
+
+
+
+/* PRICE */
+
+
+
 
 </style>
 
