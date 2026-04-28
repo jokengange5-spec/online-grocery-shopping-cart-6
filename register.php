@@ -5,18 +5,23 @@ session_start();
 
 if(isset($_POST['submit'])){
 
-   // ✅ CLEAN INPUT (NO deprecated filters)
    $name = trim($_POST['name']);
    $email = trim($_POST['email']);
-   $pass = md5($_POST['pass']); // keep MD5 for compatibility
+   $pass = md5($_POST['pass']); // keep MD5 for your current DB
    $user_type = $_POST['user_type'];
 
-   // IMAGE UPLOAD
    $image = $_FILES['image']['name'];
    $tmp = $_FILES['image']['tmp_name'];
+
+   // ✔ FIX: folder path
    $folder = 'uploaded_img/'.$image;
 
-   // CHECK EXISTING USER
+   // ✔ CREATE FOLDER IF NOT EXIST
+   if(!is_dir('uploaded_img')){
+      mkdir('uploaded_img', 0777, true);
+   }
+
+   // ✔ CHECK USER EXISTS
    $check = $conn->prepare("SELECT * FROM users WHERE email = ?");
    $check->execute([$email]);
 
@@ -24,19 +29,24 @@ if(isset($_POST['submit'])){
       $message[] = "User already exists!";
    }else{
 
-      // ❗ IMPORTANT: DO NOT insert id
+      // ✔ INSERT USER (NO ID HERE!)
       $insert = $conn->prepare("
          INSERT INTO users(name, email, password, user_type, image)
          VALUES(?,?,?,?,?)
       ");
 
-      $insert->execute([$name, $email, $pass, $user_type, $image]);
+      if($insert->execute([$name, $email, $pass, $user_type, $image])){
 
-      move_uploaded_file($tmp, $folder);
+         // ✔ MOVE IMAGE SAFELY
+         move_uploaded_file($tmp, $folder);
 
-      $message[] = "Registered successfully!";
-      header("location:login.php");
-      exit;
+         header("location:login.php");
+         exit;
+
+      }else{
+         $message[] = "Registration failed!";
+      }
+
    }
 }
 ?>
@@ -45,6 +55,7 @@ if(isset($_POST['submit'])){
 <html>
 <head>
 <title>Register</title>
+
 <style>
 body{
    font-family:Poppins;
@@ -52,14 +63,14 @@ body{
    justify-content:center;
    align-items:center;
    height:100vh;
-   background:#222;
+   background:#1f1f1f;
    color:white;
 }
 
 .form{
    width:350px;
    padding:20px;
-   background:#333;
+   background:#2c2c2c;
    border-radius:10px;
 }
 
@@ -67,6 +78,8 @@ input,select{
    width:100%;
    padding:10px;
    margin:8px 0;
+   border:none;
+   border-radius:6px;
 }
 
 button{
@@ -75,8 +88,10 @@ button{
    background:#2ecc71;
    border:none;
    color:white;
+   cursor:pointer;
 }
 </style>
+
 </head>
 <body>
 
@@ -85,7 +100,7 @@ button{
 <?php
 if(isset($message)){
    foreach($message as $msg){
-      echo "<p>$msg</p>";
+      echo "<p style='color:red;'>$msg</p>";
    }
 }
 ?>
