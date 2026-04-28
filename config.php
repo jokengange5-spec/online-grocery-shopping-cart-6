@@ -9,15 +9,19 @@ $port = "5432";
 try {
 
     $conn = new PDO(
-        "pgsql:host=$host;port=$port;dbname=$db_name",
+        "pgsql:host=$host;port=$port;dbname=$db_name;sslmode=require",
         $username,
         $password
     );
 
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    echo "Connected successfully!";
+
 } catch (PDOException $e) {
+
     die("Connection failed: " . $e->getMessage());
+
 }
 
 ?>
