@@ -2,7 +2,13 @@
 session_start();
 @include 'config.php';
 ?>
-
+<?php
+if(isset($conn)){
+   echo "DB CONNECTED";
+}else{
+   echo "NO DB CONNECTION";
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
