@@ -37,14 +37,13 @@ if(isset($_POST['add_to_wishlist'])){
 /* ADD TO CART */
 if(isset($_POST['add_to_cart'])){
 
-   $pid = filter_var($_POST['pid'], FILTER_SANITIZE_STRING);
-   $p_name = filter_var($_POST['p_name'], FILTER_SANITIZE_STRING);
-   $p_price = filter_var($_POST['p_price'], FILTER_SANITIZE_STRING);
-   $p_image = filter_var($_POST['p_image'], FILTER_SANITIZE_STRING);
-   $p_qty = filter_var($_POST['p_qty'], FILTER_SANITIZE_STRING);
-
-   $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-   $check->execute([$p_name, $user_id]);
+   $pid = htmlspecialchars(trim($_POST['pid']));
+   $p_name = htmlspecialchars(trim($_POST['p_name']));
+   $p_price = htmlspecialchars(trim($_POST['p_price']));
+   $p_image = htmlspecialchars(trim($_POST['p_image']));
+   $p_qty = htmlspecialchars(trim($_POST['p_qty']));
+      $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
+      $check->execute([$p_name, $user_id]);
 
    if($check->rowCount() > 0){
       $message[] = 'already added to cart!';
