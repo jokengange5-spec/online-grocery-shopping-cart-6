@@ -13,8 +13,8 @@ if(!$user_id){
 if(isset($_POST['add_to_wishlist'])){
 
    // 1. Fixed: Added missing semicolon and replaced deprecated filters
-   $pid = htmlspecialchars(trim($_POST['pid'])); 
-   $p_name = htmlspecialchars(trim($_POST['p_name']));
+   $pid = htmlspecialchars(trim($_POST['pid'])); // Added the semicolon
+$p_name = htmlspecialchars(trim($_POST['p_name'])); // Also updated the deprecated filter
    $p_price = htmlspecialchars(trim($_POST['p_price']));
    $p_image = htmlspecialchars(trim($_POST['p_image']));
 
