@@ -2,13 +2,17 @@
 @include 'config.php';
 session_start();
 
+// I-uncomment ni para makita nimo kung unsay sulod sa session
+// var_dump($_SESSION); 
+
 $user_id = $_SESSION['user_id'] ?? null;
 
 if(!$user_id){
+   // Imbes nga i-redirect dayon, i-echo usa ang error para mahibal-an nimo
+   // die('Error: Walay nakit-an nga User ID sa session!'); 
    header('location:login.php');
    exit;
 }
-
 /* ADD TO WISHLIST */
 if(isset($_POST['add_to_wishlist'])){
 
