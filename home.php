@@ -233,7 +233,7 @@ if($select_products->rowCount() > 0){
       <input type="hidden" name="p_price" value="<?= $fetch_products['price']; ?>">
       <input type="hidden" name="p_image" value="<?= $fetch_products['image']; ?>">
 
-      <input type="number" name="p_qty" value="1" min="1">
+      <input type="number" name="p_qty" value="0" min="1">
 
       <button type="submit" name="add_to_cart" class="btn">add to cart</button>
       <button type="submit" name="add_to_wishlist" class="option-btn">wishlist</button>
