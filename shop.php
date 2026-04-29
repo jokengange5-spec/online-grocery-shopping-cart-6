@@ -53,11 +53,16 @@ if(isset($_POST['add_to_cart'])){
       /* MAO NI ANG IMPORTANTE: 
          I-specify nato ang columns para ang Database na ang bahala sa 'id'.
       */
-      $insert_cart = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
-      
-      // Ayaw na i-apil ang ID diri sa execute array
-      $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
+      /* UPDATE SA ADD TO CART (Line 56-59) */
+}else{
+   // Gidugangan nato ang 'id' sa listahan ug gibutangan og 'DEFAULT' sa VALUES
+   $insert_cart = $conn->prepare("INSERT INTO cart(id, user_id, pid, name, price, quantity, image) VALUES(DEFAULT, ?, ?, ?, ?, ?, ?)");
+   
+   // Ang execute array magpabilin nga 6 ra ang sulod (walay labot ang id)
+   $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
 
+   $message[] = 'Added to cart!';
+}
       $message[] = 'Added to cart!';
    }
 }
