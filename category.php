@@ -43,15 +43,11 @@ if(isset($_POST['add_to_wishlist'])){
 if(isset($_POST['add_to_cart'])){
 
    $pid = $_POST['pid'];
-   $pid = filter_var($pid, FILTER_SANITIZE_STRING);
-   $p_name = $_POST['p_name'];
-   $p_name = filter_var($p_name, FILTER_SANITIZE_STRING);
-   $p_price = $_POST['p_price'];
-   $p_price = filter_var($p_price, FILTER_SANITIZE_STRING);
-   $p_image = $_POST['p_image'];
-   $p_image = filter_var($p_image, FILTER_SANITIZE_STRING);
-   $p_qty = $_POST['p_qty'];
-   $p_qty = filter_var($p_qty, FILTER_SANITIZE_STRING);
+   $pid = htmlspecialchars($_POST['pid'], ENT_QUOTES, 'UTF-8');
+   $p_name = htmlspecialchars($_POST['p_name'], ENT_QUOTES, 'UTF-8');
+   $p_price = htmlspecialchars($_POST['p_price'], ENT_QUOTES, 'UTF-8');
+   $p_image = htmlspecialchars($_POST['p_image'], ENT_QUOTES, 'UTF-8');
+   $p_qty = htmlspecialchars($_POST['p_qty'], ENT_QUOTES, 'UTF-8');
 
    $check_cart_numbers = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
    $check_cart_numbers->execute([$p_name, $user_id]);
