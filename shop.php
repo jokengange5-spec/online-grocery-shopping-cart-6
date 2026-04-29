@@ -35,8 +35,9 @@ if(isset($_POST['add_to_wishlist'])){
    }
 }
 
-/* ADD TO CART */
+/* UPDATE SA ADD TO CART (Line 53) */
 if(isset($_POST['add_to_cart'])){
+
    $pid = htmlspecialchars($_POST['pid'], ENT_QUOTES, 'UTF-8');
    $p_name = htmlspecialchars($_POST['p_name'], ENT_QUOTES, 'UTF-8');
    $p_price = htmlspecialchars($_POST['p_price'], ENT_QUOTES, 'UTF-8');
@@ -47,11 +48,17 @@ if(isset($_POST['add_to_cart'])){
    $check_cart->execute([$p_name, $user_id]);
 
    if($check_cart->rowCount() > 0){
-      $message[] = 'already added to cart!';
+      $message[] = 'Already added to cart!';
    }else{
+      /* MAO NI ANG IMPORTANTE: 
+         I-specify nato ang columns para ang Database na ang bahala sa 'id'.
+      */
       $insert_cart = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
+      
+      // Ayaw na i-apil ang ID diri sa execute array
       $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-      $message[] = 'added to cart!';
+
+      $message[] = 'Added to cart!';
    }
 }
 ?>
