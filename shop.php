@@ -36,30 +36,32 @@ if(isset($_POST['add_to_wishlist'])){
 }
 
 /* UPDATE SA ADD TO CART (Line 53) */
-if(isset($_POST['add_to_cart'])){
-
-   $pid = htmlspecialchars($_POST['pid'], ENT_QUOTES, 'UTF-8');
-   $p_name = htmlspecialchars($_POST['p_name'], ENT_QUOTES, 'UTF-8');
-   $p_price = htmlspecialchars($_POST['p_price'], ENT_QUOTES, 'UTF-8');
-   $p_image = htmlspecialchars($_POST['p_image'], ENT_QUOTES, 'UTF-8');
-   $p_qty = htmlspecialchars($_POST['p_qty'], ENT_QUOTES, 'UTF-8');
-
-   $check_cart = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-   $check_cart->execute([$p_name, $user_id]);
-
-/* ... code sa taas ... */
-
-   if($check_cart->rowCount() > 0){
-      $message[] = 'Already added to cart!';
-   } else {
-      // Dinhi dapit ang Line 57-59
-      $insert_cart = $conn->prepare("INSERT INTO cart(id, user_id, pid, name, price, quantity, image) VALUES(DEFAULT, ?, ?, ?, ?, ?, ?)");
-      
-      $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-
-      $message[] = 'Added to cart!';
-   } // Kani nga bracket ang nagsira sa 'else'
-} // Kani nga bracket ang nagsira sa 'if(isset($_POST["add_to_cart"]))'
+/* --- REPLACE YOUR ADD TO CART BLOCK WITH THIS --- */
+   
+   if(isset($_POST['add_to_cart'])){
+   
+      // Fix Deprecation: Use htmlspecialchars instead of FILTER_SANITIZE_STRING
+      $pid = htmlspecialchars($_POST['pid'], ENT_QUOTES, 'UTF-8');
+      $p_name = htmlspecialchars($_POST['p_name'], ENT_QUOTES, 'UTF-8');
+      $p_price = htmlspecialchars($_POST['p_price'], ENT_QUOTES, 'UTF-8');
+      $p_image = htmlspecialchars($_POST['p_image'], ENT_QUOTES, 'UTF-8');
+      $p_qty = htmlspecialchars($_POST['p_qty'], ENT_QUOTES, 'UTF-8');
+   
+      $check_cart = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
+      $check_cart->execute([$p_name, $user_id]);
+   
+      if($check_cart->rowCount() > 0){
+         $message[] = 'Already added to cart!';
+      } else {
+         // FIX: Removed 'id' from the column list and the VALUES list
+         $insert_cart = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?, ?, ?, ?, ?, ?)");
+         
+         // FIX: Removed the 'null' or first array element that corresponded to 'id'
+         $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
+   
+         $message[] = 'Added to cart!';
+      }
+   } // Kani nga bracket ang nagsira sa 'if(isset($_POST["add_to_cart"]))'
 ?>
 ?>
    
