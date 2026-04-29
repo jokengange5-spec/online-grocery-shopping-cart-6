@@ -311,3 +311,47 @@ section {
    color: #333;
    font-weight: 600;
 }
+
+/* MAJESTIC HEADER GLOBAL STYLE */
+.header {
+   position: sticky;
+   top: 0;
+   z-index: 1000;
+   background: white !important; /* Puti nga background para makita ang text */
+   box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+   padding: 15px 5%;
+}
+
+.header .flex {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   max-width: 1200px;
+   margin: 0 auto;
+}
+
+.header .logo {
+   font-size: 22px;
+   font-weight: 800;
+   text-decoration: none;
+   color: #2ecc71;
+}
+
+.navbar a {
+   margin: 0 10px;
+   font-weight: 600;
+   text-decoration: none;
+   color: #333;
+   transition: 0.3s;
+}
+
+.navbar a:hover {
+   color: #2ecc71;
+}
+
+.icons a {
+   font-size: 20px;
+   margin-left: 15px;
+   color: #333;
+   text-decoration: none;
+}
