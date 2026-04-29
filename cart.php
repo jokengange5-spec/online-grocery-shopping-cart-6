@@ -4,11 +4,14 @@
 
 session_start();
 
-$user_id = $_SESSION['user_id'];
+// Susiha kung ang user_id set ba sa session, kung dili, i-assign kini as null
+$user_id = $_SESSION['user_id'] ?? null;
 
-if(!isset($user_id)){
+// Kung walay user_id (wala naka-login), i-redirect sa login page
+if(!$user_id){
    header('location:login.php');
-};
+   exit; // Importante kini aron dili na mopadayon ang code sa ubos
+}
 
 if(isset($_GET['delete'])){
    $delete_id = $_GET['delete'];
