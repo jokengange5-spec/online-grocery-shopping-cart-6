@@ -1,8 +1,8 @@
 <?php
 
 $host = "dpg-d7ocn33bc2fs73basvog-a.singapore-postgres.render.com";
-$db_name = "onlineshop_am8u";
-$username = "onlineshop_am8u_user";
+$db_name = "online_shop_am8u";
+$username = "online_shop_am8u_user";
 $password = "OquhdogSYiICZFfiWPg0j0cbvume6VIY";
 $port = "5432";
 
