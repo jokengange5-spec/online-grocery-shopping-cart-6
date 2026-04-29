@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `cart` (
-  `id` int(100) NOT NULL,
+  `id` int AUTO_INCREMENT,
   `user_id` int(100) NOT NULL,
   `pid` int(100) NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE `products` (
 --
 
 CREATE TABLE `users` (
-  `id` int(100) NOT NULL,
+  `id` int Primary Key AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(100) NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE `users` (
 --
 
 CREATE TABLE `wishlist` (
-  `id` int(100) NOT NULL,
+  `id` int Primary Key AUTO_INCREMENT,
   `user_id` int(100) NOT NULL,
   `pid` int(100) NOT NULL,
   `name` varchar(100) NOT NULL,
