@@ -11,57 +11,53 @@ if(!$user_id){
 
 /* ADD TO WISHLIST */
 if(isset($_POST['add_to_wishlist'])){
-   // Gi-replace ang FILTER_SANITIZE_STRING og htmlspecialchars
-   $pid = htmlspecialchars($_POST['pid'], ENT_QUOTES, 'UTF-8');
-   $p_name = htmlspecialchars($_POST['p_name'], ENT_QUOTES, 'UTF-8');
-   $p_price = htmlspecialchars($_POST['p_price'], ENT_QUOTES, 'UTF-8');
-   $p_image = htmlspecialchars($_POST['p_image'], ENT_QUOTES, 'UTF-8');
+   $pid = htmlspecialchars(trim($_POST['pid']));
+   $p_name = htmlspecialchars(trim($_POST['p_name']));
+   $p_price = htmlspecialchars(trim($_POST['p_price']));
+   $p_image = htmlspecialchars(trim($_POST['p_image']));
 
-   $check_wishlist_numbers = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
-   $check_wishlist_numbers->execute([$p_name, $user_id]);
+   $check = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
+   $check->execute([$p_name, $user_id]);
 
-   $check_cart_numbers = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-   $check_cart_numbers->execute([$p_name, $user_id]);
+   $check_cart = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
+   $check_cart->execute([$p_name, $user_id]);
 
-   if($check_wishlist_numbers->rowCount() > 0){
+   if($check->rowCount() > 0){
       $message[] = 'already added to wishlist!';
-   }elseif($check_cart_numbers->rowCount() > 0){
+   }elseif($check_cart->rowCount() > 0){
       $message[] = 'already added to cart!';
    }else{
-      // Siguroha nga ang database columns match ani (user_id, pid, name, price, image)
-      $insert_wishlist = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?,?,?,?,?)");
-      $insert_wishlist->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
+      // Use DEFAULT for the id column
+      $insert = $conn->prepare("INSERT INTO wishlist(id, user_id, pid, name, price, image) VALUES(DEFAULT, ?, ?, ?, ?, ?)");
+      $insert->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
       $message[] = 'added to wishlist!';
    }
 }
 
-/* UPDATE SA ADD TO CART (Line 53) */
-/* --- REPLACE YOUR ADD TO CART BLOCK WITH THIS --- */
-   
-   if(isset($_POST['add_to_cart'])){
-   
-      // Fix Deprecation: Use htmlspecialchars instead of FILTER_SANITIZE_STRING
-      $pid = htmlspecialchars($_POST['pid'], ENT_QUOTES, 'UTF-8');
-      $p_name = htmlspecialchars($_POST['p_name'], ENT_QUOTES, 'UTF-8');
-      $p_price = htmlspecialchars($_POST['p_price'], ENT_QUOTES, 'UTF-8');
-      $p_image = htmlspecialchars($_POST['p_image'], ENT_QUOTES, 'UTF-8');
-      $p_qty = htmlspecialchars($_POST['p_qty'], ENT_QUOTES, 'UTF-8');
-   
-      $check_cart = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-      $check_cart->execute([$p_name, $user_id]);
-   
-      if($check_cart->rowCount() > 0){
-         $message[] = 'Already added to cart!';
-      } else {
-         // FIX: Removed 'id' from the column list and the VALUES list
-         $insert_cart = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?, ?, ?, ?, ?, ?)");
-         
-         // FIX: Removed the 'null' or first array element that corresponded to 'id'
-         $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-   
-         $message[] = 'Added to cart!';
-      }
-   } // Kani nga bracket ang nagsira sa 'if(isset($_POST["add_to_cart"]))'
+/* ADD TO CART */
+if(isset($_POST['add_to_cart'])){
+   $pid = htmlspecialchars(trim($_POST['pid']));
+   $p_name = htmlspecialchars(trim($_POST['p_name']));
+   $p_price = htmlspecialchars(trim($_POST['p_price']));
+   $p_image = htmlspecialchars(trim($_POST['p_image']));
+   $p_qty = htmlspecialchars(trim($_POST['p_qty']));
+
+   $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
+   $check->execute([$p_name, $user_id]);
+
+   if($check->rowCount() > 0){
+      $message[] = 'already added to cart!';
+   }else{
+      $delete_wish = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
+      $delete_wish->execute([$p_name, $user_id]);
+
+      // Use DEFAULT for the id column
+      $insert = $conn->prepare("INSERT INTO cart(id, user_id, pid, name, price, quantity, image) VALUES(DEFAULT, ?, ?, ?, ?, ?, ?)");
+      $insert->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
+
+      $message[] = 'added to cart!';
+   }
+} // Kani nga bracket ang nagsira sa 'if(isset($_POST["add_to_cart"]))'
 ?>
 
    
