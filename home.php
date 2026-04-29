@@ -13,59 +13,7 @@ if(!$user_id){
    header('location:login.php');
    exit;
 }
-/* ADD TO WISHLIST */
-if(isset($_POST['add_to_wishlist'])){
 
-   // 1. Fixed: Added missing semicolon and replaced deprecated filters
-   $pid = htmlspecialchars(trim($_POST['pid'])); // Added the semicolon
-$p_name = htmlspecialchars(trim($_POST['p_name'])); // Also updated the deprecated filter
-   $p_price = htmlspecialchars(trim($_POST['p_price']));
-   $p_image = htmlspecialchars(trim($_POST['p_image']));
-
-   $check = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
-   $check->execute([$p_name, $user_id]);
-
-   $check_cart = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-   $check_cart->execute([$p_name, $user_id]);
-
-   if($check->rowCount() > 0){
-      $message[] = 'already added to wishlist!';
-   }elseif($check_cart->rowCount() > 0){
-      $message[] = 'already added to cart!';
-   }else{
-      // 2. Fixed: Explicitly naming columns prevents the 'null id' fatal error
-      $insert = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?,?,?,?,?)");
-      $insert->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
-      $message[] = 'added to wishlist!';
-   }
-}
-
-/* ADD TO CART */
-if(isset($_POST['add_to_cart'])){
-
-   $pid = htmlspecialchars(trim($_POST['pid']));
-   $p_name = htmlspecialchars(trim($_POST['p_name']));
-   $p_price = htmlspecialchars(trim($_POST['p_price']));
-   $p_image = htmlspecialchars(trim($_POST['p_image']));
-   $p_qty = htmlspecialchars(trim($_POST['p_qty']));
-
-   $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-   $check->execute([$p_name, $user_id]);
-
-   if($check->rowCount() > 0){
-      $message[] = 'already added to cart!';
-   }else{
-
-      $delete_wish = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
-      $delete_wish->execute([$p_name, $user_id]);
-
-      // 3. Fixed: Listing columns specifically so the DB handles the 'id' auto-increment
-      $insert = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
-      $insert->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-
-      $message[] = 'added to cart!';
-   }
-}
 ?>
 
 <!DOCTYPE html>
@@ -205,51 +153,7 @@ body::before{
 </div>
 
 <!-- PRODUCTS -->
-<section class="products">
 
-<h1 class="title">latest products</h1>
-
-<div class="box-container">
-
-<?php
-$select_products = $conn->prepare("SELECT * FROM products");
-$select_products->execute();
-
-if($select_products->rowCount() > 0){
-   while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){
-?>
-
-<div class="box">
-
-   <p class="price">₱<?= $fetch_products['price']; ?></p>
-
-   <img src="uploaded_img/<?= $fetch_products['image']; ?>" alt="">
-
-   <div class="name"><?= $fetch_products['name']; ?></div>
-
-   <form method="POST">
-      <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
-      <input type="hidden" name="p_name" value="<?= $fetch_products['name']; ?>">
-      <input type="hidden" name="p_price" value="<?= $fetch_products['price']; ?>">
-      <input type="hidden" name="p_image" value="<?= $fetch_products['image']; ?>">
-
-      <input type="number" name="p_qty" value="0" min="0">
-
-      <button type="submit" name="add_to_cart" class="btn">add to cart</button>
-      <button type="submit" name="add_to_wishlist" class="option-btn">wishlist</button>
-   </form>
-
-</div>
-
-<?php
-   }
-}else{
-   echo '<p class="empty">no products found!</p>';
-}
-?>
-
-</div>
-</section>
 
 </body>
 </html>
