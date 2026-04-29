@@ -292,3 +292,22 @@ section {
 .p-category .cat-box img:hover {
    transform: scale(1.05);
 }
+
+.header {
+   background: #ffffff !important; /* Siguroha nga naay puti nga background */
+   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+   padding: 10px 5%;
+}
+
+.header .flex {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+}
+
+.navbar a {
+   text-decoration: none;
+   margin: 0 15px;
+   color: #333;
+   font-weight: 600;
+}
