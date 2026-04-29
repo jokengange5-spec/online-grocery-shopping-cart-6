@@ -63,7 +63,7 @@ if(isset($_POST['add_to_wishlist'])){
       }
    } // Kani nga bracket ang nagsira sa 'if(isset($_POST["add_to_cart"]))'
 ?>
-?>
+
    
 <?php include 'header.php'; ?>
 <!-- CATEGORY SECTION (TOP) -->
