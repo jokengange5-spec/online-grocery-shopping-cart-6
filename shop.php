@@ -1,27 +1,21 @@
 <?php
-
 @include 'config.php';
-
 session_start();
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'] ?? null;
 
-if(!isset($user_id)){
+if(!$user_id){
    header('location:login.php');
-};
+   exit;
+}
 
-$category = $_GET['category'] ?? '';
-
+/* ADD TO WISHLIST */
 if(isset($_POST['add_to_wishlist'])){
-
-   $pid = $_POST['pid'];
-   $pid = filter_var($pid, FILTER_SANITIZE_STRING);
-   $p_name = $_POST['p_name'];
-   $p_name = filter_var($p_name, FILTER_SANITIZE_STRING);
-   $p_price = $_POST['p_price'];
-   $p_price = filter_var($p_price, FILTER_SANITIZE_STRING);
-   $p_image = $_POST['p_image'];
-   $p_image = filter_var($p_image, FILTER_SANITIZE_STRING);
+   // Gi-replace ang FILTER_SANITIZE_STRING og htmlspecialchars
+   $pid = htmlspecialchars($_POST['pid'], ENT_QUOTES, 'UTF-8');
+   $p_name = htmlspecialchars($_POST['p_name'], ENT_QUOTES, 'UTF-8');
+   $p_price = htmlspecialchars($_POST['p_price'], ENT_QUOTES, 'UTF-8');
+   $p_image = htmlspecialchars($_POST['p_image'], ENT_QUOTES, 'UTF-8');
 
    $check_wishlist_numbers = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
    $check_wishlist_numbers->execute([$p_name, $user_id]);
@@ -34,20 +28,20 @@ if(isset($_POST['add_to_wishlist'])){
    }elseif($check_cart_numbers->rowCount() > 0){
       $message[] = 'already added to cart!';
    }else{
+      // Siguroha nga ang database columns match ani (user_id, pid, name, price, image)
       $insert_wishlist = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?,?,?,?,?)");
       $insert_wishlist->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
       $message[] = 'added to wishlist!';
    }
-
 }
 
+/* ADD TO CART */
 if(isset($_POST['add_to_cart'])){
-
-   $pid = filter_var($_POST['pid'], FILTER_SANITIZE_STRING);
-   $p_name = filter_var($_POST['p_name'], FILTER_SANITIZE_STRING);
-   $p_price = filter_var($_POST['p_price'], FILTER_SANITIZE_STRING);
-   $p_image = filter_var($_POST['p_image'], FILTER_SANITIZE_STRING);
-   $p_qty = filter_var($_POST['p_qty'], FILTER_SANITIZE_NUMBER_INT);
+   $pid = htmlspecialchars($_POST['pid'], ENT_QUOTES, 'UTF-8');
+   $p_name = htmlspecialchars($_POST['p_name'], ENT_QUOTES, 'UTF-8');
+   $p_price = htmlspecialchars($_POST['p_price'], ENT_QUOTES, 'UTF-8');
+   $p_image = htmlspecialchars($_POST['p_image'], ENT_QUOTES, 'UTF-8');
+   $p_qty = htmlspecialchars($_POST['p_qty'], ENT_QUOTES, 'UTF-8');
 
    $check_cart = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
    $check_cart->execute([$p_name, $user_id]);
@@ -55,14 +49,11 @@ if(isset($_POST['add_to_cart'])){
    if($check_cart->rowCount() > 0){
       $message[] = 'already added to cart!';
    }else{
-
       $insert_cart = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
       $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-
       $message[] = 'added to cart!';
    }
 }
-
 ?>
 
 <!DOCTYPE html>
