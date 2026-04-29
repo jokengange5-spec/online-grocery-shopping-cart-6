@@ -56,7 +56,9 @@ CREATE TABLE wishlist (
 
 -- ===============================
 -- CART
--- ===============================
+-- ==============================
+DROP TABLE cart;
+
 CREATE TABLE cart (
     id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
@@ -66,6 +68,9 @@ CREATE TABLE cart (
     quantity INT DEFAULT 1,
     image TEXT
 );
+
+INSERT INTO cart (user_id, product_id, name, price, quantity, image)
+VALUES (1, 1, 'test', 100, 1, 'test.jpg');
 
 -- ===============================
 -- ORDERS (IMPROVED)
