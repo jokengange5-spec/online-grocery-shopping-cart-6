@@ -47,43 +47,21 @@ if(isset($_POST['add_to_cart'])){
    $check_cart = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
    $check_cart->execute([$p_name, $user_id]);
 
+/* ... code sa taas ... */
+
    if($check_cart->rowCount() > 0){
       $message[] = 'Already added to cart!';
-   }else{
-      /* MAO NI ANG IMPORTANTE: 
-         I-specify nato ang columns para ang Database na ang bahala sa 'id'.
-      */
-      /* UPDATE SA ADD TO CART (Line 56-59) */
-}else{
-   // Gidugangan nato ang 'id' sa listahan ug gibutangan og 'DEFAULT' sa VALUES
-   $insert_cart = $conn->prepare("INSERT INTO cart(id, user_id, pid, name, price, quantity, image) VALUES(DEFAULT, ?, ?, ?, ?, ?, ?)");
-   
-   // Ang execute array magpabilin nga 6 ra ang sulod (walay labot ang id)
-   $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
+   } else {
+      // Dinhi dapit ang Line 57-59
+      $insert_cart = $conn->prepare("INSERT INTO cart(id, user_id, pid, name, price, quantity, image) VALUES(DEFAULT, ?, ?, ?, ?, ?, ?)");
+      
+      $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
 
-   $message[] = 'Added to cart!';
-}
       $message[] = 'Added to cart!';
-   }
-}
+   } // Kani nga bracket ang nagsira sa 'else'
+} // Kani nga bracket ang nagsira sa 'if(isset($_POST["add_to_cart"]))'
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-   <head>
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>shop</title>
-
-   <!-- font awesome cdn link  -->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
-   <!-- custom css file link  -->
-   <link rel="stylesheet" href="css/style.css">
-
-</head>
-<body>
+?>
    
 <?php include 'header.php'; ?>
 <!-- CATEGORY SECTION (TOP) -->
