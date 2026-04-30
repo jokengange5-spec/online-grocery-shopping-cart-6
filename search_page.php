@@ -4,11 +4,16 @@
 
 session_start();
 
-$user_id = $_SESSION['user_id'];
+// Gamit og ?? null aron dili mag-error kon wala pay user_id
+$user_id = $_SESSION['user_id'] ?? null;
 
-if(!isset($user_id)){
+// Susiha kon naka-login ba ang user
+if(!$user_id){
    header('location:login.php');
-};
+   exit(); // Importante kini aron moundang ang script diri
+}
+
+?>
 
 if(isset($_POST['add_to_wishlist'])){
 
