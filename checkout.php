@@ -1,5 +1,5 @@
 <?php
-
+ob_start(); // I-add ni diri sa pinaka-taas gyud
 @include 'config.php';
 
 session_start();
