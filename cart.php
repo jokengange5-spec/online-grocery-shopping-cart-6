@@ -4,13 +4,31 @@
 
 session_start();
 
-// Susiha kung ang user_id set ba sa session, kung dili, i-assign kini as null
 $user_id = $_SESSION['user_id'] ?? null;
 
-// Kung walay user_id (wala naka-login), i-redirect sa login page
 if(!$user_id){
    header('location:login.php');
-   exit; // Importante kini aron dili na mopadayon ang code sa ubos
+   exit;
+}
+
+// LOGIC PARA SA ADD TO CART GIKAN SA RECOMMENDATIONS
+if(isset($_POST['add_to_cart'])){
+   $pid = $_POST['pid'];
+   $p_name = $_POST['p_name'];
+   $p_price = $_POST['p_price'];
+   $p_image = $_POST['p_image'];
+   $p_qty = $_POST['p_qty'];
+
+   $check_cart_numbers = $conn->prepare("SELECT * FROM `cart` WHERE name = ? AND user_id = ?");
+   $check_cart_numbers->execute([$p_name, $user_id]);
+
+   if($check_cart_numbers->rowCount() > 0){
+      $message[] = 'already added to cart';
+   }else{
+      $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
+      $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
+      $message[] = 'added to cart';
+   }
 }
 
 if(isset($_GET['delete'])){
@@ -28,10 +46,7 @@ if(isset($_GET['delete_all'])){
 
 if(isset($_POST['update_qty'])){
    $cart_id = $_POST['cart_id'];
-   $p_qty = $_POST['p_qty'];
-   
-   // FIX: Use filter_var with FILTER_VALIDATE_INT or just cast to int for security
-   $p_qty = (int)$p_qty; 
+   $p_qty = (int)$_POST['p_qty']; 
    
    $update_qty = $conn->prepare("UPDATE cart SET quantity = ? WHERE id = ?");
    $update_qty->execute([$p_qty, $cart_id]);
@@ -47,31 +62,26 @@ if(isset($_POST['update_qty'])){
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>shopping cart</title>
-
-   <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
-   <!-- custom css file link  -->
    <link rel="stylesheet" href="css/style.css">
-
 </head>
 <body>
    
 <?php include 'header.php'; ?>
 
 <section class="shopping-cart">
-
    <h1 class="title">🛒 Your Shopping Cart</h1>
-<p class="subtitle">Review your items before checkout</p>
+   <p class="subtitle" style="text-align: center; margin-bottom: 2rem;">Review your items before checkout</p>
 
    <div class="box-container">
-
    <?php
       $grand_total = 0;
+      $all_cart_items = []; // I-save nato ang mga ngalan sa produkto sa cart
       $select_cart = $conn->prepare("SELECT * FROM cart WHERE user_id = ?");
       $select_cart->execute([$user_id]);
       if($select_cart->rowCount() > 0){
          while($fetch_cart = $select_cart->fetch(PDO::FETCH_ASSOC)){ 
+            $all_cart_items[] = $fetch_cart['name'];
    ?>
    <form action="" method="POST" class="box">
       <a href="cart.php?delete=<?= $fetch_cart['id']; ?>" class="fas fa-times" onclick="return confirm('delete this from cart?');"></a>
@@ -101,15 +111,47 @@ if(isset($_POST['update_qty'])){
       <a href="cart.php?delete_all" class="delete-btn <?= ($grand_total > 1)?'':'disabled'; ?>">Remove Products</a>
       <a href="checkout.php" class="btn <?= ($grand_total > 1)?'':'disabled'; ?>">Checkout</a>
    </div>
-
 </section>
 
+<!-- MACHINE LEARNING RECOMMENDATION SECTION -->
+<section class="products" style="padding-top: 0;">
+   <?php
+      if(!empty($all_cart_items)){
+         // Gamiton ang pinaka-unang item sa cart isip basehan sa recommendation
+         $base_product = $all_cart_items[0];
+         $recommendations = getRecommendations($base_product, $conn);
 
+         if(!empty($recommendations)){
+            echo '<h1 class="title">Customers also bought:</h1>';
+            echo '<div class="box-container">';
+            foreach($recommendations as $rec_name){
+               // Siguroha nga dili i-recommend ang item nga naa na sa cart
+               if(in_array($rec_name, $all_cart_items)) continue;
 
-
-
-
-
+               $select_rec = $conn->prepare("SELECT * FROM `products` WHERE name = ?");
+               $select_rec->execute([$rec_name]);
+               if($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC)){
+   ?>
+               <form action="" method="POST" class="box">
+                  <a href="view_page.php?pid=<?= $fetch_rec['id']; ?>" class="fas fa-eye"></a>
+                  <div class="price">₱<span><?= $fetch_rec['price']; ?></span>/-</div>
+                  <img src="image products/<?= $fetch_rec['image']; ?>" alt="">
+                  <div class="name"><?= $fetch_rec['name']; ?></div>
+                  <input type="hidden" name="pid" value="<?= $fetch_rec['id']; ?>">
+                  <input type="hidden" name="p_name" value="<?= $fetch_rec['name']; ?>">
+                  <input type="hidden" name="p_price" value="<?= $fetch_rec['price']; ?>">
+                  <input type="hidden" name="p_image" value="<?= $fetch_rec['image']; ?>">
+                  <input type="number" min="1" value="1" name="p_qty" class="qty">
+                  <input type="submit" value="add to cart" class="btn" name="add_to_cart">
+               </form>
+   <?php
+               }
+            }
+            echo '</div>';
+         }
+      }
+   ?>
+</section>
 
 <?php include 'footer.php'; ?>
 
