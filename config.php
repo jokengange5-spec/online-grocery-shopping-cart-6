@@ -1,9 +1,9 @@
 <?php
 
-$host = "dpg-d7ocn33bc2fs73basvog-a.singapore-postgres.render.com";
-$db_name = "online_shop_am8u";
-$username = "online_shop_am8u_user";
-$password = "OquhdogSYiICZFfiWPg0j0cbvume6VIY";
+$host = "dpg-d7p9sfpkh4rs73da47t0-a";
+$db_name = "online_shop_m071";
+$username = "online_shop";
+$password = "4n9SAIPuQoDJDY7IYxGdMUsPLwYUK18g";
 $port = "5432";
 
 try {
