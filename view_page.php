@@ -105,6 +105,7 @@ if(isset($_POST['add_to_cart'])){
       $select_products->execute([$pid]);
       if($select_products->rowCount() > 0){
          while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){ 
+            $current_item_name = $fetch_products['name']; // I-save ang ngalan para sa ML function
    ?>
    <form action="" class="box" method="POST">
       <div class="price">₱<span><?= $fetch_products['price']; ?></span>/-</div>
@@ -128,12 +129,46 @@ if(isset($_POST['add_to_cart'])){
 
 </section>
 
+<!-- MACHINE LEARNING RECOMMENDATION SECTION -->
+<section class="products" style="padding-top: 0;">
 
+   <?php
+      // I-call ang function gikan sa config.php
+      if(isset($current_item_name)){
+         $recommendations = getRecommendations($current_item_name, $conn);
 
+         if(!empty($recommendations)){
+            echo '<h1 class="title">Customers also bought:</h1>';
+            echo '<div class="box-container">';
+            
+            foreach($recommendations as $rec_name){
+               $select_rec = $conn->prepare("SELECT * FROM `products` WHERE name = ?");
+               $select_rec->execute([$rec_name]);
+               
+               while($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC)){
+   ?>
+               <form action="" method="POST" class="box">
+                  <a href="view_page.php?pid=<?= $fetch_rec['id']; ?>" class="fas fa-eye"></a>
+                  <div class="price">₱<span><?= $fetch_rec['price']; ?></span>/-</div>
+                  <img src="uploaded_img/<?= $fetch_rec['image']; ?>" alt="">
+                  <div class="name"><?= $fetch_rec['name']; ?></div>
+                  <input type="hidden" name="pid" value="<?= $fetch_rec['id']; ?>">
+                  <input type="hidden" name="p_name" value="<?= $fetch_rec['name']; ?>">
+                  <input type="hidden" name="p_price" value="<?= $fetch_rec['price']; ?>">
+                  <input type="hidden" name="p_image" value="<?= $fetch_rec['image']; ?>">
+                  <input type="number" min="1" value="1" name="p_qty" class="qty">
+                  <input type="submit" value="add to wishlist" class="option-btn" name="add_to_wishlist">
+                  <input type="submit" value="add to cart" class="btn" name="add_to_cart">
+               </form>
+   <?php
+               }
+            }
+            echo '</div>';
+         }
+      }
+   ?>
 
-
-
-
+</section>
 
 <?php include 'footer.php'; ?>
 
