@@ -117,7 +117,7 @@ $search_box = "";
 
 if(isset($_POST['search_box'])){
    $search_box = $_POST['search_box'];
-   $search_box = filter_var($search_box, FILTER_SANITIZE_STRING);
+  $search_box = htmlspecialchars($_POST['search_box'], ENT_QUOTES, 'UTF-8');
 }
 
 $select_products = $conn->prepare("
@@ -134,7 +134,7 @@ $select_products->execute(["%$search_box%", "%$search_box%"]);
 if(isset($_POST['search_btn'])){
 
    $search_box = $_POST['search_box'];
-   $search_box = filter_var($search_box, FILTER_SANITIZE_STRING);
+   $search_box = htmlspecialchars($_POST['search_box'], ENT_QUOTES, 'UTF-8');
 
    $select_products = $conn->prepare("SELECT * FROM products WHERE name LIKE ? OR category LIKE ?");
    $select_products->execute(["%$search_box%", "%$search_box%"]);
