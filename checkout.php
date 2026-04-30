@@ -13,13 +13,13 @@ if(!isset($user_id)){
 if(isset($_POST['order'])){
 
    $name = $_POST['name'];
-   $name = filter_var($name, FILTER_SANITIZE_STRING);
-   $number = $_POST['number'];
-   $number = filter_var($number, FILTER_SANITIZE_STRING);
-   $email = $_POST['email'];
-   $email = filter_var($email, FILTER_SANITIZE_STRING);
-   $method = $_POST['method'];
-   $method = filter_var($method, FILTER_SANITIZE_STRING);
+   // Imbes nga filter_var gamiton, gamita ni para mas simple:
+   $name = htmlspecialchars(trim($_POST['name']));
+   $number = htmlspecialchars(trim($_POST['number']));
+   $email = htmlspecialchars(trim($_POST['email']));
+   $method = htmlspecialchars(trim($_POST['method']));
+   $address = htmlspecialchars(trim($_POST['address']));
+   
    $address = 'flat no. '. $_POST['flat'] .' '. $_POST['street'] .' '. $_POST['city'] .' '. $_POST['state'] .' '. $_POST['country'] .' - '. $_POST['pin_code'];
    $address = filter_var($address, FILTER_SANITIZE_STRING);
    $placed_on = date('d-M-Y');
