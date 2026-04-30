@@ -1,6 +1,7 @@
 <?php
-
+ob_start(); // I-add ni sa pinaka-una gyud
 @include 'config.php';
+// ... ang uban nimong code
 session_start();
 
 if(isset($_POST['submit'])){
@@ -17,8 +18,14 @@ if(isset($_POST['submit'])){
    $folder = 'uploaded_img/'.$image;
 
    // ✔ CREATE FOLDER IF NOT EXIST
-   if(!is_dir('uploaded_img')){
-      mkdir('uploaded_img', 0777, true);
+// ✔ FOLDER PATH
+   $target_dir = 'uploaded_img/';
+   $folder = $target_dir . $image;
+
+   // ✔ SIGURADUHA NGA NAAY FOLDER UG NAAY PERMISSION
+   if(!is_dir($target_dir)){
+      mkdir($target_dir, 0777, true);
+      chmod($target_dir, 0777); // I-force ang permission sa 777
    }
 
    // ✔ CHECK USER EXISTS
