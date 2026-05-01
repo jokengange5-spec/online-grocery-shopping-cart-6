@@ -224,7 +224,6 @@ if(isset($_POST['update_qty'])){
          padding: 5rem 0;
       }
 
-      /* Recommendations Header */
       .rec-title {
          margin-top: 5rem;
          font-size: 2.5rem;
@@ -295,6 +294,7 @@ if(isset($_POST['update_qty'])){
    <?php
       $is_protein_present = false;
       
+      // I-check kung naay protein keywords
       if(!empty($all_cart_items)){
          foreach($all_cart_items as $item_name){
             $name_lower = strtolower($item_name);
@@ -305,22 +305,26 @@ if(isset($_POST['update_qty'])){
          }
       }
 
+      // Build logic for recommendations
+      $params = [];
+      $not_in = "";
+      if(!empty($all_cart_items)){
+         $not_in = " AND name NOT IN (" . str_repeat('?,', count($all_cart_items) - 1) . '?' . ")";
+         $params = $all_cart_items;
+      }
+
       if($is_protein_present){
+         // Kung naay protein, i-prioritize ang utanon ug prutas
          $query = "SELECT * FROM products WHERE 
                   (name LIKE '%onion%' OR name LIKE '%garlic%' OR name LIKE '%veg%' OR name LIKE '%cabbage%' OR name LIKE '%tomato%' OR
                    name LIKE '%apple%' OR name LIKE '%banana%' OR name LIKE '%orange%' OR name LIKE '%mango%' OR name LIKE '%fruit%') 
-                   AND name NOT IN (".str_repeat('?,', count($all_cart_items) - 1) . '?' .") 
+                   $not_in 
                    ORDER BY RANDOM() LIMIT 6";
-         
-         $params = [];
-         foreach($all_cart_items as $item) { $params[] = $item; }
-         
          $select_rec = $conn->prepare($query);
          $select_rec->execute($params);
       } else {
-         $not_in_clause = !empty($all_cart_items) ? "WHERE name NOT IN (".str_repeat('?,', count($all_cart_items) - 1) . '?)' : "";
-         $query = "SELECT * FROM products $not_in_clause ORDER BY RANDOM() LIMIT 6";
-         $params = !empty($all_cart_items) ? $all_cart_items : [];
+         // Default random products
+         $query = "SELECT * FROM products WHERE 1=1 $not_in ORDER BY RANDOM() LIMIT 6";
          $select_rec = $conn->prepare($query);
          $select_rec->execute($params);
       }
@@ -349,8 +353,8 @@ if(isset($_POST['update_qty'])){
                <input type="submit" value="Add to Cart" class="btn" name="add_to_cart" style="width:100%;">
             </form>
    <?php
-         } // Kani ang partner sa while loop
-      } // Kani ang partner sa if rowCount
+         } 
+      } 
    ?>
    </div>
 </section>
