@@ -289,7 +289,7 @@ if(isset($_POST['update_qty'])){
 <!-- RECOMMENDATIONS SECTION -->
 <?php if(!empty($all_cart_items)): ?>
 <section class="wishlist" style="padding-top: 0;">
-   <h2 class="rec-title">Customers Also Bought</h2>
+   <h2 class="rec-title">Related Products</h2>
    <div class="box-container" style="margin-top: 3rem;">
    <?php
          $base_product = $all_cart_items[0];
