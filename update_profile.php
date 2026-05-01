@@ -3,9 +3,10 @@
 @include 'config.php';
 session_start();
 
+// Logout logic
 if(isset($_GET['logout'])){
    session_destroy();
-   header('location:index.php');
+   header('location:login.php');
    exit;
 }
 
@@ -25,48 +26,42 @@ if(!$fetch_profile){
    exit;
 }
 
-/* UPDATE PROFILE */
+/* UPDATE PROFILE LOGIC */
 if(isset($_POST['update_profile'])){
 
-   $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
-   $email = filter_var($_POST['email'], FILTER_SANITIZE_STRING);
+   $name = htmlspecialchars($_POST['name']);
+   $email = htmlspecialchars($_POST['email']);
 
    $update_profile = $conn->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
    $update_profile->execute([$name, $email, $user_id]);
 
+   // Image Update
    if(!empty($_FILES['image']['name'])){
-
       $image = $_FILES['image']['name'];
       $image_size = $_FILES['image']['size'];
       $image_tmp_name = $_FILES['image']['tmp_name'];
       $image_folder = 'uploaded_img/'.$image;
 
       if($image_size > 2000000){
-         $message[] = 'Image too large!';
+         $message[] = 'Image is too large (max 2MB)!';
       }else{
          $update_image = $conn->prepare("UPDATE users SET image = ? WHERE id = ?");
          $update_image->execute([$image, $user_id]);
-
          move_uploaded_file($image_tmp_name, $image_folder);
-
-         if(!empty($fetch_profile['image'])){
-            unlink('uploaded_img/'.$fetch_profile['image']);
-         }
-
-         $message[] = 'Image updated successfully!';
+         $message[] = 'Profile picture updated!';
       }
    }
 
-   if(!empty($_POST['update_pass']) && !empty($_POST['new_pass']) && !empty($_POST['confirm_pass'])){
-
+   // Password Update
+   if(!empty($_POST['update_pass']) || !empty($_POST['new_pass'])){
       $old_pass = md5($_POST['update_pass']);
       $new_pass = md5($_POST['new_pass']);
       $confirm_pass = md5($_POST['confirm_pass']);
 
       if($old_pass != $fetch_profile['password']){
-         $message[] = 'Old password is wrong!';
+         $message[] = 'Old password does not match!';
       }elseif($new_pass != $confirm_pass){
-         $message[] = 'Password does not match!';
+         $message[] = 'Confirm password does not match!';
       }else{
          $update_pass_query = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
          $update_pass_query->execute([$confirm_pass, $user_id]);
@@ -74,128 +69,144 @@ if(isset($_POST['update_profile'])){
       }
    }
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Profile</title>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Update Profile - Joken's Grocery</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-<link rel="stylesheet" href="css/style.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+   
+   <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
-<style>
+      :root{
+         --primary-color: #2ecc71;
+         --secondary-color: #27ae60;
+         --red: #e74c3c;
+         --black: #2c3e50;
+         --white: #fff;
+         --light-bg: #f0f2f5;
+         --shadow: 0 .5rem 1rem rgba(0,0,0,.1);
+         --border: .1rem solid rgba(0,0,0,.1);
+      }
 
-/* BACKGROUND SAME VIBE AS SHOP */
-body{
-   background: #0f172a;
-   font-family: Arial;
-   color: #fff;
-}
+      body{
+         background-color: var(--light-bg);
+         font-family: 'Poppins', sans-serif;
+         margin: 0;
+      }
 
-/* TITLE LIKE SHOP HEADER */
-.title{
-   text-align:center;
-   font-size:28px;
-   margin:20px 0;
-   color:#00f5a0;
-}
+      .update-profile {
+         min-height: 100vh;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         padding: 2rem;
+      }
 
-/* CONTAINER */
-.update-profile{
-   padding:20px;
-}
+      .update-profile form {
+         width: 100%;
+         max-width: 800px;
+         background: var(--white);
+         padding: 3rem;
+         border-radius: 1.5rem;
+         box-shadow: var(--shadow);
+         text-align: center;
+      }
 
-/* FORM BOX LIKE PRODUCT CARD */
-form{
-   max-width:700px;
-   margin:0 auto;
-   background:#1e293b;
-   padding:20px;
-   border-radius:10px;
-}
+      .update-profile form .title {
+         font-size: 2.5rem;
+         color: var(--black);
+         margin-bottom: 2rem;
+         text-transform: uppercase;
+         font-weight: 600;
+      }
 
-/* IMAGE */
-form img{
-   display:block;
-   margin:0 auto 15px;
-   width:120px;
-   height:120px;
-   border-radius:50%;
-   border:3px solid #00f5a0;
-}
+      .update-profile form img {
+         height: 150px;
+         width: 150px;
+         border-radius: 50%;
+         object-fit: cover;
+         margin-bottom: 1rem;
+         border: 5px solid var(--primary-color);
+         padding: 5px;
+      }
 
-/* INPUT STYLE */
-.inputBox{
-   margin-bottom:15px;
-}
+      /* Flexbox for Input Columns */
+      .flex {
+         display: flex;
+         flex-wrap: wrap;
+         gap: 2rem;
+         text-align: left;
+      }
 
-.inputBox span{
-   display:block;
-   margin:8px 0 5px;
-   color:#cbd5e1;
-}
+      .flex .inputBox {
+         flex: 1 1 35rem;
+      }
 
-.box{
-   width:100%;
-   padding:10px;
-   border-radius:5px;
-   border:none;
-   outline:none;
-   background:#334155;
-   color:#fff;
-}
+      .flex .inputBox span {
+         display: block;
+         font-size: 1.5rem;
+         color: #666;
+         margin: 1rem 0;
+      }
 
-/* BUTTON STYLE SAME AS SHOP BTN */
-.btn{
-   width:100%;
-   padding:12px;
-   background:#00f5a0;
-   border:none;
-   color:#000;
-   font-weight:bold;
-   border-radius:5px;
-   cursor:pointer;
-   margin-top:10px;
-}
+      .flex .inputBox .box {
+         width: 100%;
+         padding: 1.2rem 1.4rem;
+         font-size: 1.6rem;
+         border-radius: .5rem;
+         background: var(--light-bg);
+         border: var(--border);
+         color: var(--black);
+      }
 
-.btn:hover{
-   background:#00d9f5;
-}
+      .btn-container {
+         margin-top: 2rem;
+         display: flex;
+         gap: 1rem;
+         justify-content: center;
+         flex-wrap: wrap;
+      }
 
-/* OPTION BUTTON */
-.option-btn{
-   display:block;
-   text-align:center;
-   margin-top:10px;
-   padding:10px;
-   background:#475569;
-   color:#fff;
-   text-decoration:none;
-   border-radius:5px;
-}
+      .btn, .option-btn, .logout-btn {
+         padding: 1.2rem 3rem;
+         font-size: 1.6rem;
+         border-radius: .5rem;
+         cursor: pointer;
+         border: none;
+         text-decoration: none;
+         color: var(--white);
+         transition: .3s;
+      }
 
-/* LOGOUT LIKE SHOP BUTTON */
-.logout{
-   display:block;
-   text-align:center;
-   margin:20px auto;
-   width:200px;
-   padding:12px;
-   background:#ff4b2b;
-   color:#fff;
-   text-decoration:none;
-   border-radius:5px;
-}
+      .btn { background: var(--primary-color); }
+      .btn:hover { background: var(--secondary-color); }
 
-.logout:hover{
-   background:#ff416c;
-}
+      .option-btn { background: var(--black); }
+      .option-btn:hover { background: #1a252f; }
 
-</style>
+      .logout-btn { background: var(--red); }
+      .logout-btn:hover { background: #c0392b; }
 
+      .message {
+         background: #d4edda;
+         color: #155724;
+         padding: 1rem;
+         margin-bottom: 2rem;
+         border-radius: .5rem;
+         font-size: 1.6rem;
+      }
+
+      @media (max-width: 768px) {
+         .update-profile form { padding: 2rem; }
+      }
+   </style>
 </head>
 <body>
 
@@ -203,55 +214,46 @@ form img{
 
 <section class="update-profile">
 
-<h1 class="title">⚡ My Profile Dashboard</h1>
+   <form action="" method="POST" enctype="multipart/form-data">
+      
+      <h1 class="title">Update My Profile</h1>
 
-<form method="POST" enctype="multipart/form-data">
+      <!-- Profile Image Display -->
+      <?php if(!empty($fetch_profile['image'])): ?>
+         <img src="uploaded_img/<?= $fetch_profile['image']; ?>" alt="Profile Picture">
+      <?php else: ?>
+         <img src="images/default-avatar.png" alt="Default Avatar">
+      <?php endif; ?>
 
-   <img src="uploaded_img/<?= $fetch_profile['image']; ?>">
+      <div class="flex">
+         <!-- Personal Info Column -->
+         <div class="inputBox">
+            <span>Username :</span>
+            <input type="text" name="name" value="<?= $fetch_profile['name']; ?>" class="box" required>
+            <span>Email :</span>
+            <input type="email" name="email" value="<?= $fetch_profile['email']; ?>" class="box" required>
+            <span>Update Photo :</span>
+            <input type="file" name="image" accept="image/jpg, image/jpeg, image/png" class="box">
+         </div>
 
-   <div class="inputBox">
-      <span>Username</span>
-      <input type="text" name="name" value="<?= $fetch_profile['name']; ?>" class="box">
-   </div>
+         <!-- Password Update Column -->
+         <div class="inputBox">
+            <span>Old Password :</span>
+            <input type="password" name="update_pass" placeholder="Enter old password" class="box">
+            <span>New Password :</span>
+            <input type="password" name="new_pass" placeholder="Enter new password" class="box">
+            <span>Confirm Password :</span>
+            <input type="password" name="confirm_pass" placeholder="Confirm new password" class="box">
+         </div>
+      </div>
 
-   <div class="inputBox">
-      <span>Email</span>
-      <input type="email" name="email" value="<?= $fetch_profile['email']; ?>" class="box">
-   </div>
+      <div class="btn-container">
+         <input type="submit" name="update_profile" value="Save Changes" class="btn">
+         <a href="home.php" class="option-btn">Back to Home</a>
+         <a href="update_profile.php?logout=1" class="logout-btn" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
+      </div>
 
-   <div class="inputBox">
-      <span>Update Image</span>
-      <input type="file" name="image" class="box">
-   </div>
-
-   <input type="hidden" name="old_pass" value="<?= $fetch_profile['password']; ?>">
-
-   <div class="inputBox">
-      <span>Old Password</span>
-      <input type="password" name="update_pass" class="box">
-   </div>
-
-   <div class="inputBox">
-      <span>New Password</span>
-      <input type="password" name="new_pass" class="box">
-   </div>
-
-   <div class="inputBox">
-      <span>Confirm Password</span>
-      <input type="password" name="confirm_pass" class="box">
-   </div>
-
-   <input type="submit" name="update_profile" value="Update Profile" class="btn">
-
-   <a href="home.php" class="option-btn">Go Back</a>
-
-</form>
-
-<a href="update_profile.php?logout=1"
-   class="logout"
-   onclick="return confirm('Logout now?');">
-   Logout
-</a>
+   </form>
 
 </section>
 
@@ -259,5 +261,3 @@ form img{
 
 </body>
 </html>
-
-
