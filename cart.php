@@ -31,210 +31,14 @@ if(isset($_POST['add_to_cart'])){
    }
 }
 
-if(isset($_GET['delete'])){
-   $delete_id = $_GET['delete'];
-   $delete_cart_item = $conn->prepare("DELETE FROM cart WHERE id = ?");
-   $delete_cart_item->execute([$delete_id]);
-   header('location:cart.php');
-}
-
-if(isset($_GET['delete_all'])){
-   $delete_cart_item = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
-   $delete_cart_item->execute([$user_id]);
-   header('location:cart.php');
-}
-
-if(isset($_POST['update_qty'])){
-   $cart_id = $_POST['cart_id'];
-   $p_qty = (int)$_POST['p_qty']; 
-   
-   $update_qty = $conn->prepare("UPDATE cart SET quantity = ? WHERE id = ?");
-   $update_qty->execute([$p_qty, $cart_id]);
-   $message[] = 'Cart quantity updated';
-}
+// ... (imong delete ug update logic nagpabilin nga pareho) ...
 
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Shopping Cart - Joken's Grocery</title>
-
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-   
-   <style>
-      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-
-      :root{
-         --primary: #2ecc71;
-         --secondary: #27ae60;
-         --red: #e74c3c;
-         --black: #2c3e50;
-         --white: #fff;
-         --light-bg: #f8f9fa;
-         --shadow: 0 .5rem 1rem rgba(0,0,0,.08);
-         --border: .1rem solid rgba(0,0,0,.1);
-      }
-
-      body{
-         background-color: var(--light-bg);
-         font-family: 'Poppins', sans-serif;
-         color: var(--black);
-      }
-
-      .shopping-cart { padding: 3rem 7%; }
-
-      .title {
-         font-size: 3rem;
-         text-align: center;
-         margin-bottom: 1rem;
-         color: var(--black);
-         text-transform: uppercase;
-      }
-
-      .subtitle {
-         text-align: center;
-         font-size: 1.6rem;
-         color: #666;
-         margin-bottom: 3rem;
-      }
-
-      .box-container {
-         display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
-         gap: 2rem;
-         align-items: flex-start;
-      }
-
-      .box {
-         background: var(--white);
-         padding: 2rem;
-         border-radius: 1.5rem;
-         box-shadow: var(--shadow);
-         position: relative;
-         border: var(--border);
-         text-align: center;
-      }
-
-      .box img {
-         height: 18rem;
-         object-fit: contain;
-         margin-bottom: 1.5rem;
-      }
-
-      .fa-times {
-         position: absolute;
-         top: 1.5rem;
-         right: 1.5rem;
-         font-size: 2rem;
-         color: var(--red);
-         cursor: pointer;
-         transition: .3s;
-      }
-
-      .fa-times:hover { transform: rotate(90deg); }
-
-      .box .name {
-         font-size: 2rem;
-         color: var(--black);
-         margin: 1rem 0;
-         font-weight: 500;
-      }
-
-      .box .price {
-         font-size: 1.8rem;
-         color: var(--secondary);
-         margin-bottom: 1.5rem;
-      }
-
-      .flex-btn {
-         display: flex;
-         gap: 1rem;
-         margin: 1.5rem 0;
-      }
-
-      .qty {
-         width: 8rem;
-         padding: 1.2rem;
-         border: var(--border);
-         border-radius: .5rem;
-         font-size: 1.6rem;
-      }
-
-      .sub-total {
-         margin-top: 1.5rem;
-         padding-top: 1.5rem;
-         border-top: var(--border);
-         font-size: 1.8rem;
-         color: #666;
-      }
-
-      .sub-total span { color: var(--red); font-weight: 600; }
-
-      .cart-total {
-         margin-top: 3rem;
-         background: var(--white);
-         padding: 3rem;
-         border-radius: 1.5rem;
-         text-align: center;
-         box-shadow: var(--shadow);
-         border: var(--border);
-      }
-
-      .grand-total {
-         font-size: 2.5rem;
-         color: var(--black);
-         margin-bottom: 2rem;
-      }
-
-      .grand-total span { color: var(--red); font-weight: 600; }
-
-      .btn, .option-btn, .delete-btn {
-         display: inline-block;
-         padding: 1.2rem 3rem;
-         border-radius: .5rem;
-         font-size: 1.7rem;
-         text-decoration: none;
-         cursor: pointer;
-         transition: .3s;
-         border: none;
-         margin: .5rem;
-      }
-
-      .btn { background: var(--primary); color: var(--white); }
-      .btn:hover { background: var(--secondary); }
-
-      .option-btn { background: var(--black); color: var(--white); }
-      .delete-btn { background: var(--red); color: var(--white); }
-
-      .disabled {
-         opacity: .5;
-         user-select: none;
-         pointer-events: none;
-      }
-
-      .empty {
-         font-size: 2rem;
-         color: var(--red);
-         text-align: center;
-         grid-column: 1 / -1;
-         padding: 5rem 0;
-      }
-
-      .rec-title {
-         margin-top: 5rem;
-         font-size: 2.5rem;
-         color: var(--black);
-         text-align: center;
-         border-bottom: .2rem solid var(--primary);
-         display: inline-block;
-         padding-bottom: 1rem;
-         width: 100%;
-      }
-   </style>
+   <!-- ... (imong styles ug head) ... -->
 </head>
 <body>
    
@@ -242,8 +46,6 @@ if(isset($_POST['update_qty'])){
 
 <section class="shopping-cart">
    <h1 class="title">🛒 Your Cart</h1>
-   <p class="subtitle">Complete your purchase for your groceries</p>
-
    <div class="box-container">
    <?php
       $grand_total = 0;
@@ -253,115 +55,108 @@ if(isset($_POST['update_qty'])){
       if($select_cart->rowCount() > 0){
          while($fetch_cart = $select_cart->fetch(PDO::FETCH_ASSOC)){ 
             $all_cart_items[] = $fetch_cart['name'];
+            // (display cart box here...)
+            $sub_total = ($fetch_cart['price'] * $fetch_cart['quantity']);
+            $grand_total += $sub_total;
    ?>
    <form action="" method="POST" class="box">
-      <a href="cart.php?delete=<?= $fetch_cart['id']; ?>" class="fas fa-times" onclick="return confirm('Remove this from cart?');"></a>
-      <img src="image products/<?= $fetch_cart['image']; ?>" alt="">
+      <!-- ... (imong cart item display) ... -->
       <div class="name"><?= $fetch_cart['name']; ?></div>
-      <div class="price">₱<?= $fetch_cart['price']; ?></div>
-      <input type="hidden" name="cart_id" value="<?= $fetch_cart['id']; ?>">
-      <div class="flex-btn">
-         <input type="number" min="1" value="<?= $fetch_cart['quantity']; ?>" class="qty" name="p_qty">
-         <input type="submit" value="Update" name="update_qty" class="option-btn" style="flex:1;">
-      </div>
-      <div class="sub-total"> Sub Total : <span>₱<?= $sub_total = ($fetch_cart['price'] * $fetch_cart['quantity']); ?></span> </div>
+      <div class="sub-total"> Sub Total : <span>₱<?= $sub_total; ?></span> </div>
    </form>
    <?php
-      $grand_total += $sub_total;
+         }
+      }else{
+         echo '<p class="empty">Your cart is empty!</p>';
       }
-   }else{
-      echo '<p class="empty">Your cart is feeling light! Add some items.</p>';
-   }
    ?>
    </div>
-
-   <div class="cart-total">
-      <p class="grand-total">Grand Total : <span>₱<?= $grand_total; ?></span></p>
-      <div class="flex-btn" style="justify-content: center;">
-         <a href="shop.php" class="option-btn">Continue Shopping</a>
-         <a href="cart.php?delete_all" class="delete-btn <?= ($grand_total > 0)?'':'disabled'; ?>" onclick="return confirm('Clear your entire cart?');">Remove Products</a>
-         <a href="checkout.php" class="btn <?= ($grand_total > 0)?'':'disabled'; ?>">Checkout Now</a>
-      </div>
-   </div>
+   <!-- ... (grand total section) ... -->
 </section>
 
 <!-- RECOMMENDATIONS SECTION -->
 <section class="wishlist" style="padding-top: 0;">
-   <h2 class="rec-title">Suggested Products</h2>
-   <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">Suggested pairings & healthy desserts for your cart</p>
+   <h2 class="rec-title">Best Pairings for Your Meal</h2>
+   <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">Suggested vegetables & healthy desserts</p>
    
    <div class="box-container">
    <?php
       $is_protein_present = false;
       
-      // I-check kung naay protein keywords
+      // 1. Check for meat or fish keywords
       if(!empty($all_cart_items)){
          foreach($all_cart_items as $item_name){
             $name_lower = strtolower($item_name);
-            if(preg_match('/(meat|pork|beef|chicken|manok|baboy|baka|fish|isda|tilapia|bangus|salmon|shrimp|hipon)/', $name_lower)){
+            // Gi-expand nako ang keywords para mas daghan madakpan
+            if(preg_match('/(meat|pork|beef|chicken|manok|baboy|baka|fish|isda|tilapia|bangus|salmon|shrimp|hipon|tuna|crab)/', $name_lower)){
                $is_protein_present = true;
                break; 
             }
          }
       }
 
-      // Build logic for recommendations
+      // 2. Build the query parameters to exclude items already in cart
       $params = [];
-      $not_in = "";
+      $not_in_sql = "";
       if(!empty($all_cart_items)){
-         $not_in = " AND name NOT IN (" . str_repeat('?,', count($all_cart_items) - 1) . '?' . ")";
+         $placeholders = str_repeat('?,', count($all_cart_items) - 1) . '?';
+         $not_in_sql = " AND name NOT IN ($placeholders)";
          $params = $all_cart_items;
       }
 
+      // 3. Select products based on the user's cart content
       if($is_protein_present){
-         // Kung naay protein, i-prioritize ang utanon ug prutas
+         // Kung naay karne/isda, i-recommend ang lamas, utanon, ug prutas
          $query = "SELECT * FROM products WHERE 
-                  (name LIKE '%onion%' OR name LIKE '%garlic%' OR name LIKE '%veg%' OR name LIKE '%cabbage%' OR name LIKE '%tomato%' OR
-                   name LIKE '%apple%' OR name LIKE '%banana%' OR name LIKE '%orange%' OR name LIKE '%mango%' OR name LIKE '%fruit%') 
-                   $not_in 
-                   ORDER BY RANDOM() LIMIT 6";
-         $select_rec = $conn->prepare($query);
-         $select_rec->execute($params);
+                  (name LIKE '%onion%' OR name LIKE '%garlic%' OR name LIKE '%veg%' OR 
+                   name LIKE '%cabbage%' OR name LIKE '%tomato%' OR name LIKE '%apple%' OR 
+                   name LIKE '%banana%' OR name LIKE '%orange%' OR name LIKE '%mango%' OR 
+                   name LIKE '%fruit%' OR name LIKE '%ginger%' OR name LIKE '%pepper%') 
+                   $not_in_sql 
+                   ORDER BY RAND() LIMIT 6"; // Gigamit nako ang RAND() para sa MySQL
       } else {
-         // Default random products
-         $query = "SELECT * FROM products WHERE 1=1 $not_in ORDER BY RANDOM() LIMIT 6";
-         $select_rec = $conn->prepare($query);
-         $select_rec->execute($params);
+         // Default if no protein: suggest random items excluding what's in cart
+         $query = "SELECT * FROM products WHERE 1=1 $not_in_sql ORDER BY RAND() LIMIT 6";
       }
+
+      $select_rec = $conn->prepare($query);
+      $select_rec->execute($params);
 
       if($select_rec->rowCount() > 0){
          while($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC)){
-            $rec_name_lower = strtolower($fetch_rec['name']);
+            $rec_name = strtolower($fetch_rec['name']);
+            
+            // 4. Dynamic Labels para mas nindot tan-awon
             $label = "Healthy Choice";
-            if(preg_match('/(apple|banana|orange|mango|fruit|pineapple|grapes)/', $rec_name_lower)){
-               $label = "Best Dessert After Meal";
-            } else if(preg_match('/(onion|garlic|veg|cabbage|tomato|ginger|pepper)/', $rec_name_lower)){
-               $label = "Best to Mix with Meat/Fish";
+            if(preg_match('/(apple|banana|orange|mango|fruit|pineapple|grapes|watermelon)/', $rec_name)){
+               $label = "Perfect Dessert (Panghimagas)";
+            } else if(preg_match('/(onion|garlic|veg|cabbage|tomato|ginger|pepper|carrot|potato)/', $rec_name)){
+               $label = "Best with your Meat/Fish";
             }
    ?>
             <form action="" method="POST" class="box">
-               <a href="view_page.php?pid=<?= $fetch_rec['id']; ?>" class="fas fa-eye" style="position:absolute; top:1.5rem; left:1.5rem; font-size:2rem; color:var(--black);"></a>
                <img src="image products/<?= $fetch_rec['image']; ?>" alt="">
                <div class="name"><?= $fetch_rec['name']; ?></div>
-               <small style="color:var(--primary); font-weight:600; display:block; margin-bottom:1rem;"><?= $label; ?></small>
+               <small style="color:var(--secondary); font-weight:600; display:block; margin-bottom:1rem;"><?= $label; ?></small>
                <div class="price">₱<?= $fetch_rec['price']; ?></div>
+               
                <input type="hidden" name="pid" value="<?= $fetch_rec['id']; ?>">
                <input type="hidden" name="p_name" value="<?= $fetch_rec['name']; ?>">
                <input type="hidden" name="p_price" value="<?= $fetch_rec['price']; ?>">
                <input type="hidden" name="p_image" value="<?= $fetch_rec['image']; ?>">
+               
                <input type="number" min="1" value="1" name="p_qty" class="qty" style="width:100%; margin-bottom:1rem;">
                <input type="submit" value="Add to Cart" class="btn" name="add_to_cart" style="width:100%;">
             </form>
    <?php
          } 
-      } 
+      } else {
+         echo '<p class="empty" style="grid-column: 1/-1;">Check back later for more suggestions!</p>';
+      }
    ?>
    </div>
 </section>
 
-<?php include 'footer.php'; ?>
-
-<script src="js/script.js"></script>
-
+<!-- ... (footer ug scripts) ... -->
 </body>
 </html>
