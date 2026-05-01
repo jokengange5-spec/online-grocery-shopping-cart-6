@@ -139,7 +139,7 @@ if(isset($_POST['add_to_cart'])){
       }
 
       .box img {
-         height: 18rem;
+         height: 13rem;
          width: 100%;
          object-fit: contain;
          margin-bottom: 1rem;
