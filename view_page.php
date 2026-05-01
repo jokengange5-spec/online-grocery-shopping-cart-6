@@ -106,7 +106,7 @@ if(isset($_POST['add_to_cart'])){
             $current_item_name = $fetch_products['name']; 
    ?>
    <form action="" class="box" method="POST">
-      <div class="price">₱<span><?= $fetch_products['price']; ?></span>/-</div>
+      <div class="price">₱<span><?= $fetch_products['price']; ?></span></div>
       <img src="image products/<?= $fetch_products['image']; ?>" alt="">
       <div class="name"><?= $fetch_products['name']; ?></div>
       <div class="details"><?= $fetch_products['details']; ?></div>
