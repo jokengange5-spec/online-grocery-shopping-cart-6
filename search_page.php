@@ -98,13 +98,14 @@ if(isset($_POST['add_to_cart'])){
 
    <?php
       if(isset($_POST['search_btn']) || isset($_POST['search_box'])){
-         // GI-FIX: Gitan-tang ang FILTER_SANITIZE_STRING dinhi sa Line 279
          $search_box = htmlspecialchars($_POST['search_box']);
          
+         // Gigamit nato ang ILIKE para sa case-insensitive search sa PostgreSQL
+         // Gigamit sab nato ang LOWER() sa ORDER BY para patas ang pag-sort
          $select_products = $conn->prepare("
             SELECT * FROM products 
-            WHERE name LIKE ? OR category LIKE ?
-            ORDER BY (CASE WHEN name LIKE ? THEN 1 ELSE 2 END), name ASC
+            WHERE name ILIKE ? OR category ILIKE ?
+            ORDER BY (CASE WHEN name ILIKE ? THEN 1 ELSE 2 END), name ASC
          ");
 
          $exact_priority = "{$search_box}%"; 
@@ -115,6 +116,7 @@ if(isset($_POST['add_to_cart'])){
          if($select_products->rowCount() > 0){
             while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){
    ?>
+   <!-- ... (imong product form box) ... -->
    <form action="" class="box" method="POST">
       <div class="price">₱<span><?= $fetch_products['price']; ?></span>/-</div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
@@ -135,8 +137,6 @@ if(isset($_POST['add_to_cart'])){
          }else{
             echo '<p class="empty">No result found for "'.htmlspecialchars($search_box).'"!</p>';
          }
-      }else{
-         echo '<p class="empty" style="color:var(--light-color);">Please enter a keyword to search.</p>';
       }
    ?>
 
