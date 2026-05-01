@@ -295,11 +295,9 @@ if(isset($_POST['update_qty'])){
    <?php
       $is_protein_present = false;
       
-      // 1. I-CHECK KUNG NAA BA'Y KARNE O ISDA SA CART
       if(!empty($all_cart_items)){
          foreach($all_cart_items as $item_name){
             $name_lower = strtolower($item_name);
-            // Keywords para sa Meat ug Fish
             if(preg_match('/(meat|pork|beef|chicken|manok|baboy|baka|fish|isda|tilapia|bangus|salmon|shrimp|hipon)/', $name_lower)){
                $is_protein_present = true;
                break; 
@@ -307,10 +305,7 @@ if(isset($_POST['update_qty'])){
          }
       }
 
-      // 2. FETCH RECOMMENDATIONS
       if($is_protein_present){
-         // Mangita ta og keywords para sa Vegetables (pang-sagol) ug Fruits (pang-himagas)
-         // Gigamit nato ang LIMIT 6 para naay variety (e.g. 3 veggies, 3 fruits)
          $query = "SELECT * FROM products WHERE 
                   (name LIKE '%onion%' OR name LIKE '%garlic%' OR name LIKE '%veg%' OR name LIKE '%cabbage%' OR name LIKE '%tomato%' OR
                    name LIKE '%apple%' OR name LIKE '%banana%' OR name LIKE '%orange%' OR name LIKE '%mango%' OR name LIKE '%fruit%') 
@@ -323,10 +318,9 @@ if(isset($_POST['update_qty'])){
          $select_rec = $conn->prepare($query);
          $select_rec->execute($params);
       } else {
-         // Kung walay meat, magpakita lang og random products
-         $query = "SELECT * FROM products WHERE name NOT IN (".str_repeat('?,', count($all_cart_items) - 1) . '?' .") ORDER BY RANDOM() LIMIT 6";
-         $params = [];
-         foreach($all_cart_items as $item) { $params[] = $item; }
+         $not_in_clause = !empty($all_cart_items) ? "WHERE name NOT IN (".str_repeat('?,', count($all_cart_items) - 1) . '?)' : "";
+         $query = "SELECT * FROM products $not_in_clause ORDER BY RANDOM() LIMIT 6";
+         $params = !empty($all_cart_items) ? $all_cart_items : [];
          $select_rec = $conn->prepare($query);
          $select_rec->execute($params);
       }
@@ -334,7 +328,6 @@ if(isset($_POST['update_qty'])){
       if($select_rec->rowCount() > 0){
          while($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC)){
             $rec_name_lower = strtolower($fetch_rec['name']);
-            // E-determine kung fruit ba o veg ang gi-recommend para sa gamay nga label
             $label = "Healthy Choice";
             if(preg_match('/(apple|banana|orange|mango|fruit|pineapple|grapes)/', $rec_name_lower)){
                $label = "Best Dessert After Meal";
@@ -342,30 +335,25 @@ if(isset($_POST['update_qty'])){
                $label = "Best to Mix with Meat/Fish";
             }
    ?>
-               <form action="" method="POST" class="box">
-                  <a href="view_page.php?pid=<?= $fetch_rec['id']; ?>" class="fas fa-eye" style="position:absolute; top:1.5rem; left:1.5rem; font-size:2rem; color:var(--black);"></a>
-                  <img src="image products/<?= $fetch_rec['image']; ?>" alt="">
-                  <div class="name"><?= $fetch_rec['name']; ?></div>
-                  <small style="color:var(--primary); font-weight:600; display:block; margin-bottom:1rem;"><?= $label; ?></small>
-                  <div class="price">₱<?= $fetch_rec['price']; ?></div>
-                  <input type="hidden" name="pid" value="<?= $fetch_rec['id']; ?>">
-                  <input type="hidden" name="p_name" value="<?= $fetch_rec['name']; ?>">
-                  <input type="hidden" name="p_price" value="<?= $fetch_rec['price']; ?>">
-                  <input type="hidden" name="p_image" value="<?= $fetch_rec['image']; ?>">
-                  <input type="number" min="1" value="1" name="p_qty" class="qty" style="width:100%; margin-bottom:1rem;">
-                  <input type="submit" value="Add to Cart" class="btn" name="add_to_cart" style="width:100%;">
-               </form>
+            <form action="" method="POST" class="box">
+               <a href="view_page.php?pid=<?= $fetch_rec['id']; ?>" class="fas fa-eye" style="position:absolute; top:1.5rem; left:1.5rem; font-size:2rem; color:var(--black);"></a>
+               <img src="image products/<?= $fetch_rec['image']; ?>" alt="">
+               <div class="name"><?= $fetch_rec['name']; ?></div>
+               <small style="color:var(--primary); font-weight:600; display:block; margin-bottom:1rem;"><?= $label; ?></small>
+               <div class="price">₱<?= $fetch_rec['price']; ?></div>
+               <input type="hidden" name="pid" value="<?= $fetch_rec['id']; ?>">
+               <input type="hidden" name="p_name" value="<?= $fetch_rec['name']; ?>">
+               <input type="hidden" name="p_price" value="<?= $fetch_rec['price']; ?>">
+               <input type="hidden" name="p_image" value="<?= $fetch_rec['image']; ?>">
+               <input type="number" min="1" value="1" name="p_qty" class="qty" style="width:100%; margin-bottom:1rem;">
+               <input type="submit" value="Add to Cart" class="btn" name="add_to_cart" style="width:100%;">
+            </form>
    <?php
-         }
-      } else {
-         echo '<p class="empty">Check out our fresh arrivals!</p>';
-      }
-  } // Kini ang panapos sa while($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC))
-  ?>
+         } // Kani ang partner sa while loop
+      } // Kani ang partner sa if rowCount
+   ?>
    </div>
 </section>
-
-<!-- I-DELETE ANG <?php //endif; ?> DINHI NGA LINE -->
 
 <?php include 'footer.php'; ?>
 
