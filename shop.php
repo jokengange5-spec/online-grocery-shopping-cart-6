@@ -9,7 +9,7 @@ if(!$user_id){
    exit;
 }
 
-/* ADD TO WISHLIST */
+/* ADD TO WISHLIST & CART LOGIC (Kabilin sa imong original code) */
 if(isset($_POST['add_to_wishlist'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
    $p_name = htmlspecialchars(trim($_POST['p_name']));
@@ -23,18 +23,16 @@ if(isset($_POST['add_to_wishlist'])){
    $check_cart->execute([$p_name, $user_id]);
 
    if($check->rowCount() > 0){
-      $message[] = 'already added to wishlist!';
+      $message[] = 'Already added to wishlist!';
    }elseif($check_cart->rowCount() > 0){
-      $message[] = 'already added to cart!';
+      $message[] = 'Already added to cart!';
    }else{
-      // Use DEFAULT for the id column
       $insert = $conn->prepare("INSERT INTO wishlist(id, user_id, pid, name, price, image) VALUES(DEFAULT, ?, ?, ?, ?, ?)");
       $insert->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
-      $message[] = 'added to wishlist!';
+      $message[] = 'Added to wishlist!';
    }
 }
 
-/* ADD TO CART */
 if(isset($_POST['add_to_cart'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
    $p_name = htmlspecialchars(trim($_POST['p_name']));
@@ -46,59 +44,186 @@ if(isset($_POST['add_to_cart'])){
    $check->execute([$p_name, $user_id]);
 
    if($check->rowCount() > 0){
-      $message[] = 'already added to cart!';
+      $message[] = 'Already added to cart!';
    }else{
       $delete_wish = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
       $delete_wish->execute([$p_name, $user_id]);
-
-      // Use DEFAULT for the id column
       $insert = $conn->prepare("INSERT INTO cart(id, user_id, pid, name, price, quantity, image) VALUES(DEFAULT, ?, ?, ?, ?, ?, ?)");
       $insert->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-
-      $message[] = 'added to cart!';
+      $message[] = 'Added to cart!';
    }
-} // Kani nga bracket ang nagsira sa 'if(isset($_POST["add_to_cart"]))'
+}
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Modern Grocery Shop</title>
    
+   <!-- Google Fonts & Font Awesome -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+   
+   <style>
+      :root{
+         --green: #27ae60;
+         --black: #333;
+         --white: #fff;
+         --light-bg: #f6f6f6;
+         --border: 1px solid #ddd;
+         --shadow: 0 .5rem 1rem rgba(0,0,0,.1);
+      }
+
+      body {
+         background-color: var(--light-bg);
+         font-family: 'Poppins', sans-serif;
+         margin: 0;
+         padding: 0;
+      }
+
+      /* Category Section */
+      .p-category {
+         display: flex;
+         justify-content: center;
+         gap: 1.5rem;
+         padding: 2rem;
+         flex-wrap: wrap;
+         background: var(--white);
+      }
+
+      .p-category a {
+         padding: 1rem 2rem;
+         background: var(--white);
+         border: var(--border);
+         color: var(--black);
+         text-decoration: none;
+         border-radius: .5rem;
+         font-size: 1.1rem;
+         transition: .3s;
+      }
+
+      .p-category a:hover {
+         background: var(--green);
+         color: var(--white);
+      }
+
+      /* Products Section */
+      .products {
+         padding: 2rem 5%;
+      }
+
+      .products .title {
+         text-align: center;
+         margin-bottom: 2rem;
+         font-size: 2.5rem;
+         color: var(--black);
+      }
+
+      .box-container {
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive Grid */
+         gap: 1.5rem;
+         justify-content: center;
+      }
+
+      .box {
+         background: var(--white);
+         padding: 1.5rem;
+         border-radius: 1rem;
+         border: var(--border);
+         box-shadow: var(--shadow);
+         position: relative;
+         text-align: center;
+         overflow: hidden;
+      }
+
+      .box img {
+         height: 18rem;
+         width: 100%;
+         object-fit: contain;
+         margin-bottom: 1rem;
+      }
+
+      .box .price {
+         position: absolute;
+         top: 1rem; left: 1rem;
+         background: var(--green);
+         color: var(--white);
+         padding: .5rem 1rem;
+         border-radius: .5rem;
+         font-size: 1.2rem;
+      }
+
+      .box .fa-eye {
+         position: absolute;
+         top: 1rem; right: 1rem;
+         height: 3.5rem; width: 3.5rem;
+         line-height: 3.5rem;
+         border: var(--border);
+         border-radius: .5rem;
+         color: var(--black);
+         text-decoration: none;
+         background: var(--white);
+      }
+
+      .box .name {
+         font-size: 1.5rem;
+         color: var(--black);
+         margin: 1rem 0;
+      }
+
+      .box .qty {
+         width: 100%;
+         padding: 1rem;
+         border: var(--border);
+         border-radius: .5rem;
+         margin-bottom: 1rem;
+      }
+
+      /* Buttons */
+      .btn, .option-btn {
+         width: 100%;
+         display: block;
+         padding: 1rem;
+         border-radius: .5rem;
+         cursor: pointer;
+         font-size: 1.1rem;
+         border: none;
+         margin-top: .5rem;
+         transition: .3s;
+      }
+
+      .btn { background: var(--green); color: var(--white); }
+      .btn:hover { background: var(--black); }
+
+      .option-btn { background: #f39c12; color: var(--white); }
+      .option-btn:hover { background: var(--black); }
+
+      /* Mobile Adjustments */
+      @media (max-width: 450px) {
+         .box-container {
+            grid-template-columns: 1fr; /* Isa ka column sa gamay nga cellphone */
+         }
+         .products .title { font-size: 2rem; }
+      }
+   </style>
+</head>
+<body>
+
 <?php include 'header.php'; ?>
-<!-- CATEGORY SECTION (TOP) -->
+
 <section class="p-category">
-  
-
-   <a href="category.php?category=fruits">Fruits</a>
-   <a href="category.php?category=vegetables">Vegetables</a>
-   <a href="category.php?category=fish">Fish</a>
-   <a href="category.php?category=meat">Meat</a>
-
+   <a href="category.php?category=fruits">🍎 Fruits</a>
+   <a href="category.php?category=vegetables">🥦 Vegetables</a>
+   <a href="category.php?category=fish">🐟 Fish</a>
+   <a href="category.php?category=meat">🥩 Meat</a>
 </section>
 
-<!-- PRODUCTS SECTION (BELOW) -->
 <section class="products">
    <h1 class="title">🛍️ Latest Products</h1>
 
-   <div class="product-container">
-
-   <?php
-      // SAMPLE PRODUCTS (you can replace later with database)
-      
-?>
-
-
-
-
-      
-   </div>
-
-</section>
-
-
-<section class="products">
-
-   
-
    <div class="box-container">
-
    <?php
       $select_products = $conn->prepare("SELECT * FROM products");
       $select_products->execute();
@@ -108,37 +233,30 @@ if(isset($_POST['add_to_cart'])){
    <form action="" class="box" method="POST">
       <div class="price">₱<span><?= $fetch_products['price']; ?></span></div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
-      <img src="image products/<?= $fetch_products['image']; ?>" alt="">
+      
+      <!-- Gi-update ang path para mo-match sa imong GitHub folder -->
+      <img src="image products/<?= $fetch_products['image']; ?>" alt="<?= $fetch_products['name']; ?>">
+      
       <div class="name"><?= $fetch_products['name']; ?></div>
       <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
       <input type="hidden" name="p_name" value="<?= $fetch_products['name']; ?>">
       <input type="hidden" name="p_price" value="<?= $fetch_products['price']; ?>">
       <input type="hidden" name="p_image" value="<?= $fetch_products['image']; ?>">
       <input type="number" min="1" value="1" name="p_qty" class="qty">
-      <input type="submit" value="add to wishlist" class="option-btn" name="add_to_wishlist">
-      <input type="submit" value="add to cart" class="btn" name="add_to_cart">
+      
+      <input type="submit" value="Wishlist" class="option-btn" name="add_to_wishlist">
+      <input type="submit" value="Add to Cart" class="btn" name="add_to_cart">
    </form>
    <?php
+         }
+      } else {
+         echo '<p class="empty">No products added yet!</p>';
       }
-   }else{
-     
-   }
    ?>
-
    </div>
-
 </section>
 
-
-
-
-
-
-
-
 <?php include 'footer.php'; ?>
-
 <script src="js/script.js"></script>
-
 </body>
 </html>
