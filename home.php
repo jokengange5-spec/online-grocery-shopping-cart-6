@@ -181,7 +181,7 @@ if(!$user_id){
       <div class="content">
          <span>fresh from our farm</span>
          <h3>Fresh Organic Grocery Shop</h3>
-         <p>Ang imong paboritong presko nga utan, prutas, isda, ug karne, i-deliver namo diretso sa imong pultahan!</p>
+         <p>Your favorite fresh vegetables, fruits, fish, and meat delivered straight to your doorstep</p>
          <a href="shop.php" class="btn">Shop Now</a>
       </div>
    </section>
