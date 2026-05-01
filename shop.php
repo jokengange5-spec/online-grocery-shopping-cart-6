@@ -9,7 +9,7 @@ if(!$user_id){
    exit;
 }
 
-/* ADD TO WISHLIST & CART LOGIC (Kabilin sa imong original code) */
+/* ADD TO WISHLIST & CART LOGIC */
 if(isset($_POST['add_to_wishlist'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
    $p_name = htmlspecialchars(trim($_POST['p_name']));
@@ -87,9 +87,10 @@ if(isset($_POST['add_to_cart'])){
          display: flex;
          justify-content: center;
          gap: 1.5rem;
-         padding: 2rem;
+         padding: 2.5rem 2rem;
          flex-wrap: wrap;
          background: var(--white);
+         border-bottom: var(--border);
       }
 
       .p-category a {
@@ -101,97 +102,125 @@ if(isset($_POST['add_to_cart'])){
          border-radius: .5rem;
          font-size: 1.1rem;
          transition: .3s;
+         display: flex;
+         align-items: center;
+         gap: .5rem;
       }
 
       .p-category a:hover {
          background: var(--green);
          color: var(--white);
+         transform: translateY(-3px);
       }
 
       /* Products Section */
       .products {
-         padding: 2rem 5%;
+         padding: 3rem 2rem;
+         max-width: 1200px; /* Nilimitahan ang gilapdon para dili lapad kaayo */
+         margin: 0 auto;    /* Gi-center ang tibuok products area */
       }
 
       .products .title {
          text-align: center;
-         margin-bottom: 2rem;
-         font-size: 2.5rem;
+         margin-bottom: 3rem;
+         font-size: 3rem;
          color: var(--black);
+         text-transform: uppercase;
+         letter-spacing: 1px;
       }
 
       .box-container {
          display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive Grid */
-         gap: 1.5rem;
-         justify-content: center;
+         grid-template-columns: repeat(auto-fit, 28rem); /* Fixed width cards para uniform */
+         gap: 2rem;
+         justify-content: center; /* I-center ang mga cards sa screen */
       }
 
       .box {
          background: var(--white);
-         padding: 1.5rem;
+         padding: 2rem;
          border-radius: 1rem;
          border: var(--border);
          box-shadow: var(--shadow);
          position: relative;
          text-align: center;
          overflow: hidden;
+         transition: .3s ease;
+      }
+
+      .box:hover {
+         transform: translateY(-5px);
+         box-shadow: 0 1rem 1.5rem rgba(0,0,0,.15);
       }
 
       .box img {
-         height: 18rem;
+         height: 20rem;
          width: 100%;
          object-fit: contain;
-         margin-bottom: 1rem;
+         margin-bottom: 1.5rem;
+         padding: 1rem;
       }
 
       .box .price {
          position: absolute;
-         top: 1rem; left: 1rem;
+         top: 1.5rem; left: 1.5rem;
          background: var(--green);
          color: var(--white);
-         padding: .5rem 1rem;
+         padding: .6rem 1.2rem;
          border-radius: .5rem;
-         font-size: 1.2rem;
+         font-size: 1.4rem;
+         font-weight: 600;
       }
 
       .box .fa-eye {
          position: absolute;
-         top: 1rem; right: 1rem;
-         height: 3.5rem; width: 3.5rem;
-         line-height: 3.5rem;
+         top: 1.5rem; right: 1.5rem;
+         height: 4rem; width: 4rem;
+         line-height: 4rem;
          border: var(--border);
          border-radius: .5rem;
          color: var(--black);
          text-decoration: none;
          background: var(--white);
+         font-size: 1.8rem;
+         transition: .3s;
+      }
+
+      .box .fa-eye:hover {
+         background: var(--black);
+         color: var(--white);
       }
 
       .box .name {
-         font-size: 1.5rem;
+         font-size: 1.8rem;
          color: var(--black);
-         margin: 1rem 0;
+         margin: 1.5rem 0;
+         font-weight: 500;
       }
 
       .box .qty {
          width: 100%;
-         padding: 1rem;
+         padding: 1.2rem;
          border: var(--border);
          border-radius: .5rem;
          margin-bottom: 1rem;
+         font-size: 1.6rem;
+         background: var(--light-bg);
       }
 
       /* Buttons */
       .btn, .option-btn {
          width: 100%;
          display: block;
-         padding: 1rem;
+         padding: 1.2rem;
          border-radius: .5rem;
          cursor: pointer;
-         font-size: 1.1rem;
+         font-size: 1.3rem;
          border: none;
-         margin-top: .5rem;
+         margin-top: .8rem;
          transition: .3s;
+         font-weight: 500;
+         text-transform: uppercase;
       }
 
       .btn { background: var(--green); color: var(--white); }
@@ -200,12 +229,21 @@ if(isset($_POST['add_to_cart'])){
       .option-btn { background: #f39c12; color: var(--white); }
       .option-btn:hover { background: var(--black); }
 
+      .empty {
+         text-align: center;
+         padding: 5rem;
+         font-size: 2rem;
+         color: #666;
+         grid-column: 1 / -1;
+      }
+
       /* Mobile Adjustments */
       @media (max-width: 450px) {
          .box-container {
-            grid-template-columns: 1fr; /* Isa ka column sa gamay nga cellphone */
+            grid-template-columns: 1fr; /* Isa ka column ra sa mobile */
          }
-         .products .title { font-size: 2rem; }
+         .products .title { font-size: 2.2rem; }
+         .box img { height: 18rem; }
       }
    </style>
 </head>
@@ -231,10 +269,9 @@ if(isset($_POST['add_to_cart'])){
          while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){ 
    ?>
    <form action="" class="box" method="POST">
-      <div class="price">₱<span><?= $fetch_products['price']; ?></span></div>
+      <div class="price">₱<span><?= number_format($fetch_products['price'], 2); ?></span></div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
       
-      <!-- Gi-update ang path para mo-match sa imong GitHub folder -->
       <img src="image products/<?= $fetch_products['image']; ?>" alt="<?= $fetch_products['name']; ?>">
       
       <div class="name"><?= $fetch_products['name']; ?></div>
@@ -257,6 +294,7 @@ if(isset($_POST['add_to_cart'])){
 </section>
 
 <?php include 'footer.php'; ?>
+
 <script src="js/script.js"></script>
 </body>
 </html>
