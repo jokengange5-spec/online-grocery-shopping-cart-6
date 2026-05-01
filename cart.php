@@ -134,7 +134,7 @@ if(isset($_POST['update_qty'])){
    ?>
                <form action="" method="POST" class="box">
                   <a href="view_page.php?pid=<?= $fetch_rec['id']; ?>" class="fas fa-eye"></a>
-                  <div class="price">₱<span><?= $fetch_rec['price']; ?></span>/-</div>
+                  <div class="price">₱<span><?= $fetch_rec['price']; ?></span></div>
                   <img src="image products/<?= $fetch_rec['image']; ?>" alt="">
                   <div class="name"><?= $fetch_rec['name']; ?></div>
                   <input type="hidden" name="pid" value="<?= $fetch_rec['id']; ?>">
