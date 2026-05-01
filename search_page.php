@@ -13,7 +13,6 @@ if(!isset($user_id)){
 
 // --- LOGIC PARA SA WISHLIST ---
 if(isset($_POST['add_to_wishlist'])){
-   // GI-FIX: Gitan-tang ang FILTER_SANITIZE_STRING ug gi-puli ang htmlspecialchars o direct assignment
    $pid = htmlspecialchars($_POST['pid']);
    $p_name = htmlspecialchars($_POST['p_name']);
    $p_price = htmlspecialchars($_POST['p_price']);
@@ -38,7 +37,6 @@ if(isset($_POST['add_to_wishlist'])){
 
 // --- LOGIC PARA SA CART ---
 if(isset($_POST['add_to_cart'])){
-   // GI-FIX: Gitan-tang ang FILTER_SANITIZE_STRING
    $pid = htmlspecialchars($_POST['pid']);
    $p_name = htmlspecialchars($_POST['p_name']);
    $p_price = htmlspecialchars($_POST['p_price']);
@@ -67,8 +65,6 @@ if(isset($_POST['add_to_cart'])){
 
 ?>
 
-<!-- ... (imong HTML ug CSS pabilin gihapon) ... -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -76,9 +72,164 @@ if(isset($_POST['add_to_cart'])){
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Search Page - Joken's Grocery</title>
+
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+   
    <style>
-      /* ... (imong style pabilin gihapon) ... */
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+      :root{
+         --primary-color: #2ecc71;
+         --secondary-color: #27ae60;
+         --accent-color: #f39c12;
+         --black: #2c3e50;
+         --white: #fff;
+         --light-bg: #f9f9f9;
+         --border: .1rem solid rgba(0,0,0,.05);
+         --shadow: 0 .5rem 1rem rgba(0,0,0,.05);
+      }
+
+      body{
+         background-color: var(--light-bg);
+         font-family: 'Poppins', sans-serif;
+         color: var(--black);
+      }
+
+      /* Simple Search Form */
+      .search-form {
+         padding: 4rem 2rem 2rem;
+         max-width: 700px;
+         margin: 0 auto;
+      }
+
+      .search-form form {
+         display: flex;
+         background: var(--white);
+         padding: .5rem;
+         border-radius: 5rem;
+         box-shadow: var(--shadow);
+         border: var(--border);
+      }
+
+      .search-form form .box {
+         flex: 1;
+         padding: 1.2rem 2rem;
+         font-size: 1.6rem;
+         border: none;
+         outline: none;
+         background: none;
+      }
+
+      .search-form form .btn {
+         background: var(--primary-color);
+         color: var(--white);
+         padding: 1.2rem 2.5rem;
+         border-radius: 5rem;
+         font-size: 1.6rem;
+         cursor: pointer;
+         transition: .3s linear;
+      }
+
+      .search-form form .btn:hover {
+         background: var(--secondary-color);
+      }
+
+      /* Clean Product Grid */
+      .products {
+         padding: 2rem 7%;
+      }
+
+      .box-container {
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
+         gap: 2rem;
+      }
+
+      .box {
+         background: var(--white);
+         padding: 2rem;
+         border-radius: 1.5rem;
+         box-shadow: var(--shadow);
+         position: relative;
+         text-align: center;
+         transition: .2s;
+         border: var(--border);
+      }
+
+      .box:hover {
+         transform: scale(1.02);
+         box-shadow: 0 1rem 2rem rgba(0,0,0,.1);
+      }
+
+      .box img {
+         height: 18rem;
+         margin-bottom: 1.5rem;
+         object-fit: contain;
+      }
+
+      .box .name {
+         font-size: 1.8rem;
+         font-weight: 500;
+         color: var(--black);
+         margin: 1rem 0;
+      }
+
+      .box .price {
+         font-size: 2rem;
+         color: var(--primary-color);
+         font-weight: 600;
+         margin-bottom: 1.5rem;
+      }
+
+      .box .qty {
+         width: 100%;
+         padding: 1rem;
+         border-radius: .5rem;
+         background: var(--light-bg);
+         margin-bottom: 1rem;
+         font-size: 1.5rem;
+         border: var(--border);
+      }
+
+      .box .flex-btn {
+         display: flex;
+         gap: 1rem;
+         margin-top: 1rem;
+      }
+
+      .btn-add, .btn-wish {
+         flex: 1;
+         padding: 1rem;
+         font-size: 1.4rem;
+         border-radius: .5rem;
+         cursor: pointer;
+         border: none;
+         transition: .3s;
+      }
+
+      .btn-add { background: var(--primary-color); color: var(--white); }
+      .btn-add:hover { background: var(--secondary-color); }
+      
+      .btn-wish { background: #eee; color: var(--black); }
+      .btn-wish:hover { background: #ddd; }
+
+      .fa-eye {
+         position: absolute;
+         top: 1.5rem; right: 1.5rem;
+         font-size: 2rem;
+         color: #aaa;
+         transition: .3s;
+      }
+
+      .fa-eye:hover { color: var(--primary-color); }
+
+      .empty {
+         text-align: center;
+         font-size: 1.8rem;
+         color: #888;
+         grid-column: 1 / -1;
+         padding: 5rem 0;
+      }
    </style>
 </head>
 <body>
@@ -87,21 +238,17 @@ if(isset($_POST['add_to_cart'])){
 
 <section class="search-form">
    <form action="" method="POST">
-      <input type="text" class="box" name="search_box" placeholder="Search products..." value="<?= isset($_POST['search_box']) ? htmlspecialchars($_POST['search_box']) : ''; ?>" required>
-      <input type="submit" name="search_btn" value="Search" class="btn">
+      <input type="text" class="box" name="search_box" placeholder="Unsa imong gipangita?" value="<?= isset($_POST['search_box']) ? htmlspecialchars($_POST['search_box']) : ''; ?>" required>
+      <button type="submit" name="search_btn" class="btn"><i class="fas fa-search"></i></button>
    </form>
 </section>
 
-<section class="products" style="padding-top: 0; min-height:100vh;">
-
+<section class="products">
    <div class="box-container">
-
    <?php
       if(isset($_POST['search_btn']) || isset($_POST['search_box'])){
          $search_box = htmlspecialchars($_POST['search_box']);
          
-         // Gigamit nato ang ILIKE para sa case-insensitive search sa PostgreSQL
-         // Gigamit sab nato ang LOWER() sa ORDER BY para patas ang pag-sort
          $select_products = $conn->prepare("
             SELECT * FROM products 
             WHERE name ILIKE ? OR category ILIKE ?
@@ -116,12 +263,11 @@ if(isset($_POST['add_to_cart'])){
          if($select_products->rowCount() > 0){
             while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){
    ?>
-   <!-- ... (imong product form box) ... -->
    <form action="" class="box" method="POST">
-      <div class="price">₱<span><?= $fetch_products['price']; ?></span>/-</div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
       <img src="image products/<?= $fetch_products['image']; ?>" alt="">
       <div class="name"><?= $fetch_products['name']; ?></div>
+      <div class="price">₱<?= $fetch_products['price']; ?></div>
       
       <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
       <input type="hidden" name="p_name" value="<?= $fetch_products['name']; ?>">
@@ -129,19 +275,21 @@ if(isset($_POST['add_to_cart'])){
       <input type="hidden" name="p_image" value="<?= $fetch_products['image']; ?>">
       
       <input type="number" min="1" value="1" name="p_qty" class="qty">
-      <input type="submit" value="Add to Wishlist" class="option-btn" name="add_to_wishlist">
-      <input type="submit" value="Add to Cart" class="btn" name="add_to_cart">
+      <div class="flex-btn">
+         <button type="submit" name="add_to_wishlist" class="btn-wish" title="Add to Wishlist"><i class="fas fa-heart"></i></button>
+         <button type="submit" name="add_to_cart" class="btn-add">Add to Cart</button>
+      </div>
    </form>
    <?php
             }
          }else{
-            echo '<p class="empty">No result found for "'.htmlspecialchars($search_box).'"!</p>';
+            echo '<p class="empty">Pasayloa, walay nakit-an nga "'.htmlspecialchars($search_box).'".</p>';
          }
+      } else {
+         echo '<p class="empty">Sulayi pag-search ang ngalan sa produkto o category.</p>';
       }
    ?>
-
    </div>
-
 </section>
 
 <?php include 'footer.php'; ?>
