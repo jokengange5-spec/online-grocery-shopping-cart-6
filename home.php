@@ -2,158 +2,225 @@
 @include 'config.php';
 session_start();
 
-// I-uncomment ni para makita nimo kung unsay sulod sa session
-// var_dump($_SESSION); 
-
 $user_id = $_SESSION['user_id'] ?? null;
 
 if(!$user_id){
-   // Imbes nga i-redirect dayon, i-echo usa ang error para mahibal-an nimo
-   // die('Error: Walay nakit-an nga User ID sa session!'); 
    header('location:login.php');
    exit;
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shop</title>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Home - Joken's Grocery</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+   <!-- Font Awesome -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+   <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
 
-*{
-   margin:0;
-   padding:0;
-   box-sizing:border-box;
-}
+      :root{
+         --green: #27ae60;
+         --black: #333;
+         --white: #fff;
+         --light-color: #666;
+         --border: .1rem solid rgba(0,0,0,.1);
+         --shadow: 0 .5rem 1rem rgba(0,0,0,.1);
+      }
 
-body{
-   font-family:'Poppins',sans-serif;
-   background: url('image_products/picture7.jpg') no-repeat center center fixed;
-   background-size: cover;
-   color:#1f2d3d;
-}
+      *{
+         margin:0; padding:0;
+         box-sizing:border-box;
+         font-family: 'Poppins', sans-serif;
+         outline: none; border: none;
+         text-decoration: none;
+      }
 
-/* REMOVE FOG COMPLETELY */
-body::before{
-   display:none;
-}
+      body{
+         background-color: #f7f7f7;
+         color: var(--black);
+      }
 
-/* HERO */
-.home-bg{
-   min-height:85vh;
-   display:flex;
-   align-items:center;
-   justify-content:center;
-   padding:40px;
-}
+      /* HERO SECTION */
+      .home-bg{
+         min-height: 80vh;
+         background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+         background-size: cover;
+         background-position: center;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         padding: 2rem;
+      }
 
-.home .content{
-   text-align:center;
-   max-width:800px;
-   padding:45px;
-   border-radius:16px;
-   background:#ffffff;
-   box-shadow:0 10px 30px rgba(0,0,0,0.2);
-}
+      .home .content{
+         text-align: center;
+         background: rgba(255, 255, 255, 0.95);
+         padding: 3rem;
+         border-radius: 1.5rem;
+         box-shadow: var(--shadow);
+         max-width: 700px;
+         width: 100%;
+      }
 
-.home h3{
-   font-size:2.4rem;
-   margin:15px 0;
-}
+      .home .content span{
+         color: var(--green);
+         font-size: 1.2rem;
+         font-weight: 600;
+         text-transform: uppercase;
+         display: block;
+         margin-bottom: 1rem;
+      }
 
-.home p{
-   color:#444;
-}
+      .home .content h3{
+         font-size: 3.5rem;
+         color: var(--black);
+         line-height: 1.2;
+         margin-bottom: 1rem;
+      }
 
-/* PRODUCTS */
-.products{
-   padding:60px 40px;
-}
+      .home .content p{
+         font-size: 1.1rem;
+         color: var(--light-color);
+         margin-bottom: 2rem;
+         line-height: 1.6;
+      }
 
-.title{
-   text-align:center;
-   font-size:2.2rem;
-   font-weight:800;
-   margin:25px 0;
-}
+      .home .content .btn{
+         display: inline-block;
+         background: var(--green);
+         color: var(--white);
+         padding: 1rem 3rem;
+         border-radius: .5rem;
+         font-size: 1.2rem;
+         font-weight: 600;
+         transition: .3s ease;
+      }
 
-/* GRID */
-.box-container{
-   display:grid;
-   grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-   gap:25px;
-}
+      .home .content .btn:hover{
+         background: var(--black);
+         transform: scale(1.05);
+      }
 
-/* CARD */
-.box{
-   background:#ffffff;
-   border-radius:14px;
-   padding:15px;
-   text-align:center;
-   box-shadow:0 8px 20px rgba(0,0,0,0.1);
-}
+      /* FEATURED CATEGORIES */
+      .home-category{
+         padding: 5rem 5%;
+         text-align: center;
+      }
 
-.box:hover{
-   transform:translateY(-8px);
-}
+      .home-category .title{
+         font-size: 2.5rem;
+         margin-bottom: 3rem;
+         color: var(--black);
+      }
 
-/* IMAGE */
-.box img{
-   width:100%;
-   height:180px;
-   object-fit:cover;
-   border-radius:12px;
-   margin-top:15px;
-}
+      .home-category .box-container{
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+         gap: 2rem;
+      }
 
-/* BUTTON */
-.btn, .option-btn{
-   width:100%;
-   padding:10px;
-   margin-top:8px;
-   border:none;
-   border-radius:10px;
-   font-weight:bold;
-   cursor:pointer;
-}
+      .home-category .box-container .box{
+         background: var(--white);
+         padding: 2.5rem;
+         border-radius: 1rem;
+         box-shadow: var(--shadow);
+         border: var(--border);
+         transition: .3s;
+      }
 
-.btn{
-   background:#2ecc71;
-   color:#fff;
-}
+      .home-category .box-container .box:hover{
+         background: var(--green);
+      }
 
-.option-btn{
-   background:#f1c40f;
-   color:#2c3e50;
-}
+      .home-category .box-container .box img{
+         height: 8rem;
+         margin-bottom: 1.5rem;
+      }
 
-</style>
+      .home-category .box-container .box h3{
+         font-size: 1.8rem;
+         color: var(--black);
+      }
+
+      .home-category .box-container .box:hover h3{
+         color: var(--white);
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 768px){
+         .home .content h3{
+            font-size: 2.5rem;
+         }
+         .home .content{
+            padding: 2rem;
+         }
+      }
+
+      @media (max-width: 450px){
+         .home .content h3{
+            font-size: 2rem;
+         }
+         .home .content p{
+            font-size: 1rem;
+         }
+      }
+   </style>
 </head>
-
 <body>
 
 <?php include 'header.php'; ?>
 
-<!-- HERO -->
+<!-- HERO SECTION -->
 <div class="home-bg">
    <section class="home">
       <div class="content">
+         <span>fresh from our farm</span>
          <h3>Fresh Organic Grocery Shop</h3>
-         <p>Affordable and fresh products delivered to you.</p>
+         <p>Ang imong paboritong presko nga utan, prutas, isda, ug karne, i-deliver namo diretso sa imong pultahan!</p>
+         <a href="shop.php" class="btn">Shop Now</a>
       </div>
    </section>
 </div>
 
-<!-- PRODUCTS -->
+<!-- QUICK CATEGORIES -->
+<section class="home-category">
+   <h1 class="title">Explore Categories</h1>
 
+   <div class="box-container">
+      <div class="box">
+         <img src="image products/apple.jpg" style="object-fit: contain;" alt="">
+         <h3>Fruits</h3>
+         <a href="category.php?category=fruits" class="btn" style="margin-top:1rem; font-size:1rem; padding: 0.5rem 1rem;">View All</a>
+      </div>
+
+      <div class="box">
+         <img src="image products/carrot.jpg" style="object-fit: contain;" alt="">
+         <h3>Vegetables</h3>
+         <a href="category.php?category=vegetables" class="btn" style="margin-top:1rem; font-size:1rem; padding: 0.5rem 1rem;">View All</a>
+      </div>
+
+      <div class="box">
+         <img src="image products/tuna.jpg" style="object-fit: contain;" alt="">
+         <h3>Fish</h3>
+         <a href="category.php?category=fish" class="btn" style="margin-top:1rem; font-size:1rem; padding: 0.5rem 1rem;">View All</a>
+      </div>
+
+      <div class="box">
+         <img src="image products/pork.jpg" style="object-fit: contain;" alt="">
+         <h3>Meat</h3>
+         <a href="category.php?category=meat" class="btn" style="margin-top:1rem; font-size:1rem; padding: 0.5rem 1rem;">View All</a>
+      </div>
+   </div>
+</section>
+
+<?php include 'footer.php'; ?>
+
+<script src="js/script.js"></script>
 
 </body>
 </html>
