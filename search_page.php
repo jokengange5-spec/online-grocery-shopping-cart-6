@@ -278,15 +278,29 @@ if(isset($_POST['add_to_cart'])){
       if(isset($_POST['search_btn']) || isset($_POST['search_box'])){
          $search_box = filter_var($_POST['search_box'], FILTER_SANITIZE_STRING);
          
-         $select_products = $conn->prepare("SELECT * FROM products WHERE name LIKE ? OR category LIKE ?");
-         $select_products->execute(["%{$search_box}%", "%{$search_box}%"]);
+         // --- I-INSERT DINHI SUGOD ---
+         
+         // Mas maayo kini kay i-sort niya ang resulta: Exact matches first, then Category matches
+         $select_products = $conn->prepare("
+            SELECT * FROM products 
+            WHERE name LIKE ? OR category LIKE ?
+            ORDER BY (CASE WHEN name LIKE ? THEN 1 ELSE 2 END), name ASC
+         ");
+
+         // Atong kargahan ang wildcard variables
+         $exact_priority = "{$search_box}%"; // Nagsugod sa imong gi-type (Priority)
+         $wildcard = "%{$search_box}%";      // Bisan asa dapit (Broad search)
+
+         $select_products->execute([$wildcard, $wildcard, $exact_priority]);
+         
+         // --- HANTOD DINHI ---
 
          if($select_products->rowCount() > 0){
             while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){
    ?>
    <form action="" class="box" method="POST">
+      <!-- ... (ang sulod sa imong form pabilin gihapon) ... -->
       <div class="price">₱<span><?= $fetch_products['price']; ?></span>/-</div>
-      <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
       <img src="image products/<?= $fetch_products['image']; ?>" alt="">
       <div class="name"><?= $fetch_products['name']; ?></div>
       
@@ -312,10 +326,3 @@ if(isset($_POST['add_to_cart'])){
    </div>
 
 </section>
-
-<?php include 'footer.php'; ?>
-
-<script src="js/script.js"></script>
-
-</body>
-</html>
