@@ -59,17 +59,22 @@ if(isset($_POST['add_to_cart'])){
       $message[] = 'already added to cart!';
    }else{
 
-      $check_wishlist_numbers = $conn->prepare("SELECT * FROM `wishlist` WHERE name = ? AND user_id = ?");
-      $check_wishlist_numbers->execute([$p_name, $user_id]);
+      // I-replace ang karaan nga naay `wishlist` ug `cart`
+// 1. Sa taas (Wishlist check)
+$check_wishlist_numbers = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
 
-      if($check_wishlist_numbers->rowCount() > 0){
-         $delete_wishlist = $conn->prepare("DELETE FROM `wishlist` WHERE name = ? AND user_id = ?");
-         $delete_wishlist->execute([$p_name, $user_id]);
-      }
+// 2. Sa taas (Cart check)
+$check_cart_numbers = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
 
-      $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
-      $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-      $message[] = 'added to cart!';
+// 3. Ang INSERT queries
+$insert_wishlist = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?,?,?,?,?)");
+$insert_cart = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
+
+// 4. Line 105 (Ang Quick View query nga maoy naay error sa imong screenshot)
+$select_products = $conn->prepare("SELECT * FROM products WHERE id = ?");
+
+// 5. Sa Machine Learning section (Recommendation query)
+$select_rec = $conn->prepare("SELECT * FROM products WHERE name = ?");
    }
 
 }
