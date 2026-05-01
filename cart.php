@@ -279,7 +279,7 @@ if(isset($_POST['update_qty'])){
       <p class="grand-total">Grand Total : <span>₱<?= $grand_total; ?></span></p>
       <div class="flex-btn" style="justify-content: center;">
          <a href="shop.php" class="option-btn">Continue Shopping</a>
-         <a href="cart.php?delete_all" class="delete-btn <?= ($grand_total > 0)?'':'disabled'; ?>" onclick="return confirm('Clear your entire cart?');">Empty Cart</a>
+         <a href="cart.php?delete_all" class="delete-btn <?= ($grand_total > 0)?'':'disabled'; ?>" onclick="return confirm('Clear your entire cart?');">Remove Products</a>
          <a href="checkout.php" class="btn <?= ($grand_total > 0)?'':'disabled'; ?>">Checkout Now</a>
       </div>
    </div>
@@ -287,7 +287,7 @@ if(isset($_POST['update_qty'])){
 
 <!-- RECOMMENDATIONS SECTION -->
 <section class="wishlist" style="padding-top: 0;">
-   <h2 class="rec-title">Complete Your Meal</h2>
+   <h2 class="rec-title">Suggested Products</h2>
    <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">Suggested pairings & healthy desserts for your cart</p>
    
    <div class="box-container">
