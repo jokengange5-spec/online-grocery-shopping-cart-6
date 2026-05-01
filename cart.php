@@ -287,26 +287,66 @@ if(isset($_POST['update_qty'])){
 </section>
 
 <!-- RECOMMENDATIONS SECTION -->
-<?php if(!empty($all_cart_items)): ?>
 <section class="wishlist" style="padding-top: 0;">
-   <h2 class="rec-title">Related Products</h2>
-   <div class="box-container" style="margin-top: 3rem;">
+   <h2 class="rec-title">Complete Your Meal</h2>
+   <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">Suggested pairings & healthy desserts for your cart</p>
+   
+   <div class="box-container">
    <?php
-         $base_product = $all_cart_items[0];
-         $recommendations = getRecommendations($base_product, $conn);
+      $is_protein_present = false;
+      
+      // 1. I-CHECK KUNG NAA BA'Y KARNE O ISDA SA CART
+      if(!empty($all_cart_items)){
+         foreach($all_cart_items as $item_name){
+            $name_lower = strtolower($item_name);
+            // Keywords para sa Meat ug Fish
+            if(preg_match('/(meat|pork|beef|chicken|manok|baboy|baka|fish|isda|tilapia|bangus|salmon|shrimp|hipon)/', $name_lower)){
+               $is_protein_present = true;
+               break; 
+            }
+         }
+      }
 
-         if(!empty($recommendations)){
-            foreach($recommendations as $rec_name){
-               if(in_array($rec_name, $all_cart_items)) continue;
+      // 2. FETCH RECOMMENDATIONS
+      if($is_protein_present){
+         // Mangita ta og keywords para sa Vegetables (pang-sagol) ug Fruits (pang-himagas)
+         // Gigamit nato ang LIMIT 6 para naay variety (e.g. 3 veggies, 3 fruits)
+         $query = "SELECT * FROM products WHERE 
+                  (name LIKE '%onion%' OR name LIKE '%garlic%' OR name LIKE '%veg%' OR name LIKE '%cabbage%' OR name LIKE '%tomato%' OR
+                   name LIKE '%apple%' OR name LIKE '%banana%' OR name LIKE '%orange%' OR name LIKE '%mango%' OR name LIKE '%fruit%') 
+                   AND name NOT IN (".str_repeat('?,', count($all_cart_items) - 1) . '?' .") 
+                   ORDER BY RANDOM() LIMIT 6";
+         
+         $params = [];
+         foreach($all_cart_items as $item) { $params[] = $item; }
+         
+         $select_rec = $conn->prepare($query);
+         $select_rec->execute($params);
+      } else {
+         // Kung walay meat, magpakita lang og random products
+         $query = "SELECT * FROM products WHERE name NOT IN (".str_repeat('?,', count($all_cart_items) - 1) . '?' .") ORDER BY RANDOM() LIMIT 6";
+         $params = [];
+         foreach($all_cart_items as $item) { $params[] = $item; }
+         $select_rec = $conn->prepare($query);
+         $select_rec->execute($params);
+      }
 
-               $select_rec = $conn->prepare("SELECT * FROM products WHERE name = ?");
-               $select_rec->execute([$rec_name]);
-               if($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC)){
+      if($select_rec->rowCount() > 0){
+         while($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC)){
+            $rec_name_lower = strtolower($fetch_rec['name']);
+            // E-determine kung fruit ba o veg ang gi-recommend para sa gamay nga label
+            $label = "Healthy Choice";
+            if(preg_match('/(apple|banana|orange|mango|fruit|pineapple|grapes)/', $rec_name_lower)){
+               $label = "Best Dessert After Meal";
+            } else if(preg_match('/(onion|garlic|veg|cabbage|tomato|ginger|pepper)/', $rec_name_lower)){
+               $label = "Best to Mix with Meat/Fish";
+            }
    ?>
                <form action="" method="POST" class="box">
                   <a href="view_page.php?pid=<?= $fetch_rec['id']; ?>" class="fas fa-eye" style="position:absolute; top:1.5rem; left:1.5rem; font-size:2rem; color:var(--black);"></a>
                   <img src="image products/<?= $fetch_rec['image']; ?>" alt="">
                   <div class="name"><?= $fetch_rec['name']; ?></div>
+                  <small style="color:var(--primary); font-weight:600; display:block; margin-bottom:1rem;"><?= $label; ?></small>
                   <div class="price">₱<?= $fetch_rec['price']; ?></div>
                   <input type="hidden" name="pid" value="<?= $fetch_rec['id']; ?>">
                   <input type="hidden" name="p_name" value="<?= $fetch_rec['name']; ?>">
@@ -316,9 +356,10 @@ if(isset($_POST['update_qty'])){
                   <input type="submit" value="Add to Cart" class="btn" name="add_to_cart" style="width:100%;">
                </form>
    <?php
-               }
-            }
          }
+      } else {
+         echo '<p class="empty">Check out our fresh arrivals!</p>';
+      }
    ?>
    </div>
 </section>
