@@ -19,13 +19,13 @@ if(isset($_POST['add_to_cart'])){
    $p_image = $_POST['p_image'];
    $p_qty = $_POST['p_qty'];
 
-   $check_cart_numbers = $conn->prepare("SELECT * FROM `cart` WHERE name = ? AND user_id = ?");
+   $check_cart_numbers = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
    $check_cart_numbers->execute([$p_name, $user_id]);
 
    if($check_cart_numbers->rowCount() > 0){
       $message[] = 'already added to cart';
    }else{
-      $insert_cart = $conn->prepare("INSERT INTO `cart`(user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
+      $insert_cart = $conn->prepare("INSERT INTO cart (user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
       $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
       $message[] = 'added to cart';
    }
@@ -128,7 +128,7 @@ if(isset($_POST['update_qty'])){
                // Siguroha nga dili i-recommend ang item nga naa na sa cart
                if(in_array($rec_name, $all_cart_items)) continue;
 
-               $select_rec = $conn->prepare("SELECT * FROM `products` WHERE name = ?");
+               $select_rec = $conn->prepare("SELECT * FROM products WHERE name = ?");
                $select_rec->execute([$rec_name]);
                if($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC)){
    ?>
