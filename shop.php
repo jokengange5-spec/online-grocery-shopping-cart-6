@@ -108,7 +108,7 @@ if(isset($_POST['add_to_cart'])){
    <form action="" class="box" method="POST">
       <div class="price">₱<span><?= $fetch_products['price']; ?></span></div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
-      <img src="uploaded_img/<?= $fetch_products['image']; ?>" alt="">
+      <img src="image products/<?= $fetch_products['image']; ?>" alt="">
       <div class="name"><?= $fetch_products['name']; ?></div>
       <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
       <input type="hidden" name="p_name" value="<?= $fetch_products['name']; ?>">
