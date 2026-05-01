@@ -361,11 +361,13 @@ if(isset($_POST['update_qty'])){
          echo '<p class="empty">Check out our fresh arrivals!</p>';
       }
   } // Kini ang panapos sa while($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC))
-   ?>
+  ?>
    </div>
 </section>
 
-<?php include 'footer.php'; ?>  <!-- DERETSO NA SA FOOTER, WALA NAY ENDIF -->
+<!-- I-DELETE ANG <?php //endif; ?> DINHI NGA LINE -->
+
+<?php include 'footer.php'; ?>
 
 <script src="js/script.js"></script>
 
