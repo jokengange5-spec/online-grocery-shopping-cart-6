@@ -147,14 +147,14 @@ if(!$user_id){
    <div class="row">
 
       <div class="box">
-         <img src="image products/picture1.jpg" alt="Why Choose Us">
+         <img src="image products/picture2.jpg" alt="Why Choose Us">
          <h3>Why Choose Us?</h3>
          <p>Kami sa Joken's Grocery Shop naghatag og de-kalidad nga mga produkto sa barato nga presyo. Sigurado ang katin-aw ug kasaligan sa among serbisyo para sa inyong inadlaw-adlaw nga panginahanglan.</p>
          <a href="contact.php" class="btn">Contact Us</a>
       </div>
 
       <div class="box">
-         <img src="image products/shopping2.png" alt="What We Provide">
+         <img src="image products/picture3.jpg" alt="What We Provide">
          <h3>What We Provide?</h3>
          <p>Naghatag kami og presko nga mga utan, prutas, ug uban pang grocery items nga gikuha diretso sa mga suppliers aron maseguro nga presko kini pag-abot sa inyong balay.</p>
          <a href="shop.php" class="btn">Our Shop</a>
