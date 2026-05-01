@@ -134,7 +134,7 @@ if(isset($_POST['add_to_cart'])){
          $recommendations = getRecommendations($current_item_name, $conn);
 
          if(!empty($recommendations)){
-            echo '<h1 class="title">Customers also bought:</h1>';
+            echo '<h1 class="title">You may also like:</h1>';
             echo '<div class="box-container">';
             
             foreach($recommendations as $rec_name){
