@@ -14,16 +14,14 @@ if(isset($_POST['update_product'])){
 
    $pid = $_POST['pid'];
    $name = $_POST['name'];
-   $name = htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8');
-   $price = $_POST['price'];
-   $price = filter_var($price, FILTER_SANITIZE_STRING);
-   $category = $_POST['category'];
-   $category = filter_var($category, FILTER_SANITIZE_STRING);
-   $details = $_POST['details'];
-   $details = filter_var($details, FILTER_SANITIZE_STRING);
+   // Line 17 pataas, pulihi ang imong filter_var og ingon ani:
+$name = htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8');
+$price = htmlspecialchars($_POST['price'], ENT_QUOTES, 'UTF-8');
+$category = htmlspecialchars($_POST['category'], ENT_QUOTES, 'UTF-8');
+$details = htmlspecialchars($_POST['details'], ENT_QUOTES, 'UTF-8');
 
-   $image = $_FILES['image']['name'];
-   $image = filter_var($image, FILTER_SANITIZE_STRING);
+// Para sa image name (Line 26):
+$image = htmlspecialchars($_FILES['image']['name'], ENT_QUOTES, 'UTF-8');
    $image_size = $_FILES['image']['size'];
    $image_tmp_name = $_FILES['image']['tmp_name'];
    $image_folder = 'uploaded_img/'.$image;
