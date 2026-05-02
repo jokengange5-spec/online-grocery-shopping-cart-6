@@ -288,7 +288,7 @@ if(isset($_POST['update_qty'])){
 <!-- RECOMMENDATIONS SECTION -->
 <section class="wishlist" style="padding-top: 0;">
    <h2 class="rec-title">Suggested Products</h2>
-   <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">Suggested pairings Great food for you</p>
+   <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">Suggested pairings, Great foods for you</p>
    
    <div class="box-container">
    <?php
