@@ -4,11 +4,15 @@
 
 session_start();
 
-$admin_id = $_SESSION['admin_id'];
+// FIX: Gamit og isset para dili mo-error kung wala pay login
+$admin_id = isset($_SESSION['admin_id']) ? $_SESSION['admin_id'] : null;
 
-if(!isset($admin_id)){
+if(!$admin_id){
    header('location:login.php');
-};
+   exit(); // Importante: pirme butangi og exit() human sa header redirect
+}
+
+// ... ang uban nimong code ...;
 
 if(isset($_POST['update_product'])){
 
