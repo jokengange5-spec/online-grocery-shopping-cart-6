@@ -14,7 +14,7 @@ if(isset($_POST['update_product'])){
 
    $pid = $_POST['pid'];
    $name = $_POST['name'];
-   $name = filter_var($name, FILTER_SANITIZE_STRING);
+   $name = htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8');
    $price = $_POST['price'];
    $price = filter_var($price, FILTER_SANITIZE_STRING);
    $category = $_POST['category'];
