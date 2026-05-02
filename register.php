@@ -1,34 +1,29 @@
 <?php
-ob_start(); // I-add ni sa pinaka-una gyud
+ob_start(); 
 @include 'config.php';
-// ... ang uban nimong code
 session_start();
 
 if(isset($_POST['submit'])){
 
    $name = trim($_POST['name']);
    $email = trim($_POST['email']);
-   $pass = md5($_POST['pass']); // keep MD5 for your current DB
-   $user_type = $_POST['user_type'];
+   $pass = md5($_POST['pass']); 
+   
+   // FIX: Gi-hardcode nato nga 'user' permi ang i-save
+   $user_type = 'user'; 
 
    $image = $_FILES['image']['name'];
    $tmp = $_FILES['image']['tmp_name'];
 
-   // ✔ FIX: folder path
-   $folder = 'uploaded_img/'.$image;
-
-   // ✔ CREATE FOLDER IF NOT EXIST
-// ✔ FOLDER PATH
    $target_dir = 'uploaded_img/';
    $folder = $target_dir . $image;
 
-   // ✔ SIGURADUHA NGA NAAY FOLDER UG NAAY PERMISSION
+   // SIGURADUHA NGA NAAY FOLDER
    if(!is_dir($target_dir)){
       mkdir($target_dir, 0777, true);
-      chmod($target_dir, 0777); // I-force ang permission sa 777
    }
 
-   // ✔ CHECK USER EXISTS
+   // CHECK KUNG EXISTING NA ANG EMAIL
    $check = $conn->prepare("SELECT * FROM users WHERE email = ?");
    $check->execute([$email]);
 
@@ -36,7 +31,7 @@ if(isset($_POST['submit'])){
       $message[] = "User already exists!";
    }else{
 
-      // ✔ INSERT USER (NO ID HERE!)
+      // INSERT AS USER
       $insert = $conn->prepare("
          INSERT INTO users(name, email, password, user_type, image)
          VALUES(?,?,?,?,?)
@@ -44,90 +39,111 @@ if(isset($_POST['submit'])){
 
       if($insert->execute([$name, $email, $pass, $user_type, $image])){
 
-         // ✔ MOVE IMAGE SAFELY
          move_uploaded_file($tmp, $folder);
-
          header("location:login.php");
          exit;
 
       }else{
          $message[] = "Registration failed!";
       }
-
    }
 }
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Register</title>
-
-<style>
-body{
-   font-family:Poppins;
-   display:flex;
-   justify-content:center;
-   align-items:center;
-   height:100vh;
-   background:#1f1f1f;
-   color:white;
-}
-
-.form{
-   width:350px;
-   padding:20px;
-   background:#2c2c2c;
-   border-radius:10px;
-}
-
-input,select{
-   width:100%;
-   padding:10px;
-   margin:8px 0;
-   border:none;
-   border-radius:6px;
-}
-
-button{
-   width:100%;
-   padding:10px;
-   background:#2ecc71;
-   border:none;
-   color:white;
-   cursor:pointer;
-}
-</style>
-
+   <meta charset="UTF-8">
+   <title>Register</title>
+   <style>
+      body{
+         font-family: 'Poppins', sans-serif;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         height: 100vh;
+         background: #1f1f1f;
+         color: white;
+         margin: 0;
+      }
+      .form-container{
+         width: 350px;
+         padding: 30px;
+         background: #2c2c2c;
+         border-radius: 10px;
+         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      }
+      h3 {
+         text-align: center;
+         margin-bottom: 20px;
+      }
+      input{
+         width: 100%;
+         padding: 12px;
+         margin: 10px 0;
+         border: none;
+         border-radius: 6px;
+         box-sizing: border-box; /* Para dili molapas ang input */
+      }
+      button{
+         width: 100%;
+         padding: 12px;
+         background: #2ecc71;
+         border: none;
+         color: white;
+         font-weight: bold;
+         cursor: pointer;
+         border-radius: 6px;
+         margin-top: 10px;
+      }
+      button:hover{
+         background: #27ae60;
+      }
+      .message{
+         background: rgba(231, 76, 60, 0.2);
+         color: #e74c3c;
+         padding: 10px;
+         border-radius: 5px;
+         text-align: center;
+         margin-bottom: 15px;
+      }
+      p {
+         text-align: center;
+         font-size: 14px;
+      }
+      a {
+         color: #2ecc71;
+         text-decoration: none;
+      }
+   </style>
 </head>
 <body>
 
-<div class="form">
+<div class="form-container">
 
-<?php
-if(isset($message)){
-   foreach($message as $msg){
-      echo "<p style='color:red;'>$msg</p>";
-   }
-}
-?>
+   <form method="POST" enctype="multipart/form-data">
+      <h3>Register Now</h3>
 
-<form method="POST" enctype="multipart/form-data">
+      <?php
+      if(isset($message)){
+         foreach($message as $msg){
+            echo '<div class="message">'.$msg.'</div>';
+         }
+      }
+      ?>
 
-   <input type="text" name="name" placeholder="Name" required>
-   <input type="email" name="email" placeholder="Email" required>
-   <input type="password" name="pass" placeholder="Password" required>
+      <input type="text" name="name" placeholder="Enter Name" required>
+      <input type="email" name="email" placeholder="Enter Email" required>
+      <input type="password" name="pass" placeholder="Enter Password" required>
+      
+      <!-- Gi-remove ang Select/Dropdown sa Admin diri -->
+      
+      <label style="font-size: 12px; color: #bbb;">Profile Picture:</label>
+      <input type="file" name="image" accept="image/jpg, image/jpeg, image/png" required>
 
-   <select name="user_type">
-      <option value="user">User</option>
-      <option value="admin">Admin</option>
-   </select>
-
-   <input type="file" name="image" required>
-
-   <button type="submit" name="submit">Register</button>
-
-</form>
+      <button type="submit" name="submit">Register Now</button>
+      <p>Already have an account? <a href="login.php">Login here</a></p>
+   </form>
 
 </div>
 
