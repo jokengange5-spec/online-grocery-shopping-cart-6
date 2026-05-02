@@ -232,6 +232,17 @@ $top_product = $ml_data['total_products'] ?? 'No data';
       <a href="admin_users.php" class="btn">View Accounts</a>
       </div>
 
+      <!-- ADMINS -->
+      <div class="box">
+      <?php
+         $select_admins = $conn->prepare("SELECT * FROM users WHERE user_type = ?");
+         $select_admins->execute(['admin']);
+      ?>
+      <h3><?= $select_admins->rowCount(); ?></h3>
+      <p> Admin </p>
+      <a href="admin_users.php" class="btn">View Account</a>
+      </div>
+
       <!-- ACCOUNTS -->
       <div class="box">
       <?php
