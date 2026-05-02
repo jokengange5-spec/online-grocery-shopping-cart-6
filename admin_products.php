@@ -286,7 +286,7 @@ body{
    ?>
    <div class="box">
       <div class="price">₱<?= $fetch_products['price']; ?></div>
-      <img src="image_products/<?= $fetch_products['image']; ?>" alt="">
+      <img src="uploaded_img/<?= $fetch_products['image']; ?>" alt="">
       <div class="name"><?= $fetch_products['name']; ?></div>
       <div class="cat"><?= $fetch_products['category']; ?></div>
       <div class="details"><?= $fetch_products['details']; ?></div>
