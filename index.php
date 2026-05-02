@@ -149,22 +149,11 @@ body::before{
    background:#27ae60;
 }
 
-/* DB STATUS (optional debug style) */
-.db-status{
-   text-align:center;
-   padding:10px;
-   font-weight:bold;
-   background:rgba(255,255,255,0.8);
 }
 </style>
 </head>
 
 <body>
-
-<!-- DB STATUS (REMOVE IN PRODUCTION) -->
-<div class="db-status">
-   <?= $db_status; ?>
-</div>
 
 <!-- HEADER -->
 <header class="header">
