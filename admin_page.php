@@ -33,10 +33,14 @@ if(!isset($admin_id)){
    font-family:'Poppins',sans-serif;
 }
 
-body{
-   background: linear-gradient(135deg,#0f172a,#1e293b,#0f172a);
-   color:#fff;
-   min-height:100vh;
+    body {
+   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+   background-size: cover;
+   background-position: center;
+   background-attachment: fixed; /* Para dili mo-scroll ang background */
+   font-family: 'Poppins', sans-serif;
+   margin: 0;
+   padding: 0;
 }
 
 /* TITLE */
