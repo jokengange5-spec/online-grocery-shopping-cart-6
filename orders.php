@@ -16,7 +16,7 @@ if(isset($_GET['delete'])){
    $delete_id = $_GET['delete'];
    
    // Siguraduhon nato nga ang tag-iya sa order ra ang maka-cancel
-   $delete_order = $conn->prepare("DELETE FROM `orders` WHERE id = ? AND user_id = ? AND payment_status = 'pending'");
+   $delete_order = $conn->prepare("DELETE FROM orders WHERE id = ? AND user_id = ? AND payment_status = 'pending'");
    $delete_order->execute([$delete_id, $user_id]);
    
    if($delete_order->rowCount() > 0){
@@ -171,7 +171,7 @@ if(isset($_GET['delete'])){
    <div class="box-container">
 
    <?php
-      $select_orders = $conn->prepare("SELECT * FROM `orders` WHERE user_id = ? ORDER BY id DESC");
+      $select_orders = $conn->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC");
       $select_orders->execute([$user_id]);
 
       if($select_orders->rowCount() > 0){
