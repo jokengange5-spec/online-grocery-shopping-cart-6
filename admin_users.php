@@ -38,11 +38,14 @@ if(isset($_GET['delete'])){
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-body{
-   margin:0;
-   font-family:'Poppins',sans-serif;
-   background: linear-gradient(135deg,#0f172a,#1e293b,#0f172a);
-   color:#fff;
+body {
+   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture5.jpg') no-repeat;
+   background-size: cover;
+   background-position: center;
+   background-attachment: fixed; /* Para dili mo-scroll ang background */
+   font-family: 'Poppins', sans-serif;
+   margin: 0;
+   padding: 0;
 }
 
 /* TITLE */
