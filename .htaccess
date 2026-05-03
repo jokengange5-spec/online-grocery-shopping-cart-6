@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+</IfModule>
+
+# Allow PHP to write in uploaded_img
+<Directory "/var/www/html/uploaded_img">
+    Options -Indexes
+    AllowOverride All
+    Require all granted
+</Directory>
