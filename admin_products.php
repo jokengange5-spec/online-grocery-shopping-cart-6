@@ -48,7 +48,7 @@ if(isset($_POST['add_product'])){
 if(isset($_GET['delete'])){
 
    $delete_id = $_GET['delete'];
-   $select_delete_image = $conn->prepare("SELECT image FROM `products` WHERE id = ?");
+   $select_delete_image = $conn->prepare("SELECT image FROM products WHERE id = ?");
    $select_delete_image->execute([$delete_id]);
    $fetch_delete_image = $select_delete_image->fetch(PDO::FETCH_ASSOC);
    
@@ -57,7 +57,7 @@ if(isset($_GET['delete'])){
       @unlink($image_path);
    }
 
-   $delete_products = $conn->prepare("DELETE FROM `products` WHERE id = ?");
+   $delete_products = $conn->prepare("DELETE FROM products WHERE id = ?");
    $delete_products->execute([$delete_id]);
    $delete_wishlist = $conn->prepare("DELETE FROM `wishlist` WHERE pid = ?");
    $delete_wishlist->execute([$delete_id]);
@@ -131,7 +131,7 @@ if(isset($message)){
    <h1 class="title">Products Added</h1>
    <div class="box-container">
    <?php
-      $show_products = $conn->prepare("SELECT * FROM `products` ");
+      $show_products = $conn->prepare("SELECT * FROM products ");
       $show_products->execute();
       if($show_products->rowCount() > 0){
          while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
