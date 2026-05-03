@@ -19,7 +19,7 @@ if(isset($_POST['update_order'])){
 $name = isset($_POST['name']) ? htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8') : '';
    $update_orders = $conn->prepare("UPDATE orders SET payment_status = ? WHERE id = ?");
 $update_orders->execute([$update_payment, $order_id]);
-   $message[] = 'payment has been updated!';
+   $message[] = 'Payment has been completed!';
 
 };
 
@@ -211,14 +211,6 @@ if(isset($_GET['delete'])){
    </div>
 
 </section>
-
-
-
-
-
-
-
-
 
 
 
