@@ -205,3 +205,5 @@ VALUES
 
 INSERT INTO product_categories (product_id, category_id)
 VALUES (1,1), (2,2);
+
+ALTER TABLE products ADD COLUMN image_data LONGTEXT;
