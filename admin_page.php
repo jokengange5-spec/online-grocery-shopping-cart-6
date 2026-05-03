@@ -34,7 +34,7 @@ if(!isset($admin_id)){
 }
 
     body {
-   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture5.jpg') no-repeat;
    background-size: cover;
    background-position: center;
    background-attachment: fixed; /* Para dili mo-scroll ang background */
