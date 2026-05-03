@@ -52,8 +52,8 @@ if(isset($_POST['order'])){
       $delete_cart = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
       $delete_cart->execute([$user_id]);
 
-      header('location:orders.php'); // Redirect to orders after success
-      exit();
+      // header('location:orders.php');  <-- Comment this out or remove it
+      $order_success = true; // Add this flag
    }
 }
 ?>
@@ -221,6 +221,43 @@ if(isset($_POST['order'])){
          .checkout-container { flex-direction: column; }
          .display-orders, .checkout-orders { flex: 1 1 100%; }
       }
+      /* Success Popup Style */
+.popup-message {
+   position: fixed;
+   top: 50%; left: 50%;
+   transform: translate(-50%, -50%);
+   background: var(--white);
+   padding: 2rem 4rem;
+   border-radius: 1rem;
+   box-shadow: 0 1rem 3rem rgba(0,0,0,0.3);
+   z-index: 10000;
+   text-align: center;
+   border-top: .5rem solid var(--green);
+   display: none; /* Hidden by default */
+}
+
+.popup-message i {
+   font-size: 5rem;
+   color: var(--green);
+   margin-bottom: 1rem;
+}
+
+.popup-message p {
+   font-size: 2rem;
+   color: var(--black);
+   font-weight: 600;
+}
+
+/* Overlay to dim the background */
+.popup-overlay {
+   position: fixed;
+   top: 0; left: 0;
+   width: 100%; height: 100%;
+   background: rgba(0,0,0,0.5);
+   z-index: 9999;
+   display: none;
+}
+   
    </style>
 </head>
 <body>
@@ -312,6 +349,26 @@ if(isset($_POST['order'])){
 </div>
 
 <?php include 'footer.php'; ?>
+
+   <!-- Popup Elements -->
+<div class="popup-overlay" id="overlay"></div>
+<div class="popup-message" id="successPopup">
+   <i class="fas fa-check-circle"></i>
+   <p>Order Placed Successfully!</p>
+</div>
+
+<?php if(isset($order_success)): ?>
+<script>
+   // Show the popup and overlay
+   document.getElementById('successPopup').style.display = 'block';
+   document.getElementById('overlay').style.display = 'block';
+
+   // Wait 3 seconds, then redirect to orders page
+   setTimeout(function(){
+      window.location.href = 'orders.php';
+   }, 3000);
+</script>
+<?php endif; ?>
 
 <script src="js/script.js"></script>
 
