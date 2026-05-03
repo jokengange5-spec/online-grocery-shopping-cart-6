@@ -95,11 +95,15 @@ if(isset($_POST['update_profile'])){
          --border: .1rem solid rgba(0,0,0,.1);
       }
 
-      body{
-         background-color: var(--light-bg);
-         font-family: 'Poppins', sans-serif;
-         margin: 0;
-      }
+     body {
+   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+   background-size: cover;
+   background-position: center;
+   background-attachment: fixed; /* Para dili mo-scroll ang background */
+   font-family: 'Poppins', sans-serif;
+   margin: 0;
+   padding: 0;
+}
 
       .update-profile {
          min-height: 100vh;
