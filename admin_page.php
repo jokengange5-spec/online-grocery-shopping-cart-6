@@ -162,17 +162,17 @@ if(!isset($admin_id)){
       <a href="admin_orders.php" class="btn">View Orders</a>
       </div>
 
-      <!-- COMPLETED -->
+     <!-- COMPLETED -->
       <div class="box">
       <?php
-         $total_completed = 0;
+         // Gigamit nato ang 'Completed' (dako ang C) para mo-match sa imong admin_orders.php
          $select_completed = $conn->prepare("SELECT * FROM orders WHERE payment_status = ?");
-         $select_completed->execute(['completed']);
-         while($row = $select_completed->fetch(PDO::FETCH_ASSOC)){
-            $total_completed += $row['total_price'];
-         }
+         $select_completed->execute(['Completed']);
+         
+         // Kini ang mo-ihap kung pila kabuok order ang na-approve (e.g., 4, 5, 10)
+         $number_of_completed = $select_completed->rowCount(); 
       ?>
-      <h3>₱<?= $total_completed; ?></h3>
+      <h3><?= $number_of_completed; ?></h3> 
       <p>Completed Orders</p>
       <a href="admin_orders.php" class="btn">View Orders</a>
       </div>
