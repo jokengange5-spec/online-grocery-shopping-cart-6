@@ -192,8 +192,8 @@ if(isset($_GET['delete'])){
             <input type="hidden" name="order_id" value="<?= $fetch_orders['id']; ?>">
             <select name="update_payment" class="drop-down">
                <option value="" selected disabled><?= $fetch_orders['payment_status']; ?></option>
-               <option value="pending">Pending</option>
-               <option value="completed">Completed</option>
+               <option value="Pending">Pending</option>
+               <option value="Completed">Completed</option>
             </select>
             <div class="flex-btn">
                <input type="submit" name="update_order" class="option-btn" value="Update">
