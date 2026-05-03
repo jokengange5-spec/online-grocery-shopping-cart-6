@@ -70,9 +70,13 @@ if(isset($_GET['delete'])){
 
    $delete_products = $conn->prepare("DELETE FROM products WHERE id = ?");
    $delete_products->execute([$delete_id]);
-   $delete_wishlist = $conn->prepare("DELETE FROM `wishlist` WHERE pid = ?");
-   $delete_wishlist->execute([$delete_id]);
-   $delete_cart = $conn->prepare("DELETE FROM `cart` WHERE pid = ?");
+   $delete_wishlist = $conn->prepare("DELETE FROM wishlist WHERE pid = ?");
+   $delete_wishlist = $conn->prepare("DELETE FROM wishlist WHERE pid = ?");
+$delete_wishlist->execute([$delete_id]);
+
+$delete_cart = $conn->prepare("DELETE FROM cart WHERE pid = ?");
+$delete_cart->execute([$delete_id]);
+   $delete_cart = $conn->prepare("DELETE FROM cart WHERE pid = ?");
    $delete_cart->execute([$delete_id]);
    
    header('location:admin_products.php');
