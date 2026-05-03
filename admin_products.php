@@ -24,7 +24,30 @@ if(isset($_POST['add_product'])){
    $image = $_FILES['image']['name'];
    $image_size = $_FILES['image']['size'];
    $image_tmp_name = $_FILES['image']['tmp_name'];
-   $image_folder = 'uploaded_img/'.$image;
+   
+   // Use absolute path
+   $upload_dir = __DIR__ . '/uploaded_img';
+   $image_folder = $upload_dir . '/' . $image;
+   
+   // Create directory with full permissions if it doesn't exist
+   if (!file_exists($upload_dir)) {
+       if (!mkdir($upload_dir, 0777, true)) {
+           $message[] = 'Failed to create upload directory!';
+       }
+       // Try to set permissions
+       chmod($upload_dir, 0777);
+   }
+   
+   // Check if directory exists and is writable
+   if (!is_dir($upload_dir)) {
+       $message[] = 'Upload directory does not exist!';
+   } elseif (!is_writable($upload_dir)) {
+       // Try to make it writable
+       chmod($upload_dir, 0777);
+       if (!is_writable($upload_dir)) {
+           $message[] = 'Upload directory is not writable! Please contact administrator.';
+       }
+   }
 
    $select_products = $conn->prepare("SELECT * FROM products WHERE name = ?");
    $select_products->execute([$name]);
@@ -39,20 +62,16 @@ if(isset($_POST['add_product'])){
          $insert_products->execute([$name, $category, $details, $price, $image]);
 
          if($insert_products){
-            // Added check if folder exists and is writable
-            if(!is_dir('uploaded_img')){
-               mkdir('uploaded_img', 0777, true);
-            }
-            
             if(move_uploaded_file($image_tmp_name, $image_folder)){
                $message[] = 'New product added!';
             }else{
-               $message[] = 'Upload failed! Check folder permissions.';
+               $error = error_get_last();
+               $message[] = 'Upload failed! Error: ' . ($error['message'] ?? 'Check folder permissions');
             }
          }
       }
    }
-};
+}
 
 if(isset($_GET['delete'])){
 
