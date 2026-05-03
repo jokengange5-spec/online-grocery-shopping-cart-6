@@ -14,7 +14,8 @@ if(isset($_POST['update_order'])){
 
    $order_id = $_POST['order_id'];
    $update_payment = $_POST['update_payment'] ?? '';
-   $update_payment = filter_var($update_payment, FILTER_SANITIZE_STRING);
+   // NEW CODE (No error)
+$filter_name = htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8');
    $update_orders = $conn->prepare("UPDATE orders SET payment_status = ? WHERE id = ?");
 $update_orders->execute([$update_payment, $order_id]);
    $message[] = 'payment has been updated!';
