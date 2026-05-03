@@ -89,11 +89,15 @@ if(isset($_POST['add_to_cart'])){
          --shadow: 0 .5rem 1rem rgba(0,0,0,.05);
       }
 
-      body{
-         background-color: var(--light-bg);
-         font-family: 'Poppins', sans-serif;
-         color: var(--black);
-      }
+      body {
+   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+   background-size: cover;
+   background-position: center;
+   background-attachment: fixed; /* Para dili mo-scroll ang background */
+   font-family: 'Poppins', sans-serif;
+   margin: 0;
+   padding: 0;
+}
 
       /* Simple Search Form */
       .search-form {
