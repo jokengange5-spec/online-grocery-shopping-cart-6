@@ -1,6 +1,6 @@
 <?php
 
-ob_start(); // Gi-add para sa hapsay nga redirect (header)
+ob_start(); 
 include 'config.php';
 
 session_start();
@@ -12,6 +12,8 @@ if(!isset($admin_id)){
    exit();
 };
 
+$message = []; // Initialize as array to prevent foreach error
+
 if(isset($_POST['add_product'])){
 
    $name = htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8');
@@ -19,7 +21,7 @@ if(isset($_POST['add_product'])){
    $category = htmlspecialchars($_POST['category'] ?? '', ENT_QUOTES, 'UTF-8');
    $details = htmlspecialchars($_POST['details'] ?? '', ENT_QUOTES, 'UTF-8');
    
-   $image = htmlspecialchars($_FILES['image']['name'] ?? '', ENT_QUOTES, 'UTF-8');
+   $image = $_FILES['image']['name'];
    $image_size = $_FILES['image']['size'];
    $image_tmp_name = $_FILES['image']['tmp_name'];
    $image_folder = 'uploaded_img/'.$image;
@@ -30,7 +32,6 @@ if(isset($_POST['add_product'])){
    if($select_products->rowCount() > 0){
       $message[] = 'Product name already exists!';
    }else{
-      // Check image size before database entry
       if($image_size > 2000000){
          $message[] = 'Image size is too large!';
       }else{
@@ -38,8 +39,16 @@ if(isset($_POST['add_product'])){
          $insert_products->execute([$name, $category, $details, $price, $image]);
 
          if($insert_products){
-            move_uploaded_file($image_tmp_name, $image_folder);
-            $message[] = 'New product added!';
+            // Added check if folder exists and is writable
+            if(!is_dir('uploaded_img')){
+               mkdir('uploaded_img', 0777, true);
+            }
+            
+            if(move_uploaded_file($image_tmp_name, $image_folder)){
+               $message[] = 'New product added!';
+            }else{
+               $message[] = 'Upload failed! Check folder permissions.';
+            }
          }
       }
    }
@@ -52,9 +61,11 @@ if(isset($_GET['delete'])){
    $select_delete_image->execute([$delete_id]);
    $fetch_delete_image = $select_delete_image->fetch(PDO::FETCH_ASSOC);
    
-   $image_path = 'uploaded_img/'.$fetch_delete_image['image'];
-   if(file_exists($image_path)){
-      @unlink($image_path);
+   if($fetch_delete_image){
+      $image_path = 'uploaded_img/'.$fetch_delete_image['image'];
+      if(file_exists($image_path)){
+         @unlink($image_path);
+      }
    }
 
    $delete_products = $conn->prepare("DELETE FROM products WHERE id = ?");
@@ -99,7 +110,7 @@ if(isset($_GET['delete'])){
       .flex{ display:flex; gap:20px; }
       .inputBox{ flex:1; }
       .box{ width:100%; padding:12px; margin:10px 0; border:none; border-radius:10px; outline:none; }
-      .btn{ display:block; width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(45deg,#00f260,#0575e6); color:white; font-weight:600; cursor:pointer; transition:0.3s; }
+      .btn{ display:block; width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(45deg,#00f260,#0575e6); color:white; font-weight:600; cursor:pointer; transition:0.3s; margin-top: 10px;}
       .btn:hover{ transform:scale(1.02); }
       .show-products .box-container{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:30px; }
       .show-products .box{ background:rgba(255,255,255,0.08); backdrop-filter: blur(15px); padding:20px; border-radius:20px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.4); transition:0.3s; }
@@ -108,10 +119,12 @@ if(isset($_GET['delete'])){
       .name{ font-size:18px; font-weight:600; margin:5px 0; color:#fff; }
       .cat{ font-size:14px; color:#bbb; }
       .details{ font-size:13px; color:#ddd; margin:10px 0; }
-      .option-btn, .delete-btn{ display:inline-block; padding:8px 12px; border-radius:10px; text-decoration:none; font-weight:600; margin:5px; }
+      .flex-btn { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+      .option-btn, .delete-btn{ display:inline-block; padding:8px 15px; border-radius:10px; text-decoration:none; font-weight:600; font-size: 14px; }
       .option-btn{ background:#3498db; color:white; }
       .delete-btn{ background:#e74c3c; color:white; }
-      .message { background: #fff; padding: 10px; text-align: center; margin: 10px auto; width: 50%; border-radius: 10px; }
+      .message { background: #fff; padding: 10px; text-align: center; margin: 10px auto; width: 50%; border-radius: 10px; position: relative; z-index: 1000; }
+      .message i { cursor: pointer; color: red; margin-left: 10px; }
    </style>
 </head>
 <body>
@@ -119,14 +132,14 @@ if(isset($_GET['delete'])){
 <?php include 'admin_header.php'; ?>
 
 <?php
-if(isset($message)){
+// Fix for Line 123: Check if $message is array and not empty
+if(isset($message) && is_array($message)){
    foreach($message as $msg){
       echo '<div class="message"><span>'.$msg.'</span> <i class="fas fa-times" onclick="this.parentElement.remove();"></i></div>';
    }
 }
 ?>
 
-<!-- 1st: Show Products Grid -->
 <section class="show-products">
    <h1 class="title">Products Added</h1>
    <div class="box-container">
@@ -150,13 +163,12 @@ if(isset($message)){
    <?php
          }
       }else{
-         echo '<p class="empty">No products added yet!</p>';
+         echo '<p style="color:white; text-align:center; grid-column: 1/-1;">No products added yet!</p>';
       }
    ?>
    </div>
 </section>
 
-<!-- 2nd: Add New Product Form (Now at the bottom) -->
 <section class="add-products">
    <h1 class="title">Add New Product</h1>
    <form action="" method="POST" enctype="multipart/form-data">
