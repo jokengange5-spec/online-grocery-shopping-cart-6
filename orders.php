@@ -45,9 +45,15 @@ if(!$user_id){
          text-decoration: none;
       }
 
-      body{
-         background-color: var(--light-bg);
-      }
+     body {
+   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+   background-size: cover;
+   background-position: center;
+   background-attachment: fixed; /* Para dili mo-scroll ang background */
+   font-family: 'Poppins', sans-serif;
+   margin: 0;
+   padding: 0;
+}
 
       .placed-orders {
          padding: 5rem 5%;
