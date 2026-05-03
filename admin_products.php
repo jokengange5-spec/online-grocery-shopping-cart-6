@@ -24,7 +24,7 @@ if(isset($_POST['add_product'])){
    $image_tmp_name = $_FILES['image']['tmp_name'];
    $image_folder = 'uploaded_img/'.$image;
 
-   $select_products = $conn->prepare("SELECT * FROM `products` WHERE name = ?");
+   $select_products = $conn->prepare("SELECT * FROM products WHERE name = ?");
    $select_products->execute([$name]);
 
    if($select_products->rowCount() > 0){
