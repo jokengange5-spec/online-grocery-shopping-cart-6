@@ -305,7 +305,7 @@ if(isset($_POST['order'])){
                <input type="number" min="0" name="pin_code" placeholder="e.g. 1000" class="box" required>
             </div>
          </div>
-         <input type="submit" name="order" class="btn <?= ($cart_grand_total > 1)?'':'disabled'; ?>" value="Complete Order">
+         <input type="submit" name="order" class="btn <?= ($cart_grand_total > 1)?'':'disabled'; ?>" value="Place Order">
       </form>
    </section>
 
