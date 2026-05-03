@@ -12,7 +12,7 @@ if(!isset($admin_id)){
    exit();
 };
 
-$message = []; // Initialize as array to prevent foreach error
+$message = [];
 
 if(isset($_POST['add_product'])){
 
@@ -25,27 +25,25 @@ if(isset($_POST['add_product'])){
    $image_size = $_FILES['image']['size'];
    $image_tmp_name = $_FILES['image']['tmp_name'];
    
-   // Use absolute path
+   // Define upload path
    $upload_dir = __DIR__ . '/uploaded_img';
    $image_folder = $upload_dir . '/' . $image;
    
-   // Create directory with full permissions if it doesn't exist
+   // Try to create directory if it doesn't exist
    if (!file_exists($upload_dir)) {
-       if (!mkdir($upload_dir, 0777, true)) {
-           $message[] = 'Failed to create upload directory!';
-       }
-       // Try to set permissions
-       chmod($upload_dir, 0777);
+       @mkdir($upload_dir, 0755, true);
    }
    
-   // Check if directory exists and is writable
-   if (!is_dir($upload_dir)) {
-       $message[] = 'Upload directory does not exist!';
-   } elseif (!is_writable($upload_dir)) {
-       // Try to make it writable
-       chmod($upload_dir, 0777);
-       if (!is_writable($upload_dir)) {
-           $message[] = 'Upload directory is not writable! Please contact administrator.';
+   // Check if directory is usable
+   $can_upload = false;
+   
+   if (is_dir($upload_dir) && is_writable($upload_dir)) {
+       $can_upload = true;
+   } else {
+       // Try to fix permissions silently
+       @chmod($upload_dir, 0755);
+       if (is_writable($upload_dir)) {
+           $can_upload = true;
        }
    }
 
@@ -54,20 +52,22 @@ if(isset($_POST['add_product'])){
 
    if($select_products->rowCount() > 0){
       $message[] = 'Product name already exists!';
+   }elseif($image_size > 2000000){
+      $message[] = 'Image size is too large!';
+   }elseif(!$can_upload){
+      $message[] = 'Server configuration error. Please create folder "uploaded_img" with write permissions (755 or 777) in: ' . __DIR__;
    }else{
-      if($image_size > 2000000){
-         $message[] = 'Image size is too large!';
-      }else{
-         $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, image) VALUES(?,?,?,?,?)");
-         $insert_products->execute([$name, $category, $details, $price, $image]);
+      $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, image) VALUES(?,?,?,?,?)");
+      $insert_products->execute([$name, $category, $details, $price, $image]);
 
-         if($insert_products){
-            if(move_uploaded_file($image_tmp_name, $image_folder)){
-               $message[] = 'New product added!';
-            }else{
-               $error = error_get_last();
-               $message[] = 'Upload failed! Error: ' . ($error['message'] ?? 'Check folder permissions');
-            }
+      if($insert_products){
+         if(@move_uploaded_file($image_tmp_name, $image_folder)){
+            $message[] = 'New product added!';
+         }else{
+            // If move fails, delete the database entry
+            $last_id = $conn->lastInsertId();
+            $conn->prepare("DELETE FROM products WHERE id = ?")->execute([$last_id]);
+            $message[] = 'Failed to upload image. Please ensure the uploaded_img folder has write permissions.';
          }
       }
    }
@@ -89,12 +89,10 @@ if(isset($_GET['delete'])){
 
    $delete_products = $conn->prepare("DELETE FROM products WHERE id = ?");
    $delete_products->execute([$delete_id]);
+   
    $delete_wishlist = $conn->prepare("DELETE FROM wishlist WHERE pid = ?");
-   $delete_wishlist = $conn->prepare("DELETE FROM wishlist WHERE pid = ?");
-$delete_wishlist->execute([$delete_id]);
+   $delete_wishlist->execute([$delete_id]);
 
-$delete_cart = $conn->prepare("DELETE FROM cart WHERE pid = ?");
-$delete_cart->execute([$delete_id]);
    $delete_cart = $conn->prepare("DELETE FROM cart WHERE pid = ?");
    $delete_cart->execute([$delete_id]);
    
@@ -155,7 +153,6 @@ $delete_cart->execute([$delete_id]);
 <?php include 'admin_header.php'; ?>
 
 <?php
-// Fix for Line 123: Check if $message is array and not empty
 if(isset($message) && is_array($message)){
    foreach($message as $msg){
       echo '<div class="message"><span>'.$msg.'</span> <i class="fas fa-times" onclick="this.parentElement.remove();"></i></div>';
