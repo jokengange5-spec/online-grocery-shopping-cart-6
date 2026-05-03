@@ -1,4 +1,4 @@
-<?php
+   <?php
 @include 'config.php';
 session_start();
 
@@ -9,7 +9,7 @@ if(!$user_id){
    exit;
 }
 
-/* ADD TO WISHLIST & CART LOGIC (Kabilin sa imong original code) */
+/* ADD TO WISHLIST & CART LOGIC */
 if(isset($_POST['add_to_wishlist'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
    $p_name = htmlspecialchars(trim($_POST['p_name']));
@@ -60,12 +60,14 @@ if(isset($_POST['add_to_cart'])){
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Modern Grocery Shop</title>
+   <title>Shop - Joken's Grocery</title>
    
    <!-- Google Fonts & Font Awesome -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
    
    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+
       :root{
          --green: #27ae60;
          --black: #333;
@@ -80,6 +82,24 @@ if(isset($_POST['add_to_cart'])){
          font-family: 'Poppins', sans-serif;
          margin: 0;
          padding: 0;
+      }
+
+      /* --- COPIED HERO BACKGROUND CSS --- */
+      .home-bg{
+         min-height: 40vh; /* Reduced height for shop page so products are visible */
+         background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+         background-size: cover;
+         background-position: center;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         padding: 2rem;
+      }
+
+      .home-bg h1{
+         font-size: 4rem;
+         color: var(--white);
+         text-transform: uppercase;
       }
 
       /* Category Section */
@@ -122,7 +142,7 @@ if(isset($_POST['add_to_cart'])){
 
       .box-container {
          display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive Grid */
+         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
          gap: 1.5rem;
          justify-content: center;
       }
@@ -163,7 +183,6 @@ if(isset($_POST['add_to_cart'])){
          border: var(--border);
          border-radius: .5rem;
          color: var(--black);
-         text-decoration: none;
          background: var(--white);
       }
 
@@ -181,7 +200,6 @@ if(isset($_POST['add_to_cart'])){
          margin-bottom: 1rem;
       }
 
-      /* Buttons */
       .btn, .option-btn {
          width: 100%;
          display: block;
@@ -200,18 +218,19 @@ if(isset($_POST['add_to_cart'])){
       .option-btn { background: #f39c12; color: var(--white); }
       .option-btn:hover { background: var(--black); }
 
-      /* Mobile Adjustments */
-      @media (max-width: 450px) {
-         .box-container {
-            grid-template-columns: 1fr; /* Isa ka column sa gamay nga cellphone */
-         }
-         .products .title { font-size: 2rem; }
+      @media (max-width: 768px) {
+         .home-bg h1 { font-size: 2.5rem; }
       }
    </style>
 </head>
 <body>
 
 <?php include 'header.php'; ?>
+
+<!-- COPIED HERO SECTION FROM HOME -->
+<div class="home-bg">
+   <h1>Our Shop</h1>
+</div>
 
 <section class="p-category">
    <a href="category.php?category=fruits">🍎 Fruits</a>
@@ -234,7 +253,6 @@ if(isset($_POST['add_to_cart'])){
       <div class="price">₱<span><?= $fetch_products['price']; ?></span></div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
       
-      <!-- Gi-update ang path para mo-match sa imong GitHub folder -->
       <img src="image products/<?= $fetch_products['image']; ?>" alt="<?= $fetch_products['name']; ?>">
       
       <div class="name"><?= $fetch_products['name']; ?></div>
