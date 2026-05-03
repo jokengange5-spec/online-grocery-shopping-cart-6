@@ -11,6 +11,23 @@ if(!$user_id){
    exit;
 }
 
+/* --- CANCEL ORDER LOGIC --- */
+if(isset($_GET['delete'])){
+   $delete_id = $_GET['delete'];
+   
+   // Siguraduhon nato nga ang tag-iya sa order ra ang maka-cancel
+   $delete_order = $conn->prepare("DELETE FROM `orders` WHERE id = ? AND user_id = ? AND payment_status = 'pending'");
+   $delete_order->execute([$delete_id, $user_id]);
+   
+   if($delete_order->rowCount() > 0){
+      header('location:orders.php');
+      exit;
+   } else {
+      // Dili na ma-cancel kung 'completed' na ang status
+      $message[] = 'Dili na ma-cancel kini nga order kay naproseso na.';
+   }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -45,15 +62,14 @@ if(!$user_id){
          text-decoration: none;
       }
 
-     body {
-   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
-   background-size: cover;
-   background-position: center;
-   background-attachment: fixed; /* Para dili mo-scroll ang background */
-   font-family: 'Poppins', sans-serif;
-   margin: 0;
-   padding: 0;
-}
+      body {
+         background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+         background-size: cover;
+         background-position: center;
+         background-attachment: fixed;
+         margin: 0;
+         padding: 0;
+      }
 
       .placed-orders {
          padding: 5rem 5%;
@@ -65,7 +81,7 @@ if(!$user_id){
          text-align: center;
          margin-bottom: 3rem;
          font-size: 2.5rem;
-         color: var(--black);
+         color: var(--white); /* Gi-white nako para makita sa background */
          text-transform: uppercase;
       }
 
@@ -83,10 +99,6 @@ if(!$user_id){
          box-shadow: var(--shadow);
          border: var(--border);
          transition: .3s ease;
-      }
-
-      .box:hover {
-         transform: translateY(-5px);
       }
 
       .box p {
@@ -113,37 +125,40 @@ if(!$user_id){
          text-transform: capitalize;
       }
 
-      .status-pending {
-         background-color: #ffeaa7;
-         color: var(--orange);
-      }
+      .status-pending { background-color: #ffeaa7; color: var(--orange); }
+      .status-completed { background-color: #c2fbd7; color: var(--green); }
 
-      .status-completed {
-         background-color: #c2fbd7;
-         color: var(--green);
-      }
-
-      .empty {
-         background-color: var(--white);
-         padding: 2rem;
+      /* --- CANCEL BUTTON STYLE --- */
+      .delete-btn {
+         display: block;
+         width: 100%;
          text-align: center;
-         font-size: 1.5rem;
-         border-radius: 1rem;
-         box-shadow: var(--shadow);
-         grid-column: 1 / -1;
+         background-color: var(--red);
+         color: var(--white);
+         font-size: 1.1rem;
+         padding: 1rem;
+         border-radius: .5rem;
+         margin-top: 1rem;
+         font-weight: 600;
+         transition: .3s;
       }
 
-      /* Mobile Adjustments */
+      .delete-btn:hover {
+         background-color: var(--black);
+      }
+
+      /* Disable button style */
+      .delete-btn.disabled {
+         background-color: #ccc;
+         pointer-events: none;
+         cursor: not-allowed;
+      }
+
       @media (max-width: 450px) {
-         .box-container {
-            grid-template-columns: 1fr;
-         }
-         .title {
-            font-size: 2rem;
-         }
+         .box-container { grid-template-columns: 1fr; }
+         .title { font-size: 2rem; }
       }
    </style>
-
 </head>
 <body>
    
@@ -156,8 +171,7 @@ if(!$user_id){
    <div class="box-container">
 
    <?php
-      // PostgreSQL Query
-      $select_orders = $conn->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC");
+      $select_orders = $conn->prepare("SELECT * FROM `orders` WHERE user_id = ? ORDER BY id DESC");
       $select_orders->execute([$user_id]);
 
       if($select_orders->rowCount() > 0){
@@ -177,6 +191,14 @@ if(!$user_id){
             <?= $fetch_orders['payment_status']; ?>
          </span>
       </p>
+
+      <!-- KANI ANG CANCEL BUTTON -->
+      <?php if($fetch_orders['payment_status'] == 'pending'){ ?>
+         <a href="orders.php?delete=<?= $fetch_orders['id']; ?>" class="delete-btn" onclick="return confirm('Sigurado ka nga i-cancel nimo ni nga order?');">Cancel Order</a>
+      <?php } else { ?>
+         <a href="#" class="delete-btn disabled">Cannot Cancel</a>
+      <?php } ?>
+
    </div>
    <?php
       }
