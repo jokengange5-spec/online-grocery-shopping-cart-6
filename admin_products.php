@@ -34,7 +34,7 @@ if(isset($_POST['add_product'])){
       if($image_size > 2000000){
          $message[] = 'Image size is too large!';
       }else{
-         $insert_products = $conn->prepare("INSERT INTO `products`(name, category, details, price, image) VALUES(?,?,?,?,?)");
+         $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, image) VALUES(?,?,?,?,?)");
          $insert_products->execute([$name, $category, $details, $price, $image]);
 
          if($insert_products){
