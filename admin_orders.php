@@ -15,7 +15,8 @@ if(isset($_POST['update_order'])){
    $order_id = $_POST['order_id'];
    $update_payment = $_POST['update_payment'] ?? '';
    // NEW CODE (No error)
-$filter_name = htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8');
+// This says: Use $_POST['name'] if it exists, otherwise just use an empty string ''
+$name = isset($_POST['name']) ? htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8') : '';
    $update_orders = $conn->prepare("UPDATE orders SET payment_status = ? WHERE id = ?");
 $update_orders->execute([$update_payment, $order_id]);
    $message[] = 'payment has been updated!';
