@@ -76,12 +76,14 @@ if(isset($_POST['add_to_cart'])){
       }
 
       body {
-         background-color: var(--light-bg);
-         font-family: 'Poppins', sans-serif;
-         margin: 0;
-         padding: 0;
-      }
-
+   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+   background-size: cover;
+   background-position: center;
+   background-attachment: fixed; /* Para dili mo-scroll ang background */
+   font-family: 'Poppins', sans-serif;
+   margin: 0;
+   padding: 0;
+}
       /* Category Section */
       .p-category {
          display: flex;
