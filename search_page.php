@@ -242,7 +242,7 @@ if(isset($_POST['add_to_cart'])){
 
 <section class="search-form">
    <form action="" method="POST">
-      <input type="text" class="box" name="search_box" placeholder="Unsa imong gipangita?" value="<?= isset($_POST['search_box']) ? htmlspecialchars($_POST['search_box']) : ''; ?>" required>
+      <input type="text" class="box" name="search_box" placeholder="What are you searching for?" value="<?= isset($_POST['search_box']) ? htmlspecialchars($_POST['search_box']) : ''; ?>" required>
       <button type="submit" name="search_btn" class="btn"><i class="fas fa-search"></i></button>
    </form>
 </section>
@@ -287,10 +287,10 @@ if(isset($_POST['add_to_cart'])){
    <?php
             }
          }else{
-            echo '<p class="empty">Pasayloa, walay nakit-an nga "'.htmlspecialchars($search_box).'".</p>';
+            echo '<p class="empty">Sorry, no [item] was found"'.htmlspecialchars($search_box).'".</p>';
          }
       } else {
-         echo '<p class="empty">Sulayi pag-search ang ngalan sa produkto o category.</p>';
+         echo '<p class="empty">Try searching by product name or category</p>';
       }
    ?>
    </div>
