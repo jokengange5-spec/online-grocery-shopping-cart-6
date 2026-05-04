@@ -41,7 +41,7 @@ if(isset($_POST['add_to_cart'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
    $p_name = substr(htmlspecialchars(trim($_POST['p_name'])), 0, 255);
    $p_price = htmlspecialchars(trim($_POST['p_price']));
-   $p_image = substr(htmlspecialchars(trim($_POST['p_image'])), 0, 255);
+  $p_image = $_POST['p_image'];
    $p_qty = htmlspecialchars(trim($_POST['p_qty']));
 
    $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
