@@ -248,7 +248,7 @@ if(isset($_GET['delete_all'])){
    <form action="" method="POST" class="box">
       <a href="wishlist.php?delete=<?= $fetch_wishlist['id']; ?>" class="fas fa-times" onclick="return confirm('Remove this from wishlist?');"></a>
       <a href="view_page.php?pid=<?= $fetch_wishlist['pid']; ?>" class="fas fa-eye"></a>
-      <img src="image products/<?= $fetch_wishlist['image']; ?>" alt="">
+      <img src="<?= $fetch_wishlist['image']; ?>" alt="">
       <div class="name"><?= $fetch_wishlist['name']; ?></div>
       <div class="price">₱<?= $fetch_wishlist['price']; ?></div>
       
