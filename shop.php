@@ -236,8 +236,7 @@ if(isset($_POST['add_to_cart'])){
       <div class="price">₱<span><?= $fetch_products['price']; ?></span></div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
       
-      <!-- Gi-update ang path para mo-match sa imong GitHub folder -->
-      <img src="image products/<?= $fetch_products['image']; ?>" alt="<?= $fetch_products['name']; ?>">
+     <img src="<?= $fetch_products['image']; ?>" alt="">
       
       <div class="name"><?= $fetch_products['name']; ?></div>
       <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
