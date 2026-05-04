@@ -9,12 +9,13 @@ if(!$user_id){
    exit;
 }
 
-/* ADD TO WISHLIST & CART LOGIC (Kabilin sa imong original code) */
+/* ADD TO WISHLIST LOGIC */
 if(isset($_POST['add_to_wishlist'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
-   $p_name = htmlspecialchars(trim($_POST['p_name']));
+   // Gi-truncate sa 255 characters para dili mo error sa PostgreSQL
+   $p_name = substr(htmlspecialchars(trim($_POST['p_name'])), 0, 255);
    $p_price = htmlspecialchars(trim($_POST['p_price']));
-   $p_image = htmlspecialchars(trim($_POST['p_image']));
+   $p_image = substr(htmlspecialchars(trim($_POST['p_image'])), 0, 255);
 
    $check = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
    $check->execute([$p_name, $user_id]);
@@ -27,17 +28,19 @@ if(isset($_POST['add_to_wishlist'])){
    }elseif($check_cart->rowCount() > 0){
       $message[] = 'Already added to cart!';
    }else{
-      $insert = $conn->prepare("INSERT INTO wishlist(id, user_id, pid, name, price, image) VALUES(DEFAULT, ?, ?, ?, ?, ?)");
+      // DEFAULT gigamit para sa compatibility sa PostgreSQL serial IDs
+      $insert = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?, ?, ?, ?, ?)");
       $insert->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
       $message[] = 'Added to wishlist!';
    }
 }
 
+/* ADD TO CART LOGIC */
 if(isset($_POST['add_to_cart'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
-   $p_name = htmlspecialchars(trim($_POST['p_name']));
+   $p_name = substr(htmlspecialchars(trim($_POST['p_name'])), 0, 255);
    $p_price = htmlspecialchars(trim($_POST['p_price']));
-   $p_image = htmlspecialchars(trim($_POST['p_image']));
+   $p_image = substr(htmlspecialchars(trim($_POST['p_image'])), 0, 255);
    $p_qty = htmlspecialchars(trim($_POST['p_qty']));
 
    $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
@@ -48,7 +51,8 @@ if(isset($_POST['add_to_cart'])){
    }else{
       $delete_wish = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
       $delete_wish->execute([$p_name, $user_id]);
-      $insert = $conn->prepare("INSERT INTO cart(id, user_id, pid, name, price, quantity, image) VALUES(DEFAULT, ?, ?, ?, ?, ?, ?)");
+      
+      $insert = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?, ?, ?, ?, ?, ?)");
       $insert->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
       $message[] = 'Added to cart!';
    }
@@ -61,8 +65,6 @@ if(isset($_POST['add_to_cart'])){
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Modern Grocery Shop</title>
-   
-   <!-- Google Fonts & Font Awesome -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
    
    <style>
@@ -76,15 +78,15 @@ if(isset($_POST['add_to_cart'])){
       }
 
       body {
-   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
-   background-size: cover;
-   background-position: center;
-   background-attachment: fixed; /* Para dili mo-scroll ang background */
-   font-family: 'Poppins', sans-serif;
-   margin: 0;
-   padding: 0;
-}
-      /* Category Section */
+         background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+         background-size: cover;
+         background-position: center;
+         background-attachment: fixed;
+         font-family: 'Poppins', sans-serif;
+         margin: 0;
+         padding: 0;
+      }
+
       .p-category {
          display: flex;
          justify-content: center;
@@ -110,21 +112,12 @@ if(isset($_POST['add_to_cart'])){
          color: var(--white);
       }
 
-      /* Products Section */
-      .products {
-         padding: 2rem 5%;
-      }
-
-      .products .title {
-         text-align: center;
-         margin-bottom: 2rem;
-         font-size: 2.5rem;
-         color: var(--black);
-      }
+      .products { padding: 2rem 5%; }
+      .products .title { text-align: center; margin-bottom: 2rem; font-size: 2.5rem; color: var(--white); text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
 
       .box-container {
          display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive Grid */
+         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
          gap: 1.5rem;
          justify-content: center;
       }
@@ -169,45 +162,21 @@ if(isset($_POST['add_to_cart'])){
          background: var(--white);
       }
 
-      .box .name {
-         font-size: 1.5rem;
-         color: var(--black);
-         margin: 1rem 0;
-      }
+      .box .name { font-size: 1.5rem; color: var(--black); margin: 1rem 0; }
+      .box .qty { width: 100%; padding: 1rem; border: var(--border); border-radius: .5rem; margin-bottom: 1rem; }
 
-      .box .qty {
-         width: 100%;
-         padding: 1rem;
-         border: var(--border);
-         border-radius: .5rem;
-         margin-bottom: 1rem;
-      }
-
-      /* Buttons */
       .btn, .option-btn {
-         width: 100%;
-         display: block;
-         padding: 1rem;
-         border-radius: .5rem;
-         cursor: pointer;
-         font-size: 1.1rem;
-         border: none;
-         margin-top: .5rem;
-         transition: .3s;
+         width: 100%; display: block; padding: 1rem; border-radius: .5rem;
+         cursor: pointer; font-size: 1.1rem; border: none; margin-top: .5rem; transition: .3s;
       }
 
       .btn { background: var(--green); color: var(--white); }
       .btn:hover { background: var(--black); }
-
       .option-btn { background: #f39c12; color: var(--white); }
       .option-btn:hover { background: var(--black); }
 
-      /* Mobile Adjustments */
       @media (max-width: 450px) {
-         .box-container {
-            grid-template-columns: 1fr; /* Isa ka column sa gamay nga cellphone */
-         }
-         .products .title { font-size: 2rem; }
+         .box-container { grid-template-columns: 1fr; }
       }
    </style>
 </head>
@@ -236,7 +205,7 @@ if(isset($_POST['add_to_cart'])){
       <div class="price">₱<span><?= $fetch_products['price']; ?></span></div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
       
-     <img src="<?= $fetch_products['image']; ?>" alt="">
+      <img src="uploaded_img/<?= $fetch_products['image']; ?>" alt="">
       
       <div class="name"><?= $fetch_products['name']; ?></div>
       <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
@@ -251,7 +220,7 @@ if(isset($_POST['add_to_cart'])){
    <?php
          }
       } else {
-         echo '<p class="empty">No products added yet!</p>';
+         echo '<p class="empty" style="color:white; text-align:center;">No products added yet!</p>';
       }
    ?>
    </div>
