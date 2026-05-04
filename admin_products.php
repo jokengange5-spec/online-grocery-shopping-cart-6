@@ -10,7 +10,7 @@ $admin_id = $_SESSION['admin_id'];
 if(!isset($admin_id)){
    header('location:login.php');
    exit();
-};
+}
 
 $message = [];
 
@@ -21,31 +21,14 @@ if(isset($_POST['add_product'])){
    $category = htmlspecialchars($_POST['category'] ?? '', ENT_QUOTES, 'UTF-8');
    $details = htmlspecialchars($_POST['details'] ?? '', ENT_QUOTES, 'UTF-8');
    
-   $image = $_FILES['image']['name'];
+   $image_name = $_FILES['image']['name'];
    $image_size = $_FILES['image']['size'];
    $image_tmp_name = $_FILES['image']['tmp_name'];
-   
-   // Define upload path
-   $upload_dir = __DIR__ . '/uploaded_img';
-   $image_folder = $upload_dir . '/' . $image;
-   
-   // Try to create directory if it doesn't exist
-   if (!file_exists($upload_dir)) {
-       @mkdir($upload_dir, 0755, true);
-   }
-   
-   // Check if directory is usable
-   $can_upload = false;
-   
-   if (is_dir($upload_dir) && is_writable($upload_dir)) {
-       $can_upload = true;
-   } else {
-       // Try to fix permissions silently
-       @chmod($upload_dir, 0755);
-       if (is_writable($upload_dir)) {
-           $can_upload = true;
-       }
-   }
+   $image_type = $_FILES['image']['type'];
+
+   // Convert image to base64 - NO folder needed!
+   $image_base64 = base64_encode(file_get_contents($image_tmp_name));
+   $image_data = 'data:' . $image_type . ';base64,' . $image_base64;
 
    $select_products = $conn->prepare("SELECT * FROM products WHERE name = ?");
    $select_products->execute([$name]);
@@ -54,21 +37,14 @@ if(isset($_POST['add_product'])){
       $message[] = 'Product name already exists!';
    }elseif($image_size > 2000000){
       $message[] = 'Image size is too large!';
-   }elseif(!$can_upload){
-      $message[] = 'Server configuration error. Please create folder "uploaded_img" with write permissions (755 or 777) in: ' . __DIR__;
    }else{
       $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, image) VALUES(?,?,?,?,?)");
-      $insert_products->execute([$name, $category, $details, $price, $image]);
-
+      $insert_products->execute([$name, $category, $details, $price, $image_data]);
+      
       if($insert_products){
-         if(@move_uploaded_file($image_tmp_name, $image_folder)){
-            $message[] = 'New product added!';
-         }else{
-            // If move fails, delete the database entry
-            $last_id = $conn->lastInsertId();
-            $conn->prepare("DELETE FROM products WHERE id = ?")->execute([$last_id]);
-            $message[] = 'Failed to upload image. Please ensure the uploaded_img folder has write permissions.';
-         }
+         $message[] = 'New product added!';
+      }else{
+         $message[] = 'Failed to add product!';
       }
    }
 }
@@ -76,17 +52,7 @@ if(isset($_POST['add_product'])){
 if(isset($_GET['delete'])){
 
    $delete_id = $_GET['delete'];
-   $select_delete_image = $conn->prepare("SELECT image FROM products WHERE id = ?");
-   $select_delete_image->execute([$delete_id]);
-   $fetch_delete_image = $select_delete_image->fetch(PDO::FETCH_ASSOC);
    
-   if($fetch_delete_image){
-      $image_path = 'uploaded_img/'.$fetch_delete_image['image'];
-      if(file_exists($image_path)){
-         @unlink($image_path);
-      }
-   }
-
    $delete_products = $conn->prepare("DELETE FROM products WHERE id = ?");
    $delete_products->execute([$delete_id]);
    
@@ -164,14 +130,14 @@ if(isset($message) && is_array($message)){
    <h1 class="title">Products Added</h1>
    <div class="box-container">
    <?php
-      $show_products = $conn->prepare("SELECT * FROM products ");
+      $show_products = $conn->prepare("SELECT * FROM products ORDER BY id DESC");
       $show_products->execute();
       if($show_products->rowCount() > 0){
          while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
    ?>
    <div class="box">
       <div class="price">₱<?= $fetch_products['price']; ?></div>
-      <img src="uploaded_img/<?= $fetch_products['image']; ?>" alt="">
+      <img src="<?= $fetch_products['image']; ?>" alt="">
       <div class="name"><?= $fetch_products['name']; ?></div>
       <div class="cat"><?= $fetch_products['category']; ?></div>
       <div class="details"><?= $fetch_products['details']; ?></div>
