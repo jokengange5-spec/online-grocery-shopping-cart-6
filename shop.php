@@ -12,23 +12,24 @@ if(!$user_id){
 /* ADD TO WISHLIST LOGIC */
 if(isset($_POST['add_to_wishlist'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
-   // Gi-truncate sa 255 characters para dili mo error sa PostgreSQL
-   $p_name = substr(htmlspecialchars(trim($_POST['p_name'])), 0, 255);
+   $p_name = htmlspecialchars(trim($_POST['p_name']));
    $p_price = htmlspecialchars(trim($_POST['p_price']));
-   $p_image = substr(htmlspecialchars(trim($_POST['p_image'])), 0, 255);
+   
+   // TANGTANGA ANG SUBSTR SA IMAGE!
+   $p_image = $_POST['p_image']; 
 
-   $check = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
-   $check->execute([$p_name, $user_id]);
+   // Mas husto: I-check ang PID imbes NAME
+   $check = $conn->prepare("SELECT * FROM wishlist WHERE pid = ? AND user_id = ?");
+   $check->execute([$pid, $user_id]);
 
-   $check_cart = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-   $check_cart->execute([$p_name, $user_id]);
+   $check_cart = $conn->prepare("SELECT * FROM cart WHERE pid = ? AND user_id = ?");
+   $check_cart->execute([$pid, $user_id]);
 
    if($check->rowCount() > 0){
       $message[] = 'Already added to wishlist!';
    }elseif($check_cart->rowCount() > 0){
       $message[] = 'Already added to cart!';
    }else{
-      // DEFAULT gigamit para sa compatibility sa PostgreSQL serial IDs
       $insert = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?, ?, ?, ?, ?)");
       $insert->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
       $message[] = 'Added to wishlist!';
