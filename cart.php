@@ -260,7 +260,7 @@ if(isset($_POST['update_qty'])){
    ?>
    <form action="" method="POST" class="box">
       <a href="cart.php?delete=<?= $fetch_cart['id']; ?>" class="fas fa-times" onclick="return confirm('Remove this from cart?');"></a>
-      <img src="image products/<?= $fetch_cart['image']; ?>" alt="">
+      <img src="<?= $fetch_cart['image']; ?>" alt="">
       <div class="name"><?= $fetch_cart['name']; ?></div>
       <div class="price">₱<?= $fetch_cart['price']; ?></div>
       <input type="hidden" name="cart_id" value="<?= $fetch_cart['id']; ?>">
