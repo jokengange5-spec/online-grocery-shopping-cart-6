@@ -194,7 +194,7 @@ if(isset($_GET['delete'])){
 
       <!-- KANI ANG CANCEL BUTTON -->
       <?php if($fetch_orders['payment_status'] == 'pending'){ ?>
-         <a href="orders.php?delete=<?= $fetch_orders['id']; ?>" class="delete-btn" onclick="return confirm('Sigurado ka nga i-cancel nimo ni nga order?');">Cancel Order</a>
+         <a href="orders.php?delete=<?= $fetch_orders['id']; ?>" class="delete-btn" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel Order</a>
       <?php } else { ?>
          <a href="#" class="delete-btn disabled">Cannot Cancel</a>
       <?php } ?>
@@ -203,7 +203,7 @@ if(isset($_GET['delete'])){
    <?php
       }
    }else{
-      echo '<p class="empty">Wala pa kay order nga napahigayon!</p>';
+      echo '<p class="empty">You have no existing orders!</p>';
    }
    ?>
 
