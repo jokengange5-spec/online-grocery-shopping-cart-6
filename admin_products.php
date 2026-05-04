@@ -21,13 +21,31 @@ if(isset($_POST['add_product'])){
    $category = htmlspecialchars($_POST['category'] ?? '', ENT_QUOTES, 'UTF-8');
    $details = htmlspecialchars($_POST['details'] ?? '', ENT_QUOTES, 'UTF-8');
    
+   $image = $_FILES['image']['name'];
    $image_size = $_FILES['image']['size'];
    $image_tmp_name = $_FILES['image']['tmp_name'];
-   $image_type = $_FILES['image']['type'];
    
-   // Convert image to base64
-   $image_data = base64_encode(file_get_contents($image_tmp_name));
-   $image_src = 'data:' . $image_type . ';base64,' . $image_data;
+   // Define upload path
+   $upload_dir = __DIR__ . '/uploaded_img';
+   $image_folder = $upload_dir . '/' . $image;
+   
+   // Try to create directory if it doesn't exist
+   if (!file_exists($upload_dir)) {
+       @mkdir($upload_dir, 0755, true);
+   }
+   
+   // Check if directory is usable
+   $can_upload = false;
+   
+   if (is_dir($upload_dir) && is_writable($upload_dir)) {
+       $can_upload = true;
+   } else {
+       // Try to fix permissions silently
+       @chmod($upload_dir, 0755);
+       if (is_writable($upload_dir)) {
+           $can_upload = true;
+       }
+   }
 
    $select_products = $conn->prepare("SELECT * FROM products WHERE name = ?");
    $select_products->execute([$name]);
@@ -36,16 +54,25 @@ if(isset($_POST['add_product'])){
       $message[] = 'Product name already exists!';
    }elseif($image_size > 2000000){
       $message[] = 'Image size is too large!';
+   }elseif(!$can_upload){
+      $message[] = 'Server configuration error. Please create folder "uploaded_img" with write permissions (755 or 777) in: ' . __DIR__;
    }else{
-      // Store base64 image data and thumbnail in database
-      $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, image, image_data) VALUES(?,?,?,?,?,?)");
-      $insert_products->execute([$name, $category, $details, $price, $image_src, $image_data]);
-      
+      $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, image) VALUES(?,?,?,?,?)");
+      $insert_products->execute([$name, $category, $details, $price, $image]);
+
       if($insert_products){
-         $message[] = 'New product added!';
+         if(@move_uploaded_file($image_tmp_name, $image_folder)){
+            $message[] = 'New product added!';
+         }else{
+            // If move fails, delete the database entry
+            $last_id = $conn->lastInsertId();
+            $conn->prepare("DELETE FROM products WHERE id = ?")->execute([$last_id]);
+            $message[] = 'Failed to upload image. Please ensure the uploaded_img folder has write permissions.';
+         }
       }
    }
 }
+
 if(isset($_GET['delete'])){
 
    $delete_id = $_GET['delete'];
@@ -144,7 +171,7 @@ if(isset($message) && is_array($message)){
    ?>
    <div class="box">
       <div class="price">₱<?= $fetch_products['price']; ?></div>
-      <img src="<?= $fetch_products['image']; ?>" alt="">
+      <img src="uploaded_img/<?= $fetch_products['image']; ?>" alt="">
       <div class="name"><?= $fetch_products['name']; ?></div>
       <div class="cat"><?= $fetch_products['category']; ?></div>
       <div class="details"><?= $fetch_products['details']; ?></div>
