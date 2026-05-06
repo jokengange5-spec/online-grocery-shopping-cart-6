@@ -113,9 +113,11 @@ if(isset($_POST['add_to_cart'])){
 
       .message.success { background: #d4edda; color: #155724; border-left: 6px solid #28a745; }
       .message.error { background: #f8d7da; color: #721c24; border-left: 6px solid #dc3545; }
+      /* Default if class is empty */
+      .message { background: #fff; color: #333; border-left: 6px solid #999; }
 
-      .message span { font-size: 1.5rem; font-weight: 500; }
-      .message i { font-size: 2rem; cursor: pointer; }
+      .message span { font-size: 1.5rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+      .message i.fa-times { font-size: 2rem; cursor: pointer; }
 
       @keyframes slideDown {
          0% { transform: translateY(-100%); opacity: 0; }
@@ -207,16 +209,26 @@ if(isset($_POST['add_to_cart'])){
 
 <?php include 'header.php'; ?>
 
-<!-- MESSAGE DISPLAY -->
+<!-- ✅ IMPROVED MESSAGE DISPLAY LOGIC -->
 <?php
 if(isset($message)){
    echo '<div class="message-container">';
    foreach($message as $msg){
-      $typeClass = $msg['type'];
-      $icon = ($typeClass == 'success') ? 'fa-check-circle' : 'fa-exclamation-circle';
+      if(is_array($msg)){
+         // Bag-ong format (Array)
+         $text = $msg['text'];
+         $typeClass = $msg['type']; // 'success' o 'error'
+         $icon = ($typeClass == 'success') ? 'fa-check-circle' : 'fa-exclamation-circle';
+      } else {
+         // Karaan nga format (String)
+         $text = $msg;
+         $typeClass = ''; 
+         $icon = 'fa-info-circle';
+      }
+      
       echo '
       <div class="message '.$typeClass.'">
-         <span><i class="fas '.$icon.'"></i> '.$msg['text'].'</span>
+         <span><i class="fas '.$icon.'"></i> '.$text.'</span>
          <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
       </div>
       ';
