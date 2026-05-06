@@ -11,7 +11,6 @@ if(!$user_id){
    exit();
 }
 
-// Check if there's a pending order
 if(!isset($_SESSION['pending_order'])){
    header('location:checkout.php');
    exit();
@@ -32,8 +31,21 @@ if(isset($_POST['confirm_payment'])){
       $pending_order['total_products'],
       $pending_order['total_price'],
       $pending_order['placed_on'],
-      'paid' // GCash payment is instant
+      'paid'
    ]);
+
+   // ✅ DEDUCT STOCK SA GCASH ORDER
+   foreach($pending_order['cart_items'] as $item){
+      // Kuhaon ang product_id base sa name (since wala gi-store ang product_id sa cart_items detail)
+      $get_product = $conn->prepare("SELECT id FROM products WHERE name = ?");
+      $get_product->execute([$item['name']]);
+      $product = $get_product->fetch(PDO::FETCH_ASSOC);
+      
+      if($product){
+         $deduct_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?");
+         $deduct_stock->execute([$item['quantity'], $product['id'], $item['quantity']]);
+      }
+   }
 
    // Clear cart
    $delete_cart = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
@@ -42,12 +54,11 @@ if(isset($_POST['confirm_payment'])){
    // Clear pending order
    unset($_SESSION['pending_order']);
 
-   // Redirect to success page
    header('location:order_success.php');
    exit();
 }
 
-// Handle cancellation
+// Handle cancellation - just go back, no stock change needed
 if(isset($_POST['cancel_payment'])){
    unset($_SESSION['pending_order']);
    header('location:checkout.php');
