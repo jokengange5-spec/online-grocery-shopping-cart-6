@@ -34,7 +34,12 @@ if(isset($_POST['order'])){
    if($cart_query->rowCount() > 0){
       while($cart_item = $cart_query->fetch(PDO::FETCH_ASSOC)){
          $cart_products[] = $cart_item['name'].' ( '.$cart_item['quantity'].' )';
+         
+         // Gi-secure nato ang product ID para sa stock deduction later
+         $p_id = $cart_item['product_id'] ?? $cart_item['pid'] ?? null;
+
          $cart_items_detail[] = [
+            'pid' => $p_id,
             'name' => $cart_item['name'],
             'quantity' => $cart_item['quantity'],
             'price' => $cart_item['price']
@@ -69,12 +74,12 @@ if(isset($_POST['order'])){
          $insert_order = $conn->prepare("INSERT INTO orders(user_id, name, number, email, method, address, total_products, total_price, placed_on, payment_status) VALUES(?,?,?,?,?,?,?,?,?,?)");
          $insert_order->execute([$user_id, $name, $number, $email, $method, $address, $total_products, $cart_total, $placed_on, 'pending']);
 
-         // ✅ DEDUCT STOCK SA MATAG PRODUCT SA CART
-         $cart_items_query = $conn->prepare("SELECT * FROM cart WHERE user_id = ?");
-         $cart_items_query->execute([$user_id]);
-         while($item = $cart_items_query->fetch(PDO::FETCH_ASSOC)){
-            $deduct_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?");
-            $deduct_stock->execute([$item['quantity'], $item['product_id'], $item['quantity']]);
+         // ✅ DEDUCT STOCK (Gi-fix ang Undefined Array Key Error diri)
+         foreach($cart_items_detail as $item){
+            if($item['pid']){
+               $deduct_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?");
+               $deduct_stock->execute([$item['quantity'], $item['pid'], $item['quantity']]);
+            }
          }
 
          // Delete cart after order
