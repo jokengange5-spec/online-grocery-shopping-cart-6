@@ -16,11 +16,11 @@ if(isset($_POST['add_to_wishlist'])){
    $pid = $_POST['pid'];
    $pid = filter_var($pid, FILTER_SANITIZE_SPECIAL_CHARS);
    $p_name = $_POST['p_name'];
-   $p_name = filter_var($p_name, FILTER_SANITIZE_STRING);
+   $p_name = filter_var($p_name, FILTER_SANITIZE_SPECIAL_CHARS);
    $p_price = $_POST['pprice'];
-   $p_price = filter_var($p_price, FILTER_SANITIZE_STRING);
+  $p_price = filter_var($p_price, FILTER_SANITIZE_SPECIAL_CHARS);
    $p_image = $_POST['p_image'];
-   $p_image = filter_var($p_image, FILTER_SANITIZE_STRING);
+   $p_image = filter_var($p_image, FILTER_SANITIZE_SPECIAL_CHARS);
 
    $check_wishlist_numbers = $conn->prepare("SELECT * FROM wishlist WHERE name = ? AND user_id = ?");
    $check_wishlist_numbers->execute([$p_name, $user_id]);
@@ -45,13 +45,13 @@ if(isset($_POST['add_to_cart'])){
    $pid = $_POST['pid'];
    $pid = filter_var($pid, FILTER_SANITIZE_SPECIAL_CHARS);
    $p_name = $_POST['p_name'];
-   $p_name = filter_var($p_name, FILTER_SANITIZE_STRING);
+   $p_name = filter_var($p_name, FILTER_SANITIZE_SPECIAL_CHARS);
    $p_price = $_POST['p_price'];
-   $p_price = filter_var($p_price, FILTER_SANITIZE_STRING);
+   $p_price = filter_var($p_price, FILTER_SANITIZE_SPECIAL_CHARS);
    $p_image = $_POST['p_image'];
-   $p_image = filter_var($p_image, FILTER_SANITIZE_STRING);
+   $p_image = filter_var($p_image, FILTER_SANITIZE_SPECIAL_CHARS);
    $p_qty = $_POST['p_qty'];
-   $p_qty = filter_var($p_qty, FILTER_SANITIZE_STRING);
+   $p_qty = filter_var($p_qty, FILTER_SANITIZE_SPECIAL_CHARS);
 
    $check_cart_numbers = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
    $check_cart_numbers->execute([$p_name, $user_id]);
