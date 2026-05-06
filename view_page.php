@@ -14,10 +14,10 @@ if(!isset($user_id)){
 if(isset($_POST['add_to_wishlist'])){
 
    $pid = $_POST['pid'];
-   $pid = filter_var($pid, FILTER_SANITIZE_STRING);
+   $pid = filter_var($pid, FILTER_SANITIZE_SPECIAL_CHARS);
    $p_name = $_POST['p_name'];
    $p_name = filter_var($p_name, FILTER_SANITIZE_STRING);
-   $p_price = $_POST['p_price'];
+   $p_price = $_POST['pprice'];
    $p_price = filter_var($p_price, FILTER_SANITIZE_STRING);
    $p_image = $_POST['p_image'];
    $p_image = filter_var($p_image, FILTER_SANITIZE_STRING);
@@ -43,7 +43,7 @@ if(isset($_POST['add_to_wishlist'])){
 if(isset($_POST['add_to_cart'])){
 
    $pid = $_POST['pid'];
-   $pid = filter_var($pid, FILTER_SANITIZE_STRING);
+   $pid = filter_var($pid, FILTER_SANITIZE_SPECIAL_CHARS);
    $p_name = $_POST['p_name'];
    $p_name = filter_var($p_name, FILTER_SANITIZE_STRING);
    $p_price = $_POST['p_price'];
