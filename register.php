@@ -143,7 +143,11 @@ if(isset($_POST['submit'])){
       <?php
       if(isset($message)){
          foreach($message as $msg){
-            echo '<div class="message">'.$msg.'</div>';
+            if($msg == "Successfully registered!"){
+   echo '<div class="message success">'.$msg.'</div>';
+}else{
+   echo '<div class="message">'.$msg.'</div>';
+}
          }
       }
       ?>
