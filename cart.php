@@ -289,64 +289,103 @@ if(isset($_POST['update_qty'])){
    </div>
 </section>
 
-
 <!-- RECIPE RECOMMENDATIONS SECTION -->
 <section class="wishlist" style="padding-top: 0;">
 
-   <h2 class="rec-title">🍽️ Suggested Dishes for Your Items</h2>
+   <h2 class="rec-title">🍽️ Suggested Recipes for Your Items</h2>
    <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">
-      Based on exact products in your cart
+      Personalized recipe per product in your cart
    </p>
 
    <?php
    $suggestions = [];
 
    if(!empty($all_cart_items)){
-      foreach($all_cart_items as $item_name){
-         $name = strtolower($item_name);
+      foreach($all_cart_items as $item){
+         $name = strtolower($item);
 
-         // VEGETABLES
-         if(strpos($name, 'kalabasa') !== false){
-            $suggestions[] = "🎃 Kalabasa → Best for Tinola or Ginisa";
-         }
-         if(strpos($name, 'sayote') !== false){
-            $suggestions[] = "🥒 Sayote → Perfect for Tinola";
-         }
-         if(strpos($name, 'malunggay') !== false){
-            $suggestions[] = "🌿 Malunggay → Great for Tinola soup";
-         }
-
-         // MEAT
-         if(strpos($name, 'chicken') !== false || strpos($name, 'manok') !== false){
-            $suggestions[] = "🍗 Chicken → Adobo / Tinola / Prito";
-         }
-         if(strpos($name, 'pork') !== false || strpos($name, 'baboy') !== false){
-            $suggestions[] = "🥩 Pork → Adobo / Prito";
-         }
-         if(strpos($name, 'beef') !== false || strpos($name, 'baka') !== false){
-            $suggestions[] = "🥩 Beef → Nilaga / Adobo";
-         }
-
-         // FISH
-         if(strpos($name, 'tilapia') !== false){
-            $suggestions[] = "🐟 Tilapia → Fish Adobo / Prito";
-         }
-         if(strpos($name, 'bangus') !== false){
-            $suggestions[] = "🐟 Bangus → Daing / Prito / Adobo";
-         }
-         if(strpos($name, 'fish') !== false || strpos($name, 'isda') !== false){
-            $suggestions[] = "🐟 Fish → Adobo / Prito / Tinola style";
-         }
-
-         // FRUITS
-         if(strpos($name, 'mango') !== false){
-            $suggestions[] = "🥭 Mango → Perfect for Halo-Halo";
-         }
-         if(strpos($name, 'banana') !== false){
-            $suggestions[] = "🍌 Banana → Halo-Halo topping or dessert";
-         }
+         // 🥭 FRUITS
          if(strpos($name, 'apple') !== false){
-            $suggestions[] = "🍎 Apple → Halo-Halo or fruit salad";
+            $suggestions[] = "🍎 Apple → Fruit Salad / Juice / Dessert Mix";
+         }
+
+         if(strpos($name, 'avocado') !== false){
+            $suggestions[] = "🥑 Avocado → Milkshake / Dessert / Smoothie";
+         }
+
+         if(strpos($name, 'grapes') !== false){
+            $suggestions[] = "🍇 Grapes → Fruit Salad / Juice";
+         }
+
+         if(strpos($name, 'watermelon') !== false || strpos($name, 'water melon') !== false){
+            $suggestions[] = "🍉 Watermelon → Fresh Juice / Fruit Bowl";
+         }
+
+         // 🥬 VEGETABLES
+         if(strpos($name, 'kalabasa') !== false){
+            $suggestions[] = "🎃 Kalabasa → Tinola / Ginisa / Ginataang Kalabasa";
+         }
+
+         if(strpos($name, 'onion') !== false){
+            $suggestions[] = "🧅 Onion → Base sa Ginisa / Adobo / Soup";
+         }
+
+         if(strpos($name, 'talong') !== false || strpos($name, 'eggplant') !== false){
+            $suggestions[] = "🍆 Talong → Tortang Talong / Ginisa";
+         }
+
+         if(strpos($name, 'broccoli') !== false){
+            $suggestions[] = "🥦 Broccoli → Stir Fry / Ginisa with Garlic";
+         }
+
+         if(strpos($name, 'cabbage') !== false){
+            $suggestions[] = "🥬 Cabbage → Chop Suey / Ginisa";
+         }
+
+         if(strpos($name, 'cucumber') !== false){
+            $suggestions[] = "🥒 Cucumber → Salad / Refreshing side dish";
+         }
+
+         if(strpos($name, 'mushroom') !== false){
+            $suggestions[] = "🍄 Mushrooms → Stir Fry / Soup";
+         }
+
+         if(strpos($name, 'carrot') !== false){
+            $suggestions[] = "🥕 Carrots → Ginisa / Soup / Chop Suey";
+         }
+
+         if(strpos($name, 'petchay') !== false || strpos($name, 'pechay') !== false){
+            $suggestions[] = "🥬 Petchay → Tinola / Nilaga";
+         }
+
+         // 🐟 FISH
+         if(strpos($name, 'tuna') !== false){
+            $suggestions[] = "🐟 Tuna → Adobo / Grill / Prito";
+         }
+
+         if(strpos($name, 'tilapia') !== false){
+            $suggestions[] = "🐟 Tilapia → Fried Tilapia / Adobo / Sinigang";
+         }
+
+         if(strpos($name, 'katambak') !== false){
+            $suggestions[] = "🐟 Katambak → Prito / Paksiw style";
+         }
+
+         if(strpos($name, 'kitong') !== false){
+            $suggestions[] = "🐟 Kitong → Grilled / Fried Fish";
+         }
+
+         if(strpos($name, 'kabalyas') !== false){
+            $suggestions[] = "🐟 Kabalyas → Fried / Adobo style";
+         }
+
+         // 🍖 MEAT
+         if(strpos($name, 'beef') !== false){
+            $suggestions[] = "🥩 Beef → Nilaga / Adobo / Steak";
+         }
+
+         if(strpos($name, 'pork') !== false){
+            $suggestions[] = "🥩 Pork → Adobo / Sinigang / Fried Pork";
          }
       }
    }
@@ -369,7 +408,6 @@ if(isset($_POST['update_qty'])){
    </div>
 
 </section>
-
 
    
 <?php include 'footer.php'; ?>
