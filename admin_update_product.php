@@ -14,11 +14,10 @@ if(!isset($admin_id)){
 
 $message = [];
 
-// Get product ID from URL
+// 1. Get product ID from URL
 if(isset($_GET['update'])){
    $update_id = $_GET['update'];
    
-   // Fetch existing product
    $select_product = $conn->prepare("SELECT * FROM products WHERE id = ?");
    $select_product->execute([$update_id]);
    
@@ -33,15 +32,15 @@ if(isset($_GET['update'])){
    exit();
 }
 
-// Handle update
+// 2. Handle update process
 if(isset($_POST['update_product'])){
 
    $name = htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8');
    $price = htmlspecialchars($_POST['price'] ?? '', ENT_QUOTES, 'UTF-8');
    $category = htmlspecialchars($_POST['category'] ?? '', ENT_QUOTES, 'UTF-8');
    $details = htmlspecialchars($_POST['details'] ?? '', ENT_QUOTES, 'UTF-8');
-   $stock = htmlspecialchars($_POST['stock'] ?? 0, ENT_QUOTES, 'UTF-8'); // GIDUGANG: Stock variable
-   
+   $stock = filter_var($_POST['stock'], FILTER_SANITIZE_NUMBER_INT); // Siguroha nga integer ang stock
+
    // Check if new image is uploaded
    if(!empty($_FILES['image']['name'])){
       $image_size = $_FILES['image']['size'];
@@ -51,33 +50,29 @@ if(isset($_POST['update_product'])){
       if($image_size > 2000000){
          $message[] = 'Image size is too large!';
       }else{
-         // Convert new image to base64
          $image_base64 = base64_encode(file_get_contents($image_tmp_name));
          $image_data = 'data:' . $image_type . ';base64,' . $image_base64;
          
-         // GIDUGANG: stock sa SQL query
          $update_product = $conn->prepare("UPDATE products SET name=?, category=?, details=?, price=?, image=?, stock=? WHERE id=?");
          $update_product->execute([$name, $category, $details, $price, $image_data, $stock, $update_id]);
          
-         if($update_product){
-            $message[] = 'Product updated successfully!';
-            // Refresh product data
-            $select_product->execute([$update_id]);
-            $fetch_product = $select_product->fetch(PDO::FETCH_ASSOC);
-         }
+         // REDIRECT human sa update aron ma-clear ang form data
+         header("location:admin_update_product.php?update=" . $update_id . "&msg=updated");
+         exit();
       }
    }else{
-      // GIDUGANG: stock sa SQL query bisan walay image change
       $update_product = $conn->prepare("UPDATE products SET name=?, category=?, details=?, price=?, stock=? WHERE id=?");
       $update_product->execute([$name, $category, $details, $price, $stock, $update_id]);
       
-      if($update_product){
-         $message[] = 'Product updated successfully!';
-         // Refresh product data
-         $select_product->execute([$update_id]);
-         $fetch_product = $select_product->fetch(PDO::FETCH_ASSOC);
-      }
+      // REDIRECT human sa update aron ma-clear ang form data
+      header("location:admin_update_product.php?update=" . $update_id . "&msg=updated");
+      exit();
    }
+}
+
+// Check kung gikan ba sa redirect para ipakita ang message
+if(isset($_GET['msg']) && $_GET['msg'] == 'updated'){
+   $message[] = 'Product updated successfully!';
 }
 
 ?>
@@ -186,7 +181,7 @@ if(isset($_POST['update_product'])){
 <?php include 'admin_header.php'; ?>
 
 <?php
-if(isset($message) && is_array($message)){
+if(isset($message)){
    foreach($message as $msg){
       echo '<div class="message"><span>'.$msg.'</span> <i class="fas fa-times" onclick="this.parentElement.remove();"></i></div>';
    }
@@ -219,7 +214,6 @@ if(isset($message) && is_array($message)){
             <label>Price (₱)</label>
             <input type="number" min="0" name="price" class="box" required value="<?= $fetch_product['price']; ?>">
             
-            <!-- GIDUGANG: Stock Input Field -->
             <label>Stock Quantity</label>
             <input type="number" min="0" name="stock" class="box" required value="<?= $fetch_product['stock']; ?>">
             
@@ -235,6 +229,5 @@ if(isset($message) && is_array($message)){
    </form>
 </section>
 
-<script src="js/script.js"></script>
 </body>
 </html>
