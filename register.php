@@ -51,12 +51,11 @@ if(isset($_POST['submit'])){
          VALUES(?,?,?,?)
       ");
 
-      if($insert->execute([$name, $email, $pass, $user_type])){
+     if($insert->execute([$name, $email, $pass, $user_type])){
 
-         header("location:login.php");
-         exit;
+   $message[] = "Successfully registered!";
 
-      }else{
+}else{
          $message[] = "Registration failed!";
       }
    }
@@ -120,6 +119,10 @@ if(isset($_POST['submit'])){
          text-align: center;
          margin-bottom: 15px;
       }
+      .success{
+   background: rgba(46, 204, 113, 0.2);
+   color: #2ecc71;
+}
       p {
          text-align: center;
          font-size: 14px;
