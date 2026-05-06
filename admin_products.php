@@ -27,7 +27,7 @@ if(isset($_POST['add_product'])){
    $image_tmp_name = $_FILES['image']['tmp_name'];
    $image_type = $_FILES['image']['type'];
 
-   // Convert image to base64 - NO folder needed!
+   // Convert image to base64
    $image_base64 = base64_encode(file_get_contents($image_tmp_name));
    $image_data = 'data:' . $image_type . ';base64,' . $image_base64;
 
@@ -39,8 +39,8 @@ if(isset($_POST['add_product'])){
    }elseif($image_size > 2000000){
       $message[] = 'Image size is too large!';
    }else{
-     $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, stock, image) VALUES(?,?,?,?,?,?)");
-$insert_products->execute([$name, $category, $details, $price, $stock, $image_data]);
+      $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, stock, image) VALUES(?,?,?,?,?,?)");
+      $insert_products->execute([$name, $category, $details, $price, $stock, $image_data]);
       
       if($insert_products){
          $message[] = 'New product added!';
@@ -101,9 +101,14 @@ if(isset($_GET['delete'])){
       .btn{ display:block; width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(45deg,#00f260,#0575e6); color:white; font-weight:600; cursor:pointer; transition:0.3s; margin-top: 10px;}
       .btn:hover{ transform:scale(1.02); }
       .show-products .box-container{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:30px; }
-      .show-products .box{ background:rgba(255,255,255,0.08); backdrop-filter: blur(15px); padding:20px; border-radius:20px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.4); transition:0.3s; }
+      .show-products .box{ background:rgba(255,255,255,0.08); backdrop-filter: blur(15px); padding:20px; border-radius:20px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.4); transition:0.3s; position: relative; }
       .show-products img{ width:100%; height:180px; object-fit:cover; border-radius:15px; margin-bottom:10px; }
       .price{ font-size:18px; color:#00f260; font-weight:600; }
+      
+      /* Gidugang nga style para sa Stock display */
+      .stock-display { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+      .stock-low { color: #ff4d4d; } 
+
       .name{ font-size:18px; font-weight:600; margin:5px 0; color:#fff; }
       .cat{ font-size:14px; color:#bbb; }
       .details{ font-size:13px; color:#ddd; margin:10px 0; }
@@ -137,13 +142,18 @@ if(isset($message) && is_array($message)){
          while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
    ?>
    <div class="box">
+      <!-- GIDUGANG: Stock Badge sa ibabaw sa card -->
+      <div class="stock-display <?= ($fetch_products['stock'] <= 5) ? 'stock-low' : ''; ?>">
+         Stock: <?= $fetch_products['stock']; ?>
+      </div>
+
       <div class="price">₱<?= $fetch_products['price']; ?></div>
       <img src="<?= $fetch_products['image']; ?>" alt="">
       <div class="name"><?= $fetch_products['name']; ?></div>
       <div class="cat"><?= $fetch_products['category']; ?></div>
       <div class="details"><?= $fetch_products['details']; ?></div>
       <div class="flex-btn">
-         <a href="admin_update_product.php?update=<?= $fetch_products['id']; ?>" class="option-btn">update</a>
+         <a href="admin_update_products.php?update=<?= $fetch_products['id']; ?>" class="option-btn">update</a>
          <a href="admin_products.php?delete=<?= $fetch_products['id']; ?>" class="delete-btn" onclick="return confirm('delete this product?');">delete</a>
       </div>
    </div>
@@ -182,15 +192,5 @@ if(isset($message) && is_array($message)){
 </section>
 
 <script src="js/script.js"></script>
-<script>
-let userBtn = document.querySelector('#user-btn');
-let profile = document.querySelector('.profile');
-
-if(userBtn){
-   userBtn.onclick = () => {
-      profile.classList.toggle('active');
-   }
-}
-</script>
 </body>
 </html>
