@@ -293,39 +293,60 @@ if(isset($_POST['update_qty'])){
 <!-- RECIPE RECOMMENDATIONS SECTION -->
 <section class="wishlist" style="padding-top: 0;">
 
-   <h2 class="rec-title">🍽️ Suggested Dishes for You</h2>
+   <h2 class="rec-title">🍽️ Suggested Dishes for Your Items</h2>
    <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">
-      Based on your cart ingredients
+      Based on exact products in your cart
    </p>
 
    <?php
-   $has_veg = false;
-   $has_fruit = false;
-   $has_meat = false;
-   $has_fish = false;
+   $suggestions = [];
 
    if(!empty($all_cart_items)){
       foreach($all_cart_items as $item_name){
          $name = strtolower($item_name);
 
          // VEGETABLES
-         if(preg_match('/(cabbage|carrot|tomato|onion|garlic|kalabasa|sayote|malunggay|ampalaya|vegetable|veg)/', $name)){
-            $has_veg = true;
+         if(strpos($name, 'kalabasa') !== false){
+            $suggestions[] = "🎃 Kalabasa → Best for Tinola or Ginisa";
          }
-
-         // FRUITS
-         if(preg_match('/(apple|banana|orange|mango|grapes|pineapple|fruit)/', $name)){
-            $has_fruit = true;
+         if(strpos($name, 'sayote') !== false){
+            $suggestions[] = "🥒 Sayote → Perfect for Tinola";
+         }
+         if(strpos($name, 'malunggay') !== false){
+            $suggestions[] = "🌿 Malunggay → Great for Tinola soup";
          }
 
          // MEAT
-         if(preg_match('/(pork|beef|chicken|baboy|baka|manok|meat)/', $name)){
-            $has_meat = true;
+         if(strpos($name, 'chicken') !== false || strpos($name, 'manok') !== false){
+            $suggestions[] = "🍗 Chicken → Adobo / Tinola / Prito";
+         }
+         if(strpos($name, 'pork') !== false || strpos($name, 'baboy') !== false){
+            $suggestions[] = "🥩 Pork → Adobo / Prito";
+         }
+         if(strpos($name, 'beef') !== false || strpos($name, 'baka') !== false){
+            $suggestions[] = "🥩 Beef → Nilaga / Adobo";
          }
 
          // FISH
-         if(preg_match('/(fish|isda|tilapia|bangus|salmon|shrimp|hipon)/', $name)){
-            $has_fish = true;
+         if(strpos($name, 'tilapia') !== false){
+            $suggestions[] = "🐟 Tilapia → Fish Adobo / Prito";
+         }
+         if(strpos($name, 'bangus') !== false){
+            $suggestions[] = "🐟 Bangus → Daing / Prito / Adobo";
+         }
+         if(strpos($name, 'fish') !== false || strpos($name, 'isda') !== false){
+            $suggestions[] = "🐟 Fish → Adobo / Prito / Tinola style";
+         }
+
+         // FRUITS
+         if(strpos($name, 'mango') !== false){
+            $suggestions[] = "🥭 Mango → Perfect for Halo-Halo";
+         }
+         if(strpos($name, 'banana') !== false){
+            $suggestions[] = "🍌 Banana → Halo-Halo topping or dessert";
+         }
+         if(strpos($name, 'apple') !== false){
+            $suggestions[] = "🍎 Apple → Halo-Halo or fruit salad";
          }
       }
    }
@@ -333,35 +354,15 @@ if(isset($_POST['update_qty'])){
 
    <div class="box-container">
 
-      <?php if($has_veg){ ?>
-         <div class="box">
-            <h3>🥬 Tinola / Ginisa</h3>
-            <p>Perfect for Tinola or Ginisa.</p>
-         </div>
-      <?php } ?>
-
-      <?php if($has_fruit){ ?>
-         <div class="box">
-            <h3>🍧 Halo-Halo</h3>
-            <p>Perfect for refreshing Halo-Halo desserts.</p>
-         </div>
-      <?php } ?>
-
-      <?php if($has_meat){ ?>
-         <div class="box">
-            <h3>🍲 Adobo / Tinola / Prito</h3>
-            <p>Perfect for Adobo, Tinola, or to a simple fried meat.</p>
-         </div>
-      <?php } ?>
-
-      <?php if($has_fish){ ?>
-         <div class="box">
-            <h3>🐟 Fish Adobo / Prito / Tinola Style</h3>
-            <p>Perfect for Adobo, fry, or Tinola.</p>
-         </div>
-      <?php } ?>
-
-      <?php if(!$has_veg && !$has_fruit && !$has_meat && !$has_fish){ ?>
+      <?php if(!empty($suggestions)){ ?>
+         <?php foreach(array_unique($suggestions) as $s){ ?>
+            <div class="box">
+               <p style="font-size:1.6rem; color:var(--black);">
+                  <?= $s; ?>
+               </p>
+            </div>
+         <?php } ?>
+      <?php } else { ?>
          <p class="empty">No recipe suggestion yet.</p>
       <?php } ?>
 
