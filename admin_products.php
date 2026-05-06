@@ -20,6 +20,7 @@ if(isset($_POST['add_product'])){
    $price = htmlspecialchars($_POST['price'] ?? '', ENT_QUOTES, 'UTF-8');
    $category = htmlspecialchars($_POST['category'] ?? '', ENT_QUOTES, 'UTF-8');
    $details = htmlspecialchars($_POST['details'] ?? '', ENT_QUOTES, 'UTF-8');
+   $stock = htmlspecialchars($_POST['stock'] ?? '', ENT_QUOTES, 'UTF-8');
    
    $image_name = $_FILES['image']['name'];
    $image_size = $_FILES['image']['size'];
@@ -38,8 +39,8 @@ if(isset($_POST['add_product'])){
    }elseif($image_size > 2000000){
       $message[] = 'Image size is too large!';
    }else{
-      $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, image) VALUES(?,?,?,?,?)");
-      $insert_products->execute([$name, $category, $details, $price, $image_data]);
+     $insert_products = $conn->prepare("INSERT INTO products(name, category, details, price, stock, image) VALUES(?,?,?,?,?,?)");
+$insert_products->execute([$name, $category, $details, $price, $stock, $image_data]);
       
       if($insert_products){
          $message[] = 'New product added!';
@@ -171,6 +172,7 @@ if(isset($message) && is_array($message)){
          </div>
          <div class="inputBox">
             <input type="number" min="0" name="price" class="box" required placeholder="enter product price">
+            <input type="number" min="0" name="stock" class="box" required placeholder="enter product stock">
             <input type="file" name="image" required class="box" accept="image/jpg, image/jpeg, image/png">
          </div>
       </div>
