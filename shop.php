@@ -179,6 +179,16 @@ if(isset($_POST['add_to_cart'])){
       @media (max-width: 450px) {
          .box-container { grid-template-columns: 1fr; }
       }
+
+
+      .stock{
+   margin-top: .5rem;
+   font-size: 1.1rem;
+   color: #333;
+   font-weight: 500;
+}
+
+      
    </style>
 </head>
 <body>
@@ -209,6 +219,9 @@ if(isset($_POST['add_to_cart'])){
       <img src="<?= $fetch_products['image']; ?>" alt="">
       
       <div class="name"><?= $fetch_products['name']; ?></div>
+      <div class="stock">
+   Stock: <?= $fetch_products['stock']; ?> pcs
+</div>
       <input type="hidden" name="pid" value="<?= $fetch_products['id']; ?>">
       <input type="hidden" name="p_name" value="<?= $fetch_products['name']; ?>">
       <input type="hidden" name="p_price" value="<?= $fetch_products['price']; ?>">
