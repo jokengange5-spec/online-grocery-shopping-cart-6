@@ -50,13 +50,6 @@ if(isset($_GET['delete'])){
    $delete_id = $_GET['delete'];
    $delete_products = $conn->prepare("DELETE FROM products WHERE id = ?");
    $delete_products->execute([$delete_id]);
-   
-   $delete_wishlist = $conn->prepare("DELETE FROM wishlist WHERE pid = ?");
-   $delete_wishlist->execute([$delete_id]);
-
-   $delete_cart = $conn->prepare("DELETE FROM cart WHERE pid = ?");
-   $delete_cart->execute([$delete_id]);
-   
    header('location:admin_products.php');
    exit();
 }
@@ -78,82 +71,71 @@ if(isset($_GET['delete'])){
 
       body {
          background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture5.jpg') no-repeat;
-         background-size: cover;
-         background-position: center;
-         background-attachment: fixed;
-         font-family: 'Poppins', sans-serif;
-         margin: 0; padding: 0;
+         background-size: cover; background-position: center; background-attachment: fixed;
+         font-family: 'Poppins', sans-serif; margin: 0; padding: 0;
       }
 
-      /* FIXED HEADER & Z-INDEX */
-      header { z-index: 1000 !important; position: relative; }
+      /* --- CRITICAL FIX PARA SA PROFILE CLICK --- */
+      header {
+         position: sticky !important;
+         top: 0;
+         z-index: 2000 !important; /* Mas taas pa sa tanan elements */
+         background: rgba(255,255,255,0.1) !important;
+         backdrop-filter: blur(10px);
+      }
 
-      /* MESSAGE STYLES */
+      /* Siguroha nga ang profile dropdown mogawas sa ibabaw */
+      .header .flex .profile {
+         z-index: 3000 !important;
+      }
+
       .message-container {
          position: fixed;
-         top: 2rem; left: 50%;
+         top: 5rem; left: 50%;
          transform: translateX(-50%);
-         z-index: 10001; /* Mas taas pa sa header */
+         z-index: 4000; /* Pinakataas para sa alert */
          width: 90%; max-width: 400px;
+         pointer-events: none; /* Dili mo-block sa clicks sa luyo */
       }
 
       .message {
-         background: #fff;
-         padding: 1rem 1.5rem;
-         border-radius: 10px;
-         display: flex;
-         justify-content: space-between;
-         align-items: center;
-         box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-         margin-bottom: 10px;
-         animation: slideIn 0.3s ease;
+         pointer-events: auto; /* Ma-click gihapon ang X button */
+         background: #fff; padding: 1rem; border-radius: 10px;
+         display: flex; justify-content: space-between; margin-bottom: 10px;
+         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       }
-      .message.success { border-left: 5px solid #2ecc71; color: #27ae60; }
-      .message.error { border-left: 5px solid #e74c3c; color: #c0392b; }
-      .message i { cursor: pointer; color: #333; font-size: 1.2rem; }
+      /* --- END OF FIX --- */
 
-      @keyframes slideIn { from{opacity:0; transform:translateY(-20px);} to{opacity:1; transform:translateY(0);} }
-
-      /* UI DESIGN */
       .title{ text-align:center; font-size:2.2rem; margin:30px 0; font-weight:700; background: linear-gradient(90deg,#00f260,#0575e6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-      .add-products form{ width:90%; max-width:900px; margin:0 auto 50px auto; background:rgba(255,255,255,0.08); backdrop-filter: blur(15px); padding:25px; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); }
+      .add-products form{ width:90%; max-width:900px; margin:0 auto 50px auto; background:rgba(255,255,255,0.08); backdrop-filter: blur(15px); padding:25px; border-radius:20px; border: 1px solid rgba(255,255,255,0.1); }
       .flex{ display:flex; gap:20px; flex-wrap: wrap; }
       .inputBox{ flex:1; min-width: 300px; }
-      .box{ width:100%; padding:12px; margin:10px 0; border:none; border-radius:10px; outline:none; background: #fff; }
-      .btn{ display:block; width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(45deg,#00f260,#0575e6); color:white; font-weight:600; cursor:pointer; transition:0.3s; margin-top: 10px;}
-      .btn:hover{ transform:scale(1.02); opacity: 0.9; }
-
-      .show-products .box-container{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:30px; }
-      .show-products .box{ background:rgba(255,255,255,0.08); backdrop-filter: blur(15px); padding:20px; border-radius:20px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.4); position: relative; border: 1px solid rgba(255,255,255,0.1); color: white; }
-      .show-products img{ width:100%; height:180px; object-fit:cover; border-radius:15px; margin-bottom:10px; }
+      .box{ width:100%; padding:12px; margin:10px 0; border-radius:10px; border:none; outline:none; }
+      .btn{ display:block; width:100%; padding:12px; border-radius:10px; border:none; background:linear-gradient(45deg,#00f260,#0575e6); color:white; font-weight:600; cursor:pointer; }
       
-      .stock-display { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
-      .stock-low { color: #ff4d4d; border: 1px solid #ff4d4d; } 
-
-      .price{ font-size:18px; color:#00f260; font-weight:600; margin-bottom: 5px;}
-      .name{ font-size:18px; font-weight:600; margin:5px 0; color:#fff; }
-      .cat{ font-size:14px; color:#bbb; text-transform: uppercase; letter-spacing: 1px; }
-      .details{ font-size:13px; color:#ddd; margin:10px 0; line-height: 1.5; }
+      .show-products .box-container{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:30px; position: relative; z-index: 1; }
+      .show-products .box{ background:rgba(255,255,255,0.08); backdrop-filter: blur(15px); padding:20px; border-radius:20px; text-align:center; color: white; border: 1px solid rgba(255,255,255,0.1); }
+      .show-products img{ width:100%; height:180px; object-fit:cover; border-radius:15px; }
       
-      .flex-btn { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-      .option-btn, .delete-btn{ flex: 1; padding:10px; border-radius:10px; text-decoration:none; font-weight:600; font-size: 14px; text-align: center; }
-      .option-btn{ background:#3498db; color:white; }
-      .delete-btn{ background:#e74c3c; color:white; }
+      .stock-display { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 12px; }
+      .price{ color:#00f260; font-weight:600; font-size: 18px; }
+      .flex-btn { display: flex; gap: 10px; margin-top: 15px; }
+      .option-btn, .delete-btn{ flex: 1; padding:10px; border-radius:10px; text-decoration:none; color:white; font-size: 14px; }
+      .option-btn{ background:#3498db; }
+      .delete-btn{ background:#e74c3c; }
    </style>
 </head>
 <body>
-   
+
 <?php 
-// Displaying messages before the header to clear them out
 if(!empty($message)){
    echo '<div class="message-container">';
    foreach($message as $msg){
-      $text = is_array($msg) ? $msg['text'] : $msg;
-      $type = is_array($msg) ? $msg['type'] : 'error';
-      echo '<div class="message '.$type.'"><span>'.$text.'</span> <i class="fas fa-times" onclick="this.parentElement.remove();"></i></div>';
+      $type = $msg['type'] ?? 'error';
+      echo '<div class="message"><span>'.$msg['text'].'</span> <i class="fas fa-times" onclick="this.parentElement.remove();"></i></div>';
    }
    echo '</div>';
-   unset($message); // Clear for header safety
+   unset($message);
 }
 
 include 'admin_header.php'; 
@@ -194,23 +176,17 @@ include 'admin_header.php';
          while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
    ?>
    <div class="box">
-      <div class="stock-display <?= ($fetch_products['stock'] <= 5) ? 'stock-low' : ''; ?>">
-         Stock: <?= $fetch_products['stock']; ?>
-      </div>
+      <div class="stock-display">Stock: <?= $fetch_products['stock']; ?></div>
       <img src="<?= $fetch_products['image']; ?>" alt="">
       <div class="price">₱<?= $fetch_products['price']; ?></div>
-      <div class="name"><?= $fetch_products['name']; ?></div>
-      <div class="cat"><?= $fetch_products['category']; ?></div>
-      <div class="details"><?= $fetch_products['details']; ?></div>
+      <div class="name" style="color:white;"><?= $fetch_products['name']; ?></div>
       <div class="flex-btn">
          <a href="admin_update_product.php?update=<?= $fetch_products['id']; ?>" class="option-btn">Update</a>
-         <a href="admin_products.php?delete=<?= $fetch_products['id']; ?>" class="delete-btn" onclick="return confirm('Delete this product?');">Delete</a>
+         <a href="admin_products.php?delete=<?= $fetch_products['id']; ?>" class="delete-btn" onclick="return confirm('Delete?');">Delete</a>
       </div>
    </div>
    <?php
          }
-      }else{
-         echo '<p style="color:white; text-align:center; grid-column: 1/-1; font-size: 1.5rem;">No products added yet!</p>';
       }
    ?>
    </div>
