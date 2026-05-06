@@ -40,6 +40,7 @@ if(isset($_POST['update_product'])){
    $price = htmlspecialchars($_POST['price'] ?? '', ENT_QUOTES, 'UTF-8');
    $category = htmlspecialchars($_POST['category'] ?? '', ENT_QUOTES, 'UTF-8');
    $details = htmlspecialchars($_POST['details'] ?? '', ENT_QUOTES, 'UTF-8');
+   $stock = htmlspecialchars($_POST['stock'] ?? 0, ENT_QUOTES, 'UTF-8'); // GIDUGANG: Stock variable
    
    // Check if new image is uploaded
    if(!empty($_FILES['image']['name'])){
@@ -54,9 +55,9 @@ if(isset($_POST['update_product'])){
          $image_base64 = base64_encode(file_get_contents($image_tmp_name));
          $image_data = 'data:' . $image_type . ';base64,' . $image_base64;
          
-         // Update with new image
-         $update_product = $conn->prepare("UPDATE products SET name=?, category=?, details=?, price=?, image=? WHERE id=?");
-         $update_product->execute([$name, $category, $details, $price, $image_data, $update_id]);
+         // GIDUGANG: stock sa SQL query
+         $update_product = $conn->prepare("UPDATE products SET name=?, category=?, details=?, price=?, image=?, stock=? WHERE id=?");
+         $update_product->execute([$name, $category, $details, $price, $image_data, $stock, $update_id]);
          
          if($update_product){
             $message[] = 'Product updated successfully!';
@@ -66,9 +67,9 @@ if(isset($_POST['update_product'])){
          }
       }
    }else{
-      // Update without changing image
-      $update_product = $conn->prepare("UPDATE products SET name=?, category=?, details=?, price=? WHERE id=?");
-      $update_product->execute([$name, $category, $details, $price, $update_id]);
+      // GIDUGANG: stock sa SQL query bisan walay image change
+      $update_product = $conn->prepare("UPDATE products SET name=?, category=?, details=?, price=?, stock=? WHERE id=?");
+      $update_product->execute([$name, $category, $details, $price, $stock, $update_id]);
       
       if($update_product){
          $message[] = 'Product updated successfully!';
@@ -217,6 +218,10 @@ if(isset($message) && is_array($message)){
          <div class="inputBox">
             <label>Price (₱)</label>
             <input type="number" min="0" name="price" class="box" required value="<?= $fetch_product['price']; ?>">
+            
+            <!-- GIDUGANG: Stock Input Field -->
+            <label>Stock Quantity</label>
+            <input type="number" min="0" name="stock" class="box" required value="<?= $fetch_product['stock']; ?>">
             
             <label>New Image (leave empty to keep current)</label>
             <input type="file" name="image" class="box" accept="image/jpg, image/jpeg, image/png">
