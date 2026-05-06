@@ -5,11 +5,9 @@ session_start();
 
 if(isset($_POST['submit'])){
 
-   // ✅ FIX: no deprecated filter
    $email = trim($_POST['email']);
    $pass = $_POST['pass'];
 
-   // 🔐 TEMP SAFE (MD5 compatibility with your DB)
    $hashed_pass = md5($pass);
 
    $sql = "SELECT * FROM users WHERE email = ? AND password = ?";
@@ -19,7 +17,6 @@ if(isset($_POST['submit'])){
    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
    if($row){
-
       if($row['user_type'] == 'admin'){
          $_SESSION['admin_id'] = $row['id'];
          header('location:admin_page.php');
@@ -31,8 +28,6 @@ if(isset($_POST['submit'])){
          header('location:home.php');
          exit;
       }
-
-      $message[] = 'no user found!';
    }else{
       $message[] = 'incorrect email or password!';
    }
@@ -58,7 +53,6 @@ if(isset($_POST['submit'])){
    font-family:'Poppins',sans-serif;
 }
 
-/* CLEAN BACKGROUND (NO FOG ISSUE) */
 body{
    height:100vh;
    display:flex;
@@ -68,7 +62,6 @@ body{
    background-size: cover;
 }
 
-/* DARK OVERLAY */
 body::before{
    content:'';
    position:fixed;
@@ -78,7 +71,6 @@ body::before{
    z-index:-1;
 }
 
-/* LOGIN BOX */
 .form-container{
    width:370px;
    padding:40px;
@@ -90,13 +82,11 @@ body::before{
    color:white;
 }
 
-/* TITLE */
 .form-container h3{
    font-size:26px;
    margin-bottom:20px;
 }
 
-/* INPUT */
 .box{
    width:100%;
    padding:12px;
@@ -106,7 +96,6 @@ body::before{
    outline:none;
 }
 
-/* BUTTON */
 .btn{
    width:100%;
    padding:12px;
@@ -122,9 +111,8 @@ body::before{
    background:#27ae60;
 }
 
-/* MESSAGE */
 .message{
-   position:absolute;
+   position:fixed; /* Changed to fixed for better visibility */
    top:20px;
    background:#e74c3c;
    color:#fff;
@@ -132,6 +120,7 @@ body::before{
    border-radius:10px;
    display:flex;
    gap:10px;
+   z-index: 1000;
 }
 
 .message i{
@@ -157,7 +146,8 @@ if(isset($message)){
 
 <section class="form-container">
 
-   <form action="" method="POST">
+   <!-- ✅ ADDED: onsubmit attribute -->
+   <form action="" method="POST" onsubmit="return confirmLogin()">
       <h3><i class="fas fa-user"></i> Login</h3>
 
       <input type="email" name="email" class="box" placeholder="Enter your email" required>
@@ -169,6 +159,20 @@ if(isset($message)){
    </form>
 
 </section>
+
+<!-- ✅ JAVASCRIPT LOGIC -->
+<script>
+function confirmLogin() {
+   // Kini nga popup mohatag og OK (Yes) ug Cancel (No) nga options
+   var response = confirm("Proceed to log in?");
+   
+   if (response) {
+      return true; // Mo-proceed sa PHP processing
+   } else {
+      return false; // Dili mo-submit, pabilin sa login page
+   }
+}
+</script>
 
 </body>
 </html>
