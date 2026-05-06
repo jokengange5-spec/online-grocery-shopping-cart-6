@@ -26,7 +26,7 @@ if(isset($_POST['order'])){
 
    $cart_total = 0;
    $cart_products = []; 
-   $cart_items_detail = []; // Store detailed cart info for GCash
+   $cart_items_detail = [];
 
    $cart_query = $conn->prepare("SELECT * FROM cart WHERE user_id = ?");
    $cart_query->execute([$user_id]);
@@ -49,9 +49,7 @@ if(isset($_POST['order'])){
    if($cart_total == 0){
       $message[] = 'Your cart is empty';
    }else{
-      // If payment method is GCash, redirect to GCash payment page
       if($method == 'gcash'){
-         // Store order details in session for GCash payment
          $_SESSION['pending_order'] = [
             'user_id' => $user_id,
             'name' => $name,
@@ -64,15 +62,22 @@ if(isset($_POST['order'])){
             'placed_on' => $placed_on,
             'cart_items' => $cart_items_detail
          ];
-         
-         // Redirect to GCash payment page
          header('location:gcash_payment.php');
          exit();
       }else{
-         // For other payment methods, save order directly
+         // Insert order
          $insert_order = $conn->prepare("INSERT INTO orders(user_id, name, number, email, method, address, total_products, total_price, placed_on, payment_status) VALUES(?,?,?,?,?,?,?,?,?,?)");
          $insert_order->execute([$user_id, $name, $number, $email, $method, $address, $total_products, $cart_total, $placed_on, 'pending']);
 
+         // ✅ DEDUCT STOCK SA MATAG PRODUCT SA CART
+         $cart_items_query = $conn->prepare("SELECT * FROM cart WHERE user_id = ?");
+         $cart_items_query->execute([$user_id]);
+         while($item = $cart_items_query->fetch(PDO::FETCH_ASSOC)){
+            $deduct_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?");
+            $deduct_stock->execute([$item['quantity'], $item['product_id'], $item['quantity']]);
+         }
+
+         // Delete cart after order
          $delete_cart = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
          $delete_cart->execute([$user_id]);
 
@@ -239,7 +244,6 @@ if(isset($_POST['order'])){
          opacity: 0.7;
       }
 
-      /* Payment method info boxes */
       .payment-info {
          background: #e8f5e9;
          padding: 1rem 1.5rem;
@@ -409,7 +413,6 @@ if(!empty($message)){
             </div>
          </div>
          
-         <!-- GCash Payment Info -->
          <div class="payment-info gcash" id="gcashInfo">
             <i class="fas fa-info-circle"></i>
             <strong>GCash Payment:</strong> You will be redirected to GCash to complete your payment after clicking "Place Order".
@@ -443,7 +446,6 @@ if(!empty($message)){
 function showPaymentInfo() {
    var method = document.getElementById('paymentMethod').value;
    var gcashInfo = document.getElementById('gcashInfo');
-   
    if(method == 'gcash') {
       gcashInfo.classList.add('show');
    } else {
