@@ -15,19 +15,6 @@ if(isset($_POST['submit'])){
    // FIX: Gi-hardcode nato nga 'user' permi ang i-save
    $user_type = 'user'; 
 
-   $image = $_FILES['image']['name'];
-   $tmp = $_FILES['image']['tmp_name'];
-   $image_size = $_FILES['image']['size'];
-   $image_error = $_FILES['image']['error'];
-
-   $target_dir = 'uploaded_img/';
-   $folder = $target_dir . $image;
-
-   // SIGURADUHA NGA NAAY FOLDER
-   if(!is_dir($target_dir)){
-      mkdir($target_dir, 0777, true);
-   }
-
    // =========================
    // ERROR HANDLERS
    // =========================
@@ -47,25 +34,6 @@ if(isset($_POST['submit'])){
       $message[] = "Password must be at least 6 characters!";
    }
 
-   // IMAGE CHECK
-   if($image_error !== 0){
-      $message[] = "Error uploading image!";
-   }
-
-   // FILE SIZE LIMIT (2MB)
-   if($image_size > 2097152){
-      $message[] = "Image size is too large! Max 2MB only.";
-   }
-
-   // FILE EXTENSION CHECK
-   $allowed_extensions = ['jpg', 'jpeg', 'png'];
-
-   $image_ext = strtolower(pathinfo($image, PATHINFO_EXTENSION));
-
-   if(!in_array($image_ext, $allowed_extensions)){
-      $message[] = "Only JPG, JPEG, and PNG files are allowed!";
-   }
-
    // CHECK KUNG EXISTING NA ANG EMAIL
    $check = $conn->prepare("SELECT * FROM users WHERE email = ?");
    $check->execute([$email]);
@@ -79,21 +47,14 @@ if(isset($_POST['submit'])){
 
       // INSERT AS USER
       $insert = $conn->prepare("
-         INSERT INTO users(name, email, password, user_type, image)
-         VALUES(?,?,?,?,?)
+         INSERT INTO users(name, email, password, user_type)
+         VALUES(?,?,?,?)
       ");
 
-      if($insert->execute([$name, $email, $pass, $user_type, $image])){
+      if($insert->execute([$name, $email, $pass, $user_type])){
 
-         // MOVE IMAGE
-         if(move_uploaded_file($tmp, $folder)){
-
-            header("location:login.php");
-            exit;
-
-         }else{
-            $message[] = "Failed to upload profile picture!";
-         }
+         header("location:login.php");
+         exit;
 
       }else{
          $message[] = "Registration failed!";
@@ -135,7 +96,7 @@ if(isset($_POST['submit'])){
          margin: 10px 0;
          border: none;
          border-radius: 6px;
-         box-sizing: border-box; /* Para dili molapas ang input */
+         box-sizing: border-box;
       }
       button{
          width: 100%;
@@ -173,7 +134,7 @@ if(isset($_POST['submit'])){
 
 <div class="form-container">
 
-   <form method="POST" enctype="multipart/form-data">
+   <form method="POST">
       <h3>Register Now</h3>
 
       <?php
@@ -187,11 +148,6 @@ if(isset($_POST['submit'])){
       <input type="text" name="name" placeholder="Enter Name" required>
       <input type="email" name="email" placeholder="Enter Email" required>
       <input type="password" name="pass" placeholder="Enter Password" required>
-      
-      <!-- Gi-remove ang Select/Dropdown sa Admin diri -->
-      
-      <label style="font-size: 12px; color: #bbb;">Profile Picture:</label>
-      <input type="file" name="image" accept="image/jpg, image/jpeg, image/png" required>
 
       <button type="submit" name="submit">Register Now</button>
       <p>Already have an account? <a href="login.php">Login here</a></p>
