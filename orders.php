@@ -11,19 +11,38 @@ if(!$user_id){
    exit;
 }
 
-/* --- CANCEL ORDER LOGIC --- */
+/* --- CANCEL ORDER LOGIC WITH STOCK RESTORE --- */
 if(isset($_GET['delete'])){
    $delete_id = $_GET['delete'];
-   
-   // Siguraduhon nato nga ang tag-iya sa order ra ang maka-cancel
-   $delete_order = $conn->prepare("DELETE FROM orders WHERE id = ? AND user_id = ? AND payment_status = 'pending'");
-   $delete_order->execute([$delete_id, $user_id]);
-   
-   if($delete_order->rowCount() > 0){
+
+   // ✅ KUHAON UNA ANG ORDER DETAILS PARA MA-RESTORE ANG STOCK
+   $get_order = $conn->prepare("SELECT total_products, payment_status FROM orders WHERE id = ? AND user_id = ?");
+   $get_order->execute([$delete_id, $user_id]);
+   $order_data = $get_order->fetch(PDO::FETCH_ASSOC);
+
+   if($order_data && $order_data['payment_status'] == 'pending'){
+
+      // ✅ RESTORE STOCK - parse ang total_products string
+      // Format: "Apple ( 2 ), Banana ( 1 )"
+      $items = explode(', ', $order_data['total_products']);
+      foreach($items as $item){
+         preg_match('/^(.+)\s*\(\s*(\d+)\s*\)$/', trim($item), $matches);
+         if(count($matches) === 3){
+            $product_name = trim($matches[1]);
+            $qty = (int)$matches[2];
+            $restore = $conn->prepare("UPDATE products SET stock = stock + ? WHERE name = ?");
+            $restore->execute([$qty, $product_name]);
+         }
+      }
+
+      // ✅ DELETE ANG ORDER PAGKAHUMAN MA-RESTORE ANG STOCK
+      $delete_order = $conn->prepare("DELETE FROM orders WHERE id = ? AND user_id = ? AND payment_status = 'pending'");
+      $delete_order->execute([$delete_id, $user_id]);
+
       header('location:orders.php');
       exit;
+
    } else {
-      // Dili na ma-cancel kung 'completed' na ang status
       $message[] = 'Dili na ma-cancel kini nga order kay naproseso na.';
    }
 }
@@ -38,7 +57,6 @@ if(isset($_GET['delete'])){
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>My Orders - Joken's Grocery</title>
 
-   <!-- Font Awesome -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
    <style>
@@ -81,7 +99,7 @@ if(isset($_GET['delete'])){
          text-align: center;
          margin-bottom: 3rem;
          font-size: 2.5rem;
-         color: var(--white); /* Gi-white nako para makita sa background */
+         color: var(--white);
          text-transform: uppercase;
       }
 
@@ -115,7 +133,6 @@ if(isset($_GET['delete'])){
          font-weight: 600;
       }
 
-      /* Payment Status Badges */
       .status-badge {
          display: inline-block;
          padding: 0.3rem 1rem;
@@ -128,7 +145,6 @@ if(isset($_GET['delete'])){
       .status-pending { background-color: #ffeaa7; color: var(--orange); }
       .status-completed { background-color: #c2fbd7; color: var(--green); }
 
-      /* --- CANCEL BUTTON STYLE --- */
       .delete-btn {
          display: block;
          width: 100%;
@@ -147,11 +163,27 @@ if(isset($_GET['delete'])){
          background-color: var(--black);
       }
 
-      /* Disable button style */
       .delete-btn.disabled {
          background-color: #ccc;
          pointer-events: none;
          cursor: not-allowed;
+      }
+
+      .message {
+         background: #e74c3c;
+         color: white;
+         text-align: center;
+         padding: 1rem;
+         font-size: 1.4rem;
+         margin: 1rem auto;
+         width: 80%;
+         border-radius: 10px;
+      }
+
+      .empty {
+         color: white;
+         text-align: center;
+         font-size: 1.6rem;
       }
 
       @media (max-width: 450px) {
@@ -163,6 +195,14 @@ if(isset($_GET['delete'])){
 <body>
    
 <?php include 'header.php'; ?>
+
+<?php
+if(!empty($message)){
+   foreach($message as $msg){
+      echo '<div class="message">'.$msg.'</div>';
+   }
+}
+?>
 
 <section class="placed-orders">
 
@@ -192,9 +232,8 @@ if(isset($_GET['delete'])){
          </span>
       </p>
 
-      <!-- KANI ANG CANCEL BUTTON -->
       <?php if($fetch_orders['payment_status'] == 'pending'){ ?>
-         <a href="orders.php?delete=<?= $fetch_orders['id']; ?>" class="delete-btn" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel Order</a>
+         <a href="orders.php?delete=<?= $fetch_orders['id']; ?>" class="delete-btn" onclick="return confirm('Are you sure you want to cancel this order? Stock will be restored.');">Cancel Order</a>
       <?php } else { ?>
          <a href="#" class="delete-btn disabled">Cannot Cancel</a>
       <?php } ?>
