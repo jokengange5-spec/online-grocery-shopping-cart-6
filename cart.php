@@ -80,60 +80,63 @@ if(isset($_POST['update_qty'])){
       }
 
       body {
-   background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
-   background-size: cover;
-   background-position: center;
-   background-attachment: fixed; /* Para dili mo-scroll ang background */
-   font-family: 'Poppins', sans-serif;
-   margin: 0;
-   padding: 0;
-}
+         background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
+         background-size: cover;
+         background-position: center;
+         background-attachment: fixed;
+         font-family: 'Poppins', sans-serif;
+         margin: 0;
+         padding: 0;
+      }
 
       .shopping-cart { padding: 3rem 7%; }
 
       .title {
-         font-size: 3rem;
+         font-size: 2.5rem;
          text-align: center;
-         margin-bottom: 1rem;
-         color: var(--black);
+         margin-bottom: .5rem;
+         color: var(--white);
          text-transform: uppercase;
       }
 
       .subtitle {
          text-align: center;
-         font-size: 1.6rem;
-         color: #666;
+         font-size: 1.4rem;
+         color: #ddd;
          margin-bottom: 3rem;
       }
 
+      /* COMPACT GRID SYSTEM */
       .box-container {
          display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
-         gap: 2rem;
+         grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
+         gap: 1.5rem;
          align-items: flex-start;
       }
 
+      /* COMPACT PRODUCT BOX */
       .box {
          background: var(--white);
-         padding: 2rem;
-         border-radius: 1.5rem;
+         padding: 1.5rem;
+         border-radius: 1rem;
          box-shadow: var(--shadow);
          position: relative;
          border: var(--border);
          text-align: center;
       }
 
+      /* SMALLER IMAGE */
       .box img {
-         height: 18rem;
+         height: 13rem;
          object-fit: contain;
-         margin-bottom: 1.5rem;
+         margin-bottom: 1rem;
       }
 
       .fa-times {
          position: absolute;
-         top: 1.5rem;
-         right: 1.5rem;
-         font-size: 2rem;
+         top: 1rem;
+         right: 1.2rem;
+         font-size: 1.8rem;
          color: var(--red);
          cursor: pointer;
          transition: .3s;
@@ -142,74 +145,76 @@ if(isset($_POST['update_qty'])){
       .fa-times:hover { transform: rotate(90deg); }
 
       .box .name {
-         font-size: 2rem;
+         font-size: 1.7rem;
          color: var(--black);
-         margin: 1rem 0;
-         font-weight: 500;
+         margin: 0.5rem 0;
+         font-weight: 600;
       }
 
       .box .price {
-         font-size: 1.8rem;
+         font-size: 1.6rem;
          color: var(--secondary);
-         margin-bottom: 1.5rem;
+         margin-bottom: 1rem;
       }
 
       .flex-btn {
          display: flex;
-         gap: 1rem;
-         margin: 1.5rem 0;
+         gap: 0.8rem;
+         margin: 1rem 0;
       }
 
       .qty {
-         width: 8rem;
-         padding: 1.2rem;
+         width: 7rem;
+         padding: 0.8rem;
          border: var(--border);
          border-radius: .5rem;
-         font-size: 1.6rem;
+         font-size: 1.4rem;
       }
 
       .sub-total {
-         margin-top: 1.5rem;
-         padding-top: 1.5rem;
+         margin-top: 1rem;
+         padding-top: 1rem;
          border-top: var(--border);
-         font-size: 1.8rem;
+         font-size: 1.5rem;
          color: #666;
       }
 
       .sub-total span { color: var(--red); font-weight: 600; }
 
+      /* TOTAL SECTION */
       .cart-total {
-         margin-top: 3rem;
+         margin-top: 2.5rem;
          background: var(--white);
-         padding: 3rem;
-         border-radius: 1.5rem;
+         padding: 2rem;
+         border-radius: 1rem;
          text-align: center;
          box-shadow: var(--shadow);
          border: var(--border);
       }
 
       .grand-total {
-         font-size: 2.5rem;
+         font-size: 2.2rem;
          color: var(--black);
-         margin-bottom: 2rem;
+         margin-bottom: 1.5rem;
       }
 
       .grand-total span { color: var(--red); font-weight: 600; }
 
       .btn, .option-btn, .delete-btn {
          display: inline-block;
-         padding: 1.2rem 3rem;
+         padding: 1rem 2.5rem;
          border-radius: .5rem;
-         font-size: 1.7rem;
+         font-size: 1.5rem;
          text-decoration: none;
          cursor: pointer;
          transition: .3s;
          border: none;
-         margin: .5rem;
+         margin: .3rem;
+         font-weight: 500;
       }
 
       .btn { background: var(--primary); color: var(--white); }
-      .btn:hover { background: var(--secondary); }
+      .btn:hover { background: var(--secondary); transform: scale(1.02); }
 
       .option-btn { background: var(--black); color: var(--white); }
       .delete-btn { background: var(--red); color: var(--white); }
@@ -221,22 +226,26 @@ if(isset($_POST['update_qty'])){
       }
 
       .empty {
-         font-size: 2rem;
-         color: var(--red);
+         font-size: 1.8rem;
+         color: var(--white);
          text-align: center;
          grid-column: 1 / -1;
-         padding: 5rem 0;
+         padding: 3rem 0;
       }
 
       .rec-title {
-         margin-top: 5rem;
-         font-size: 2.5rem;
-         color: var(--black);
+         margin-top: 4rem;
+         font-size: 2.2rem;
+         color: var(--white);
          text-align: center;
-         border-bottom: .2rem solid var(--primary);
-         display: inline-block;
-         padding-bottom: 1rem;
+         display: block;
+         padding-bottom: 0.5rem;
          width: 100%;
+      }
+
+      @media (max-width: 450px) {
+         .shopping-cart { padding: 2rem 2%; }
+         .box-container { grid-template-columns: 1fr; }
       }
    </style>
 </head>
@@ -262,13 +271,13 @@ if(isset($_POST['update_qty'])){
       <a href="cart.php?delete=<?= $fetch_cart['id']; ?>" class="fas fa-times" onclick="return confirm('Remove this from cart?');"></a>
       <img src="<?= $fetch_cart['image']; ?>" alt="">
       <div class="name"><?= $fetch_cart['name']; ?></div>
-      <div class="price">₱<?= $fetch_cart['price']; ?></div>
+      <div class="price">₱<?= number_format($fetch_cart['price'], 2); ?></div>
       <input type="hidden" name="cart_id" value="<?= $fetch_cart['id']; ?>">
       <div class="flex-btn">
          <input type="number" min="1" value="<?= $fetch_cart['quantity']; ?>" class="qty" name="p_qty">
          <input type="submit" value="Update" name="update_qty" class="option-btn" style="flex:1;">
       </div>
-      <div class="sub-total"> Sub Total : <span>₱<?= $sub_total = ($fetch_cart['price'] * $fetch_cart['quantity']); ?></span> </div>
+      <div class="sub-total"> Sub Total : <span>₱<?= number_format($sub_total = ($fetch_cart['price'] * $fetch_cart['quantity']), 2); ?></span> </div>
    </form>
    <?php
       $grand_total += $sub_total;
@@ -280,8 +289,8 @@ if(isset($_POST['update_qty'])){
    </div>
 
    <div class="cart-total">
-      <p class="grand-total">Grand Total : <span>₱<?= $grand_total; ?></span></p>
-      <div class="flex-btn" style="justify-content: center;">
+      <p class="grand-total">Grand Total : <span>₱<?= number_format($grand_total, 2); ?></span></p>
+      <div class="flex-btn" style="justify-content: center; flex-wrap: wrap;">
          <a href="shop.php" class="option-btn">Continue Shopping</a>
          <a href="cart.php?delete_all" class="delete-btn <?= ($grand_total > 0)?'':'disabled'; ?>" onclick="return confirm('Clear your entire cart?');">Remove Products</a>
          <a href="checkout.php" class="btn <?= ($grand_total > 0)?'':'disabled'; ?>">Checkout Now</a>
@@ -290,126 +299,53 @@ if(isset($_POST['update_qty'])){
 </section>
 
 <!-- RECIPE RECOMMENDATIONS SECTION -->
-<section class="wishlist" style="padding-top: 0;">
+<section class="wishlist" style="padding-top: 0; padding-bottom: 5rem;">
 
-   <h2 class="rec-title">🍽️ Suggested Recipes for Your Items</h2>
-   <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">
-      Personalized recipe per product in your cart
+   <h2 class="rec-title">🍽️ Suggested Recipes</h2>
+   <p style="text-align:center; font-size:1.3rem; color:#fff; margin-bottom:2rem; opacity: 0.8;">
+      Personalized suggestions based on your items
    </p>
 
+   <div class="box-container">
    <?php
    $suggestions = [];
-
    if(!empty($all_cart_items)){
       foreach($all_cart_items as $item){
          $name = strtolower($item);
 
-         // 🥭 FRUITS
-         if(strpos($name, 'apple') !== false){
-            $suggestions[] = "🍎 Apple → Fruit Salad / Juice / Dessert Mix";
-         }
+         // Fruits
+         if(strpos($name, 'apple') !== false) $suggestions[] = "🍎 Apple → Salad / Juice";
+         if(strpos($name, 'avocado') !== false) $suggestions[] = "🥑 Avocado → Shake / Smoothie";
+         if(strpos($name, 'grapes') !== false) $suggestions[] = "🍇 Grapes → Fruit Bowl";
+         if(strpos($name, 'watermelon') !== false) $suggestions[] = "🍉 Watermelon → Fresh Juice";
 
-         if(strpos($name, 'avocado') !== false){
-            $suggestions[] = "🥑 Avocado → Milkshake / Dessert / Smoothie";
-         }
+         // Vegetables
+         if(strpos($name, 'kalabasa') !== false) $suggestions[] = "🎃 Kalabasa → Ginataan / Ginisa";
+         if(strpos($name, 'onion') !== false) $suggestions[] = "🧅 Onion → Sauté / Base Soup";
+         if(strpos($name, 'talong') !== false || strpos($name, 'eggplant') !== false) $suggestions[] = "🍆 Talong → Tortang Talong";
+         if(strpos($name, 'broccoli') !== false) $suggestions[] = "🥦 Broccoli → Stir Fry / Garlic";
+         if(strpos($name, 'cabbage') !== false) $suggestions[] = "🥬 Cabbage → Chop Suey / Pansit";
+         if(strpos($name, 'carrot') !== false) $suggestions[] = "🥕 Carrots → Ginisa / Nilaga";
 
-         if(strpos($name, 'grapes') !== false){
-            $suggestions[] = "🍇 Grapes → Fruit Salad / Juice";
-         }
-
-         if(strpos($name, 'watermelon') !== false || strpos($name, 'water melon') !== false){
-            $suggestions[] = "🍉 Watermelon → Fresh Juice / Fruit Bowl";
-         }
-
-         // 🥬 VEGETABLES
-         if(strpos($name, 'kalabasa') !== false){
-            $suggestions[] = "🎃 Kalabasa → Tinola / Ginisa / Ginataang Kalabasa";
-         }
-
-         if(strpos($name, 'onion') !== false){
-            $suggestions[] = "🧅 Onion → Base sa Ginisa / Adobo / Soup";
-         }
-
-         if(strpos($name, 'talong') !== false || strpos($name, 'eggplant') !== false){
-            $suggestions[] = "🍆 Talong → Tortang Talong / Ginisa";
-         }
-
-         if(strpos($name, 'broccoli') !== false){
-            $suggestions[] = "🥦 Broccoli → Stir Fry / Ginisa with Garlic";
-         }
-
-         if(strpos($name, 'cabbage') !== false){
-            $suggestions[] = "🥬 Cabbage → Chop Suey / Ginisa";
-         }
-
-         if(strpos($name, 'cucumber') !== false){
-            $suggestions[] = "🥒 Cucumber → Salad / Refreshing side dish";
-         }
-
-         if(strpos($name, 'mushroom') !== false){
-            $suggestions[] = "🍄 Mushrooms → Stir Fry / Soup";
-         }
-
-         if(strpos($name, 'carrot') !== false){
-            $suggestions[] = "🥕 Carrots → Ginisa / Soup / Chop Suey";
-         }
-
-         if(strpos($name, 'petchay') !== false || strpos($name, 'pechay') !== false){
-            $suggestions[] = "🥬 Petchay → Tinola / Nilaga";
-         }
-
-         // 🐟 FISH
-         if(strpos($name, 'tuna') !== false){
-            $suggestions[] = "🐟 Tuna → Adobo / Grill / Prito";
-         }
-
-         if(strpos($name, 'tilapia') !== false){
-            $suggestions[] = "🐟 Tilapia → Fried Tilapia / Adobo / Sinigang";
-         }
-
-         if(strpos($name, 'katambak') !== false){
-            $suggestions[] = "🐟 Katambak → Prito / Paksiw style";
-         }
-
-         if(strpos($name, 'kitong') !== false){
-            $suggestions[] = "🐟 Kitong → Grilled / Fried Fish";
-         }
-
-         if(strpos($name, 'kabalyas') !== false){
-            $suggestions[] = "🐟 Kabalyas → Fried / Adobo style";
-         }
-
-         // 🍖 MEAT
-         if(strpos($name, 'beef') !== false){
-            $suggestions[] = "🥩 Beef → Nilaga / Adobo / Steak";
-         }
-
-         if(strpos($name, 'pork') !== false){
-            $suggestions[] = "🥩 Pork → Adobo / Sinigang / Fried Pork";
-         }
+         // Fish & Meat
+         if(strpos($name, 'tuna') !== false) $suggestions[] = "🐟 Tuna → Adobo / Grilled";
+         if(strpos($name, 'tilapia') !== false) $suggestions[] = "🐟 Tilapia → Fried / Sinigang";
+         if(strpos($name, 'beef') !== false) $suggestions[] = "🥩 Beef → Nilaga / Steak";
+         if(strpos($name, 'pork') !== false) $suggestions[] = "🥩 Pork → Adobo / Sinigang";
       }
    }
+
+   if(!empty($suggestions)){
+      foreach(array_unique($suggestions) as $s){
+         echo '<div class="box" style="padding:1rem;"><p style="font-size:1.4rem; color:var(--black);">'.$s.'</p></div>';
+      }
+   } else if(!empty($all_cart_items)) {
+      echo '<p class="empty" style="color:#fff;">No specific recipes for these items yet.</p>';
+   }
    ?>
-
-   <div class="box-container">
-
-      <?php if(!empty($suggestions)){ ?>
-         <?php foreach(array_unique($suggestions) as $s){ ?>
-            <div class="box">
-               <p style="font-size:1.6rem; color:var(--black);">
-                  <?= $s; ?>
-               </p>
-            </div>
-         <?php } ?>
-      <?php } else { ?>
-         <p class="empty">No recipe suggestion yet.</p>
-      <?php } ?>
-
    </div>
-
 </section>
 
-   
 <?php include 'footer.php'; ?>
 
 <script src="js/script.js"></script>
