@@ -88,7 +88,6 @@ if(isset($_POST['add_to_cart'])){
           padding: 0;
       }
 
-      /* SUCCESS & ERROR MESSAGES */
       .message-container {
          position: fixed;
          top: 2rem;
@@ -109,96 +108,37 @@ if(isset($_POST['add_to_cart'])){
          margin-bottom: 1rem;
          box-shadow: 0 10px 25px rgba(0,0,0,0.2);
          animation: slideDown 0.4s ease forwards;
+         background: #fff;
       }
 
       .message.success { background: #d4edda; color: #155724; border-left: 6px solid #28a745; }
       .message.error { background: #f8d7da; color: #721c24; border-left: 6px solid #dc3545; }
-      /* Default if class is empty */
-      .message { background: #fff; color: #333; border-left: 6px solid #999; }
 
-      .message span { font-size: 1.5rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
-      .message i.fa-times { font-size: 2rem; cursor: pointer; }
+      .message span { font-size: 1.3rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+      .message i.fa-times { font-size: 1.8rem; cursor: pointer; }
 
       @keyframes slideDown {
          0% { transform: translateY(-100%); opacity: 0; }
          100% { transform: translateY(0); opacity: 1; }
       }
 
-      /* PRODUCT STYLES */
-      .p-category {
-          display: flex;
-          justify-content: center;
-          gap: 1.5rem;
-          padding: 2rem;
-          flex-wrap: wrap;
-          background: var(--white);
-      }
-
-      .p-category a {
-          padding: 1rem 2rem;
-          background: var(--white);
-          border: var(--border);
-          color: var(--black);
-          text-decoration: none;
-          border-radius: .5rem;
-          font-size: 1.1rem;
-          transition: .3s;
-      }
-
+      .p-category { display: flex; justify-content: center; gap: 1.5rem; padding: 2rem; flex-wrap: wrap; background: var(--white); }
+      .p-category a { padding: 1rem 2rem; background: var(--white); border: var(--border); color: var(--black); text-decoration: none; border-radius: .5rem; font-size: 1.1rem; transition: .3s; }
       .p-category a:hover { background: var(--green); color: var(--white); }
 
       .products { padding: 2rem 5%; }
       .products .title { text-align: center; margin-bottom: 2rem; font-size: 2.5rem; color: var(--white); text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
 
-      .box-container {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 1.5rem;
-      }
-
-      .box {
-          background: var(--white);
-          padding: 1.5rem;
-          border-radius: 1rem;
-          border: var(--border);
-          box-shadow: var(--shadow);
-          position: relative;
-          text-align: center;
-      }
-
+      .box-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+      .box { background: var(--white); padding: 1.5rem; border-radius: 1rem; border: var(--border); box-shadow: var(--shadow); position: relative; text-align: center; }
       .box img { height: 13rem; width: 100%; object-fit: contain; margin-bottom: 1rem; }
-
-      .box .price {
-          position: absolute;
-          top: 1rem; left: 1rem;
-          background: var(--green);
-          color: var(--white);
-          padding: .5rem 1rem;
-          border-radius: .5rem;
-          font-size: 1.2rem;
-      }
-
-      .box .fa-eye {
-          position: absolute;
-          top: 1rem; right: 1rem;
-          height: 3.5rem; width: 3.5rem;
-          line-height: 3.5rem;
-          border: var(--border);
-          border-radius: .5rem;
-          color: var(--black);
-          background: var(--white);
-          text-decoration: none;
-      }
-
+      .box .price { position: absolute; top: 1rem; left: 1rem; background: var(--green); color: var(--white); padding: .5rem 1rem; border-radius: .5rem; font-size: 1.2rem; }
+      .box .fa-eye { position: absolute; top: 1rem; right: 1rem; height: 3.5rem; width: 3.5rem; line-height: 3.5rem; border: var(--border); border-radius: .5rem; color: var(--black); background: var(--white); text-decoration: none; }
       .box .name { font-size: 1.5rem; color: var(--black); margin: 1rem 0; }
       .box .qty { width: 100%; padding: 1rem; border: var(--border); border-radius: .5rem; margin-bottom: 1rem; }
       .stock{ margin-top: .5rem; font-size: 1.1rem; color: #333; font-weight: 500; }
 
-      .btn, .option-btn {
-          width: 100%; display: block; padding: 1rem; border-radius: .5rem;
-          cursor: pointer; font-size: 1.1rem; border: none; margin-top: .5rem; transition: .3s;
-      }
-
+      .btn, .option-btn { width: 100%; display: block; padding: 1rem; border-radius: .5rem; cursor: pointer; font-size: 1.1rem; border: none; margin-top: .5rem; transition: .3s; }
       .btn { background: var(--green); color: var(--white); }
       .btn:hover { background: var(--black); }
       .option-btn { background: #f39c12; color: var(--white); }
@@ -207,25 +147,14 @@ if(isset($_POST['add_to_cart'])){
 </head>
 <body>
 
-<?php include 'header.php'; ?>
-
-<!-- ✅ IMPROVED MESSAGE DISPLAY LOGIC -->
-<?php
+<?php 
+// 1. I-display ang messages gamit ang bag-ong logic sa shop.php
 if(isset($message)){
    echo '<div class="message-container">';
    foreach($message as $msg){
-      if(is_array($msg)){
-         // Bag-ong format (Array)
-         $text = $msg['text'];
-         $typeClass = $msg['type']; // 'success' o 'error'
-         $icon = ($typeClass == 'success') ? 'fa-check-circle' : 'fa-exclamation-circle';
-      } else {
-         // Karaan nga format (String)
-         $text = $msg;
-         $typeClass = ''; 
-         $icon = 'fa-info-circle';
-      }
-      
+      $text = is_array($msg) ? $msg['text'] : $msg;
+      $typeClass = is_array($msg) ? $msg['type'] : 'error';
+      $icon = ($typeClass == 'success') ? 'fa-check-circle' : 'fa-exclamation-circle';
       echo '
       <div class="message '.$typeClass.'">
          <span><i class="fas '.$icon.'"></i> '.$text.'</span>
@@ -234,7 +163,12 @@ if(isset($message)){
       ';
    }
    echo '</div>';
+   
+   // 2. IMPORTANT: I-clear ang $message para dili na mag-error sa header.php
+   unset($message);
 }
+
+include 'header.php'; 
 ?>
 
 <section class="p-category">
