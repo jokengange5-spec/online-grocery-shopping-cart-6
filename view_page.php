@@ -110,19 +110,19 @@ if(isset($_POST['add_to_cart'])){
          box-shadow: var(--box-shadow);
          border: var(--border);
          flex-wrap: wrap;
-         max-width: 1000px;
+         max-width: 500px;
          margin: 0 auto;
       }
 
       .quick-view .box img {
-         flex: 1 1 40rem;
-         height: 40rem;
+         flex: 1 1 30rem;
+         height: 30rem;
          object-fit: contain;
          border-radius: .5rem;
       }
 
       .quick-view .box .content {
-         flex: 1 1 40rem;
+         flex: 1 1 20rem;
       }
 
       .quick-view .box .content .price {
