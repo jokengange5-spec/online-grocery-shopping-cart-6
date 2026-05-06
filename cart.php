@@ -289,6 +289,7 @@ if(isset($_POST['update_qty'])){
    </div>
 </section>
 
+
 <!-- RECIPE RECOMMENDATIONS SECTION -->
 <section class="wishlist" style="padding-top: 0;">
 
@@ -298,29 +299,33 @@ if(isset($_POST['update_qty'])){
    </p>
 
    <?php
-   $is_veg = false;
-   $is_fruit = false;
-   $is_meat = false;
-   $is_fish = false;
+   $has_veg = false;
+   $has_fruit = false;
+   $has_meat = false;
+   $has_fish = false;
 
    if(!empty($all_cart_items)){
       foreach($all_cart_items as $item_name){
-         $name_lower = strtolower($item_name);
+         $name = strtolower($item_name);
 
-         if(preg_match('/(cabbage|carrot|tomato|onion|garlic|kalabasa|sayote|malunggay|ampalaya|veg)/', $name_lower)){
-            $is_veg = true;
+         // VEGETABLES
+         if(preg_match('/(cabbage|carrot|tomato|onion|garlic|kalabasa|sayote|malunggay|ampalaya|vegetable|veg)/', $name)){
+            $has_veg = true;
          }
 
-         if(preg_match('/(apple|banana|orange|mango|grapes|pineapple|fruit)/', $name_lower)){
-            $is_fruit = true;
+         // FRUITS
+         if(preg_match('/(apple|banana|orange|mango|grapes|pineapple|fruit)/', $name)){
+            $has_fruit = true;
          }
 
-         if(preg_match('/(pork|beef|chicken|baboy|baka|manok|meat)/', $name_lower)){
-            $is_meat = true;
+         // MEAT
+         if(preg_match('/(pork|beef|chicken|baboy|baka|manok|meat)/', $name)){
+            $has_meat = true;
          }
 
-         if(preg_match('/(fish|isda|tilapia|bangus|salmon|shrimp|hipon)/', $name_lower)){
-            $is_fish = true;
+         // FISH
+         if(preg_match('/(fish|isda|tilapia|bangus|salmon|shrimp|hipon)/', $name)){
+            $has_fish = true;
          }
       }
    }
@@ -328,35 +333,35 @@ if(isset($_POST['update_qty'])){
 
    <div class="box-container">
 
-      <?php if($is_veg){ ?>
+      <?php if($has_veg){ ?>
          <div class="box">
-            <h3>🥬 Tinola</h3>
-            <p>Pwede nimo i-luto ang kalabasa, sayote, ug malunggay as Tinola.</p>
+            <h3>🥬 Tinola / Ginisa</h3>
+            <p>Perfect gamit ang kalabasa, sayote, ug malunggay para sa Tinola o Ginisa.</p>
          </div>
       <?php } ?>
 
-      <?php if($is_fruit){ ?>
+      <?php if($has_fruit){ ?>
          <div class="box">
             <h3>🍧 Halo-Halo</h3>
-            <p>Ang imong fruits perfect para sa dessert nga Halo-Halo.</p>
+            <p>Ang imong fruits ideal para sa refreshing Halo-Halo dessert.</p>
          </div>
       <?php } ?>
 
-      <?php if($is_meat){ ?>
+      <?php if($has_meat){ ?>
          <div class="box">
-            <h3>🍲 Adobo / Tinola</h3>
-            <p>Ang meat nimo pwede Adobo or Tinola.</p>
+            <h3>🍲 Adobo / Tinola / Prito</h3>
+            <p>Ang meat pwede himuon Adobo, Tinola, o simple nga prito.</p>
          </div>
       <?php } ?>
 
-      <?php if($is_fish){ ?>
+      <?php if($has_fish){ ?>
          <div class="box">
-            <h3>🐟 Fish Adobo</h3>
-            <p>Ang fish pwede himuon Adobo or ginisa.</p>
+            <h3>🐟 Fish Adobo / Prito / Tinola Style</h3>
+            <p>Ang fish pwede Adobo, prito, o sabaw-style Tinola.</p>
          </div>
       <?php } ?>
 
-      <?php if(!$is_veg && !$is_fruit && !$is_meat && !$is_fish){ ?>
+      <?php if(!$has_veg && !$has_fruit && !$has_meat && !$has_fish){ ?>
          <p class="empty">No recipe suggestion yet.</p>
       <?php } ?>
 
@@ -364,6 +369,8 @@ if(isset($_POST['update_qty'])){
 
 </section>
 
+
+   
 <?php include 'footer.php'; ?>
 
 <script src="js/script.js"></script>
