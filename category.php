@@ -275,7 +275,7 @@ if(isset($_POST['add_to_cart'])){
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
       
       <!-- Path para sa imong mga hulagway -->
-      <img src="image products/<?= $fetch_products['image']; ?>" alt="">
+      <img src="uploaded_img/<?= $fetch_products['image']; ?>" alt="">
       
       <div class="name"><?= $fetch_products['name']; ?></div>
 
