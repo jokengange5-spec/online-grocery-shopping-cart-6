@@ -289,78 +289,79 @@ if(isset($_POST['update_qty'])){
    </div>
 </section>
 
-<!-- RECOMMENDATIONS SECTION -->
+<!-- RECIPE RECOMMENDATIONS SECTION -->
 <section class="wishlist" style="padding-top: 0;">
-   <h2 class="rec-title">Suggested Products</h2>
-   <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">Suggested pairings, Great foods for you</p>
-   
-   <div class="box-container">
+
+   <h2 class="rec-title">🍽️ Suggested Dishes for You</h2>
+   <p style="text-align:center; font-size:1.4rem; color:var(--secondary); margin-bottom:2rem;">
+      Based on your cart ingredients
+   </p>
+
    <?php
-      $is_protein_present = false;
-      
-      // I-check kung naay protein keywords
-      if(!empty($all_cart_items)){
-         foreach($all_cart_items as $item_name){
-            $name_lower = strtolower($item_name);
-            if(preg_match('/(meat|pork|beef|chicken|manok|baboy|baka|fish|isda|tilapia|bangus|salmon|shrimp|hipon)/', $name_lower)){
-               $is_protein_present = true;
-               break; 
-            }
+   $is_veg = false;
+   $is_fruit = false;
+   $is_meat = false;
+   $is_fish = false;
+
+   if(!empty($all_cart_items)){
+      foreach($all_cart_items as $item_name){
+         $name_lower = strtolower($item_name);
+
+         if(preg_match('/(cabbage|carrot|tomato|onion|garlic|kalabasa|sayote|malunggay|ampalaya|veg)/', $name_lower)){
+            $is_veg = true;
+         }
+
+         if(preg_match('/(apple|banana|orange|mango|grapes|pineapple|fruit)/', $name_lower)){
+            $is_fruit = true;
+         }
+
+         if(preg_match('/(pork|beef|chicken|baboy|baka|manok|meat)/', $name_lower)){
+            $is_meat = true;
+         }
+
+         if(preg_match('/(fish|isda|tilapia|bangus|salmon|shrimp|hipon)/', $name_lower)){
+            $is_fish = true;
          }
       }
-
-      // Build logic for recommendations
-      $params = [];
-      $not_in = "";
-      if(!empty($all_cart_items)){
-         $not_in = " AND name NOT IN (" . str_repeat('?,', count($all_cart_items) - 1) . '?' . ")";
-         $params = $all_cart_items;
-      }
-
-      if($is_protein_present){
-         // Kung naay protein, i-prioritize ang utanon ug prutas
-         $query = "SELECT * FROM products WHERE 
-                  (name LIKE '%onion%' OR name LIKE '%garlic%' OR name LIKE '%veg%' OR name LIKE '%cabbage%' OR name LIKE '%tomato%' OR
-                   name LIKE '%apple%' OR name LIKE '%banana%' OR name LIKE '%orange%' OR name LIKE '%mango%' OR name LIKE '%fruit%') 
-                   $not_in 
-                   ORDER BY RANDOM() LIMIT 6";
-         $select_rec = $conn->prepare($query);
-         $select_rec->execute($params);
-      } else {
-         // Default random products
-         $query = "SELECT * FROM products WHERE 1=1 $not_in ORDER BY RANDOM() LIMIT 6";
-         $select_rec = $conn->prepare($query);
-         $select_rec->execute($params);
-      }
-
-      if($select_rec->rowCount() > 0){
-         while($fetch_rec = $select_rec->fetch(PDO::FETCH_ASSOC)){
-            $rec_name_lower = strtolower($fetch_rec['name']);
-            $label = "Healthy Choice";
-            if(preg_match('/(apple|banana|orange|mango|fruit|pineapple|grapes)/', $rec_name_lower)){
-               $label = "Best Dessert After Meal";
-            } else if(preg_match('/(onion|garlic|veg|cabbage|tomato|ginger|pepper)/', $rec_name_lower)){
-               $label = "Best to Mix with Meat/Fish";
-            }
+   }
    ?>
-            <form action="" method="POST" class="box">
-               <a href="view_page.php?pid=<?= $fetch_rec['id']; ?>" class="fas fa-eye" style="position:absolute; top:1.5rem; left:1.5rem; font-size:2rem; color:var(--black);"></a>
-               <img src="image products/<?= $fetch_rec['image']; ?>" alt="">
-               <div class="name"><?= $fetch_rec['name']; ?></div>
-               <small style="color:var(--primary); font-weight:600; display:block; margin-bottom:1rem;"><?= $label; ?></small>
-               <div class="price">₱<?= $fetch_rec['price']; ?></div>
-               <input type="hidden" name="pid" value="<?= $fetch_rec['id']; ?>">
-               <input type="hidden" name="p_name" value="<?= $fetch_rec['name']; ?>">
-               <input type="hidden" name="p_price" value="<?= $fetch_rec['price']; ?>">
-               <input type="hidden" name="p_image" value="<?= $fetch_rec['image']; ?>">
-               <input type="number" min="1" value="1" name="p_qty" class="qty" style="width:100%; margin-bottom:1rem;">
-               <input type="submit" value="Add to Cart" class="btn" name="add_to_cart" style="width:100%;">
-            </form>
-   <?php
-         } 
-      } 
-   ?>
+
+   <div class="box-container">
+
+      <?php if($is_veg){ ?>
+         <div class="box">
+            <h3>🥬 Tinola</h3>
+            <p>Pwede nimo i-luto ang kalabasa, sayote, ug malunggay as Tinola.</p>
+         </div>
+      <?php } ?>
+
+      <?php if($is_fruit){ ?>
+         <div class="box">
+            <h3>🍧 Halo-Halo</h3>
+            <p>Ang imong fruits perfect para sa dessert nga Halo-Halo.</p>
+         </div>
+      <?php } ?>
+
+      <?php if($is_meat){ ?>
+         <div class="box">
+            <h3>🍲 Adobo / Tinola</h3>
+            <p>Ang meat nimo pwede Adobo or Tinola.</p>
+         </div>
+      <?php } ?>
+
+      <?php if($is_fish){ ?>
+         <div class="box">
+            <h3>🐟 Fish Adobo</h3>
+            <p>Ang fish pwede himuon Adobo or ginisa.</p>
+         </div>
+      <?php } ?>
+
+      <?php if(!$is_veg && !$is_fruit && !$is_meat && !$is_fish){ ?>
+         <p class="empty">No recipe suggestion yet.</p>
+      <?php } ?>
+
    </div>
+
 </section>
 
 <?php include 'footer.php'; ?>
