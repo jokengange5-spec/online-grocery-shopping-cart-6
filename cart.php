@@ -336,28 +336,28 @@ if(isset($_POST['update_qty'])){
       <?php if($has_veg){ ?>
          <div class="box">
             <h3>🥬 Tinola / Ginisa</h3>
-            <p>Perfect gamit ang kalabasa, sayote, ug malunggay para sa Tinola o Ginisa.</p>
+            <p>Perfect for Tinola or Ginisa.</p>
          </div>
       <?php } ?>
 
       <?php if($has_fruit){ ?>
          <div class="box">
             <h3>🍧 Halo-Halo</h3>
-            <p>Ang imong fruits ideal para sa refreshing Halo-Halo dessert.</p>
+            <p>Perfect for refreshing Halo-Halo desserts.</p>
          </div>
       <?php } ?>
 
       <?php if($has_meat){ ?>
          <div class="box">
             <h3>🍲 Adobo / Tinola / Prito</h3>
-            <p>Ang meat pwede himuon Adobo, Tinola, o simple nga prito.</p>
+            <p>Perfect for Adobo, Tinola, or to a simple fried meat.</p>
          </div>
       <?php } ?>
 
       <?php if($has_fish){ ?>
          <div class="box">
             <h3>🐟 Fish Adobo / Prito / Tinola Style</h3>
-            <p>Ang fish pwede Adobo, prito, o sabaw-style Tinola.</p>
+            <p>Perfect for Adobo, fry, or Tinola.</p>
          </div>
       <?php } ?>
 
