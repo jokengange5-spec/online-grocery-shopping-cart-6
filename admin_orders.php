@@ -11,9 +11,10 @@ if(!isset($admin_id)){
    exit();
 };
 
+// Siguroha nga i-initialize isip empty array
 $message = []; 
 
-// ✅ HELPER FUNCTION: I-restore ang stock (Dugangan ang stock kung i-cancel)
+// ✅ HELPER FUNCTION: I-restore ang stock
 function restoreStock($conn, $order_id){
    $get_order = $conn->prepare("SELECT total_products FROM orders WHERE id = ?");
    $get_order->execute([$order_id]);
@@ -33,7 +34,7 @@ function restoreStock($conn, $order_id){
    }
 }
 
-// ✅ HELPER FUNCTION: I-reduce ang stock (Mao kini ang mokuha sa stock kung "Completed")
+// ✅ HELPER FUNCTION: I-reduce ang stock
 function reduceStock($conn, $order_id){
    $get_order = $conn->prepare("SELECT total_products FROM orders WHERE id = ?");
    $get_order->execute([$order_id]);
@@ -42,12 +43,10 @@ function reduceStock($conn, $order_id){
    if($order_data){
       $items = explode(', ', $order_data['total_products']);
       foreach($items as $item){
-         // I-extract ang product name ug quantity gikan sa string (e.g. "Apple (2)")
          preg_match('/^(.+)\s*\(\s*(\d+)\s*\)$/', trim($item), $matches);
          if(count($matches) === 3){
             $product_name = trim($matches[1]);
             $qty = (int)$matches[2];
-            // Minus (-) ang stock sa products table
             $reduce = $conn->prepare("UPDATE products SET stock = stock - ? WHERE name = ? AND stock >= ?");
             $reduce->execute([$qty, $product_name, $qty]);
          }
@@ -60,7 +59,6 @@ if(isset($_POST['update_order'])){
    $order_id = $_POST['order_id'];
    $update_payment = $_POST['update_payment'] ?? '';
 
-   // Susiha ang status karon sa database
    $check_status = $conn->prepare("SELECT payment_status FROM orders WHERE id = ?");
    $check_status->execute([$order_id]);
    $current = $check_status->fetch(PDO::FETCH_ASSOC);
@@ -69,19 +67,15 @@ if(isset($_POST['update_order'])){
       $old_status = strtolower($current['payment_status']);
       $new_status = strtolower($update_payment);
 
-      // ✅ LOGIC: Kung i-set nimo sa Completed, kuhaan ang stock
       if($new_status === 'completed' && $old_status !== 'completed'){
          reduceStock($conn, $order_id);
          $message[] = 'Order marked as Completed. Stock has been deducted!';
       }
-      
-      // ✅ LOGIC: Kung i-set nimo sa Cancelled, i-uli ang stock
       elseif($new_status === 'cancelled' && $old_status !== 'cancelled'){
          restoreStock($conn, $order_id);
          $message[] = 'Order Cancelled. Stock has been restored!';
       }
 
-      // I-update na ang payment status sa orders table
       $update_orders = $conn->prepare("UPDATE orders SET payment_status = ? WHERE id = ?");
       $update_orders->execute([$update_payment, $order_id]);
       
@@ -92,14 +86,11 @@ if(isset($_POST['update_order'])){
 }
 
 if(isset($_GET['delete'])){
-
    $delete_id = $_GET['delete'];
-
    $check_status = $conn->prepare("SELECT payment_status FROM orders WHERE id = ?");
    $check_status->execute([$delete_id]);
    $current = $check_status->fetch(PDO::FETCH_ASSOC);
 
-   // I-restore ang stock kung i-delete ang order samtang Pending pa kini
    if($current && strtolower($current['payment_status']) === 'pending'){
       restoreStock($conn, $delete_id);
    }
@@ -142,7 +133,8 @@ if(isset($_GET['delete'])){
 <?php include 'admin_header.php'; ?>
 
 <?php
-if(!empty($message)){
+// ✅ FIX: Susiha kung array ba ang $message sa dili pa mag-foreach
+if(isset($message) && is_array($message)){
    foreach($message as $msg){
       echo '<div class="message-box">'.$msg.'</div>';
    }
