@@ -274,8 +274,13 @@ if(isset($_POST['add_to_cart'])){
       <div class="price">₱<span><?= $fetch_products['price']; ?></span></div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
       
-      <!-- Path para sa imong mga hulagway -->
-      <img src="uploaded_img/<?= $fetch_products['image']; ?>" alt="">
+     <img src="<?php 
+         if(strpos($fetch_products['image'], 'data:image') === 0){
+            echo $fetch_products['image']; 
+         }else{
+            echo 'uploaded_img/' . $fetch_products['image']; 
+         }
+      ?>" alt="">
       
       <div class="name"><?= $fetch_products['name']; ?></div>
 
