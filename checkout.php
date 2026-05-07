@@ -26,7 +26,7 @@ if(isset($_POST['order'])){
    $cart_total = 0;
    $cart_products = []; 
    $cart_items_detail = [];
-   $out_of_stock = false; // Flag para sa validation
+   $out_of_stock = false; 
 
    $cart_query = $conn->prepare("SELECT * FROM cart WHERE user_id = ?");
    $cart_query->execute([$user_id]);
@@ -35,21 +35,16 @@ if(isset($_POST['order'])){
       while($cart_item = $cart_query->fetch(PDO::FETCH_ASSOC)){
          $p_id = $cart_item['product_id'] ?? $cart_item['pid'] ?? null;
          
-         // --- START SA STOCK VALIDATION ---
+         // 1. I-CHECK ANG STOCK
          $check_stock = $conn->prepare("SELECT name, stock FROM products WHERE id = ?");
          $check_stock->execute([$p_id]);
          $product_info = $check_stock->fetch(PDO::FETCH_ASSOC);
 
+         // 2. KUNG KULANG ANG STOCK, I-SET ANG FLAG
          if($cart_item['quantity'] > $product_info['stock']){
-            // I-check nato kung wala pa bay message para dili mag-duplicate
-            if(empty($message)){
-               $message[] = 'The quantity you entered exceeds the available stocks.';
-            }
             $out_of_stock = true;
-            // Pwede sab nimo i-break ang loop para undangon na ang pag-check sa uban items
-            // break; 
+            // Dili na nato i-insert ang message dire sa sulod sa loop
          }
-         // --- END SA STOCK VALIDATION ---
 
          $cart_products[] = $cart_item['name'].' ( '.$cart_item['quantity'].' )';
          $cart_items_detail[] = [
@@ -65,44 +60,44 @@ if(isset($_POST['order'])){
 
    $total_products = implode(', ', $cart_products);
 
+   // --- DINHI ANG PAG-HANDLE SA ERROR MESSAGES (GAWAS SA LOOP) ---
    if($cart_total == 0){
       $message[] = 'Your cart is empty';
    } elseif($out_of_stock) {
-      // Dili mopadayon kay naay item nga molapas sa stock
+      // KAUSA RA NI MO GAWAS BISAN PILA PA KA ITEMS ANG KULANG
+      $message[] = 'The quantity you entered exceeds the available stocks.';
    } else {
+      // PADAYON SA ORDER KUNG WALAY PROBLEM
       if($method == 'gcash'){
-         $_SESSION['pending_order'] = [
-            'user_id' => $user_id,
-            'name' => $name,
-            'number' => $number,
-            'email' => $email,
-            'method' => $method,
-            'address' => $address,
-            'total_products' => $total_products,
-            'total_price' => $cart_total,
-            'placed_on' => $placed_on,
-            'cart_items' => $cart_items_detail
-         ];
-         header('location:gcash_payment.php');
-         exit();
-      }else{
-         // Insert order
-         $insert_order = $conn->prepare("INSERT INTO orders(user_id, name, number, email, method, address, total_products, total_price, placed_on, payment_status) VALUES(?,?,?,?,?,?,?,?,?,?)");
-         $insert_order->execute([$user_id, $name, $number, $email, $method, $address, $total_products, $cart_total, $placed_on, 'pending']);
+          $_SESSION['pending_order'] = [
+             'user_id' => $user_id,
+             'name' => $name,
+             'number' => $number,
+             'email' => $email,
+             'method' => $method,
+             'address' => $address,
+             'total_products' => $total_products,
+             'total_price' => $cart_total,
+             'placed_on' => $placed_on,
+             'cart_items' => $cart_items_detail
+          ];
+          header('location:gcash_payment.php');
+          exit();
+      } else {
+          $insert_order = $conn->prepare("INSERT INTO orders(user_id, name, number, email, method, address, total_products, total_price, placed_on, payment_status) VALUES(?,?,?,?,?,?,?,?,?,?)");
+          $insert_order->execute([$user_id, $name, $number, $email, $method, $address, $total_products, $cart_total, $placed_on, 'pending']);
 
-         // DEDUCT STOCK
-         foreach($cart_items_detail as $item){
-            if($item['pid']){
-               $deduct_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
-               $deduct_stock->execute([$item['quantity'], $item['pid']]);
-            }
-         }
+          foreach($cart_items_detail as $item){
+             if($item['pid']){
+                $deduct_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
+                $deduct_stock->execute([$item['quantity'], $item['pid']]);
+             }
+          }
 
-         // Delete cart after order
-         $delete_cart = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
-         $delete_cart->execute([$user_id]);
+          $delete_cart = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
+          $delete_cart->execute([$user_id]);
 
-         $order_success = true;
+          $order_success = true;
       }
    }
 }
