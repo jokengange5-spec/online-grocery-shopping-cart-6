@@ -9,6 +9,8 @@ if(!$user_id){
    exit;
 }
 
+$sweet_messages = []; // Dito natin itatago ang messages para sa SweetAlert
+
 /* ADD TO WISHLIST LOGIC */
 if(isset($_POST['add_to_wishlist'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
@@ -23,13 +25,13 @@ if(isset($_POST['add_to_wishlist'])){
    $check_cart->execute([$pid, $user_id]);
 
    if($check->rowCount() > 0){
-      $message[] = ['text' => 'Already added to wishlist!', 'type' => 'error'];
+      $sweet_messages[] = ['text' => 'Already added to wishlist!', 'type' => 'error'];
    }elseif($check_cart->rowCount() > 0){
-      $message[] = ['text' => 'Already added to cart!', 'type' => 'error'];
+      $sweet_messages[] = ['text' => 'Already added to cart!', 'type' => 'error'];
    }else{
       $insert = $conn->prepare("INSERT INTO wishlist(user_id, pid, name, price, image) VALUES(?, ?, ?, ?, ?)");
       $insert->execute([$user_id, $pid, $p_name, $p_price, $p_image]);
-      $message[] = ['text' => 'Added to wishlist successfully!', 'type' => 'success'];
+      $sweet_messages[] = ['text' => 'Added to wishlist successfully!', 'type' => 'success'];
    }
 }
 
@@ -46,23 +48,26 @@ if(isset($_POST['add_to_cart'])){
    $fetch_stock = $check_stock->fetch(PDO::FETCH_ASSOC);
 
    if($p_qty > $fetch_stock['stock']){
-      $message[] = ['text' => 'Insufficient stock! Only ' . $fetch_stock['stock'] . ' left.', 'type' => 'error'];
+      $sweet_messages[] = ['text' => 'Insufficient stock! Only ' . $fetch_stock['stock'] . ' left.', 'type' => 'error'];
    } else {
       $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
       $check->execute([$p_name, $user_id]);
 
       if($check->rowCount() > 0){
-         $message[] = ['text' => 'Already added to cart!', 'type' => 'error'];
+         $sweet_messages[] = ['text' => 'Already added to cart!', 'type' => 'error'];
       }else{
          $delete_wish = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
          $delete_wish->execute([$p_name, $user_id]);
          
          $insert = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?, ?, ?, ?, ?, ?)");
          $insert->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-         $message[] = ['text' => 'Added to cart successfully!', 'type' => 'success'];
+         $sweet_messages[] = ['text' => 'Added to cart successfully!', 'type' => 'success'];
       }
    }
 }
+
+// Solusyon para sa header.php error: I-clear ang $message variable kung meron man
+unset($message); 
 ?>
 
 <!DOCTYPE html>
@@ -76,25 +81,12 @@ if(isset($_POST['add_to_cart'])){
    
    <style>
       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-
-      :root{
-          --green: #27ae60;
-          --black: #333;
-          --white: #fff;
-          --light-bg: #f6f6f6;
-          --border: 1px solid #ddd;
-          --shadow: 0 .5rem 1rem rgba(0,0,0,.1);
-          --red: #e74c3c;
-      }
+      :root{ --green: #27ae60; --black: #333; --white: #fff; --red: #e74c3c; --border: 1px solid #ddd; --shadow: 0 .5rem 1rem rgba(0,0,0,.1); }
 
       body {
           background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
-          background-size: cover;
-          background-position: center;
-          background-attachment: fixed;
-          font-family: 'Poppins', sans-serif;
-          margin: 0;
-          padding: 0;
+          background-size: cover; background-position: center; background-attachment: fixed;
+          font-family: 'Poppins', sans-serif; margin: 0; padding: 0;
       }
 
       .p-category { display: flex; justify-content: center; gap: 1.5rem; padding: 2rem; flex-wrap: wrap; background: var(--white); }
@@ -108,9 +100,9 @@ if(isset($_POST['add_to_cart'])){
       .box { background: var(--white); padding: 1.5rem; border-radius: 1rem; border: var(--border); box-shadow: var(--shadow); position: relative; text-align: center; }
       .box img { height: 13rem; width: 100%; object-fit: contain; margin-bottom: 1rem; }
       .box .price { position: absolute; top: 1rem; left: 1rem; background: var(--green); color: var(--white); padding: .5rem 1rem; border-radius: .5rem; font-size: 1.2rem; }
-      .box .fa-eye { position: absolute; top: 1rem; right: 1rem; height: 3.5rem; width: 3.5rem; line-height: 3.5rem; border: var(--border); border-radius: .5rem; color: var(--black); background: var(--white); text-decoration: none; text-align:center; }
+      .box .fa-eye { position: absolute; top: 1rem; right: 1rem; height: 3.5rem; width: 3.5rem; line-height: 3.5rem; border: var(--border); border-radius: .5rem; color: var(--black); background: var(--white); text-decoration: none; display: flex; align-items: center; justify-content: center;}
       .box .name { font-size: 1.5rem; color: var(--black); margin: 1rem 0; font-weight: 600; }
-      .box .qty { width: 100%; padding: 1rem; border: var(--border); border-radius: .5rem; margin-bottom: 1rem; font-size: 1.1rem; }
+      .box .qty { width: 100%; padding: 1rem; border: var(--border); border-radius: .5rem; margin-bottom: 1rem; font-size: 1.1rem; box-sizing: border-box;}
       .stock{ margin-top: .5rem; font-size: 1.1rem; color: #333; font-weight: 500; }
 
       .btn, .option-btn { width: 100%; display: block; padding: 1rem; border-radius: .5rem; cursor: pointer; font-size: 1.1rem; border: none; margin-top: .5rem; transition: .3s; font-weight: 500; }
@@ -118,9 +110,6 @@ if(isset($_POST['add_to_cart'])){
       .btn:hover { background: var(--black); }
       .option-btn { background: #f39c12; color: var(--white); }
       .option-btn:hover { background: var(--black); }
-      
-      /* SweetAlert customization */
-      .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 15px !important; }
    </style>
 </head>
 <body>
@@ -174,7 +163,7 @@ if(isset($_POST['add_to_cart'])){
 <?php include 'footer.php'; ?>
 
 <script>
-// JS function para sa stock validation gamit ang SweetAlert2
+// 1. Validation bago mag-submit (JavaScript Error Handler)
 function validateStock(event, form) {
     const qtyInput = form.querySelector('.qty');
     const orderQty = parseInt(qtyInput.value);
@@ -189,10 +178,8 @@ function validateStock(event, form) {
             Swal.fire({
                 icon: 'error',
                 title: 'Invalid Quantity!',
-              text: 'Invalid Quantity! You entered ' + orderQty + ' of ' + productName + ', but the stock is only ' + stockLevel + '. Please input a valid quantity.'
-                confirmButtonColor: '#e74c3c',
-                background: '#fff',
-                color: '#333'
+                text: 'You entered ' + orderQty + ' of ' + productName + ', but the stock is only ' + stockLevel + '. Please input a valid quantity.',
+                confirmButtonColor: '#e74c3c'
             });
             
             qtyInput.focus();
@@ -203,8 +190,8 @@ function validateStock(event, form) {
     return true;
 }
 
-// Para sa mga PHP messages (Success/Error Toasts)
-<?php if(isset($message)): ?>
+// 2. Display PHP messages gamit ang SweetAlert2 Toasts
+<?php if(!empty($sweet_messages)): ?>
     const Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
@@ -213,13 +200,12 @@ function validateStock(event, form) {
       timerProgressBar: true
     });
 
-    <?php foreach($message as $msg): ?>
+    <?php foreach($sweet_messages as $msg): ?>
         Toast.fire({
           icon: '<?= $msg['type']; ?>',
           title: '<?= $msg['text']; ?>'
         });
     <?php endforeach; ?>
-    <?php unset($message); ?>
 <?php endif; ?>
 </script>
 
