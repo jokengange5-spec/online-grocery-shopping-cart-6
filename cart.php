@@ -23,11 +23,11 @@ if(isset($_POST['add_to_cart'])){
    $check_cart_numbers->execute([$p_name, $user_id]);
 
    if($check_cart_numbers->rowCount() > 0){
-      $message[] = 'Already added to cart';
+      $message[] = ['type' => 'info', 'text' => 'Already added to cart'];
    }else{
       $insert_cart = $conn->prepare("INSERT INTO cart (user_id, pid, name, price, quantity, image) VALUES(?,?,?,?,?,?)");
       $insert_cart->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-      $message[] = 'Added to cart';
+      $message[] = ['type' => 'success', 'text' => 'Added to cart'];
    }
 }
 
@@ -36,12 +36,14 @@ if(isset($_GET['delete'])){
    $delete_cart_item = $conn->prepare("DELETE FROM cart WHERE id = ?");
    $delete_cart_item->execute([$delete_id]);
    header('location:cart.php');
+   exit();
 }
 
 if(isset($_GET['delete_all'])){
    $delete_cart_item = $conn->prepare("DELETE FROM cart WHERE user_id = ?");
    $delete_cart_item->execute([$user_id]);
    header('location:cart.php');
+   exit();
 }
 
 if(isset($_POST['update_qty'])){
@@ -50,7 +52,7 @@ if(isset($_POST['update_qty'])){
    
    $update_qty = $conn->prepare("UPDATE cart SET quantity = ? WHERE id = ?");
    $update_qty->execute([$p_qty, $cart_id]);
-   $message[] = 'Cart quantity updated';
+   $message[] = ['type' => 'success', 'text' => 'Cart quantity updated'];
 }
 
 ?>
@@ -64,6 +66,7 @@ if(isset($_POST['update_qty'])){
    <title>Shopping Cart - Joken's Grocery</title>
 
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    
    <style>
       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -106,7 +109,6 @@ if(isset($_POST['update_qty'])){
          margin-bottom: 3rem;
       }
 
-      /* COMPACT GRID SYSTEM */
       .box-container {
          display: grid;
          grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
@@ -114,7 +116,6 @@ if(isset($_POST['update_qty'])){
          align-items: flex-start;
       }
 
-      /* COMPACT PRODUCT BOX */
       .box {
          background: var(--white);
          padding: 1.5rem;
@@ -125,7 +126,6 @@ if(isset($_POST['update_qty'])){
          text-align: center;
       }
 
-      /* SMALLER IMAGE */
       .box img {
          height: 13rem;
          object-fit: contain;
@@ -181,7 +181,6 @@ if(isset($_POST['update_qty'])){
 
       .sub-total span { color: var(--red); font-weight: 600; }
 
-      /* TOTAL SECTION */
       .cart-total {
          margin-top: 2.5rem;
          background: var(--white);
@@ -243,9 +242,9 @@ if(isset($_POST['update_qty'])){
          width: 100%;
       }
 
-      @media (max-width: 450px) {
-         .shopping-cart { padding: 2rem 2%; }
-         .box-container { grid-template-columns: 1fr; }
+      /* SweetAlert Custom Background to match white cards */
+      .swal2-popup {
+         border-radius: 15px !important;
       }
    </style>
 </head>
@@ -267,18 +266,23 @@ if(isset($_POST['update_qty'])){
          while($fetch_cart = $select_cart->fetch(PDO::FETCH_ASSOC)){ 
             $all_cart_items[] = $fetch_cart['name'];
    ?>
-   <form action="" method="POST" class="box">
-      <a href="cart.php?delete=<?= $fetch_cart['id']; ?>" class="fas fa-times" onclick="return confirm('Remove this from cart?');"></a>
+   <div class="box">
+      <a href="javascript:void(0);" class="fas fa-times delete-item" data-id="<?= $fetch_cart['id']; ?>"></a>
+      
       <img src="<?= $fetch_cart['image']; ?>" alt="">
       <div class="name"><?= $fetch_cart['name']; ?></div>
       <div class="price">₱<?= number_format($fetch_cart['price'], 2); ?></div>
-      <input type="hidden" name="cart_id" value="<?= $fetch_cart['id']; ?>">
-      <div class="flex-btn">
-         <input type="number" min="1" value="<?= $fetch_cart['quantity']; ?>" class="qty" name="p_qty">
-         <input type="submit" value="Update" name="update_qty" class="option-btn" style="flex:1;">
-      </div>
+      
+      <form action="" method="POST">
+         <input type="hidden" name="cart_id" value="<?= $fetch_cart['id']; ?>">
+         <div class="flex-btn">
+            <input type="number" min="1" value="<?= $fetch_cart['quantity']; ?>" class="qty" name="p_qty">
+            <input type="submit" value="Update" name="update_qty" class="option-btn" style="flex:1;">
+         </div>
+      </form>
+      
       <div class="sub-total"> Sub Total : <span>₱<?= number_format($sub_total = ($fetch_cart['price'] * $fetch_cart['quantity']), 2); ?></span> </div>
-   </form>
+   </div>
    <?php
       $grand_total += $sub_total;
       }
@@ -292,15 +296,13 @@ if(isset($_POST['update_qty'])){
       <p class="grand-total">Grand Total : <span>₱<?= number_format($grand_total, 2); ?></span></p>
       <div class="flex-btn" style="justify-content: center; flex-wrap: wrap;">
          <a href="shop.php" class="option-btn">Continue Shopping</a>
-         <a href="cart.php?delete_all" class="delete-btn <?= ($grand_total > 0)?'':'disabled'; ?>" onclick="return confirm('Clear your entire cart?');">Remove Products</a>
+         <a href="javascript:void(0);" class="delete-btn delete-all <?= ($grand_total > 0)?'':'disabled'; ?>">Remove Products</a>
          <a href="checkout.php" class="btn <?= ($grand_total > 0)?'':'disabled'; ?>">Checkout Now</a>
       </div>
    </div>
 </section>
 
-<!-- RECIPE RECOMMENDATIONS SECTION -->
 <section class="wishlist" style="padding-top: 0; padding-bottom: 5rem;">
-
    <h2 class="rec-title">🍽️ Suggested Recipes</h2>
    <p style="text-align:center; font-size:1.3rem; color:#fff; margin-bottom:2rem; opacity: 0.8;">
       Personalized suggestions based on your items
@@ -313,21 +315,16 @@ if(isset($_POST['update_qty'])){
       foreach($all_cart_items as $item){
          $name = strtolower($item);
 
-         // Fruits
          if(strpos($name, 'apple') !== false) $suggestions[] = "🍎 Apple → Salad / Juice";
          if(strpos($name, 'avocado') !== false) $suggestions[] = "🥑 Avocado → Shake / Smoothie";
          if(strpos($name, 'grapes') !== false) $suggestions[] = "🍇 Grapes → Fruit Bowl";
          if(strpos($name, 'watermelon') !== false) $suggestions[] = "🍉 Watermelon → Fresh Juice";
-
-         // Vegetables
          if(strpos($name, 'kalabasa') !== false) $suggestions[] = "🎃 Kalabasa → Ginataan / Ginisa";
          if(strpos($name, 'onion') !== false) $suggestions[] = "🧅 Onion → Sauté / Base Soup";
          if(strpos($name, 'talong') !== false || strpos($name, 'eggplant') !== false) $suggestions[] = "🍆 Talong → Tortang Talong";
          if(strpos($name, 'broccoli') !== false) $suggestions[] = "🥦 Broccoli → Stir Fry / Garlic";
          if(strpos($name, 'cabbage') !== false) $suggestions[] = "🥬 Cabbage → Chop Suey / Pansit";
          if(strpos($name, 'carrot') !== false) $suggestions[] = "🥕 Carrots → Ginisa / Nilaga";
-
-         // Fish & Meat
          if(strpos($name, 'tuna') !== false) $suggestions[] = "🐟 Tuna → Adobo / Grilled";
          if(strpos($name, 'tilapia') !== false) $suggestions[] = "🐟 Tilapia → Fried / Sinigang";
          if(strpos($name, 'beef') !== false) $suggestions[] = "🥩 Beef → Nilaga / Steak";
@@ -348,7 +345,65 @@ if(isset($_POST['update_qty'])){
 
 <?php include 'footer.php'; ?>
 
-<script src="js/script.js"></script>
+<script>
+// 1. Handle Individual Item Delete
+document.querySelectorAll('.delete-item').forEach(button => {
+    button.addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+        
+        Swal.fire({
+            title: 'Remove Item?',
+            text: "Do you want to remove this product from your cart?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e74c3c',
+            cancelButtonColor: '#2c3e50',
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'cart.php?delete=' + id;
+            }
+        });
+    });
+});
+
+// 2. Handle Delete All (Clear Cart)
+const deleteAllBtn = document.querySelector('.delete-all');
+if(deleteAllBtn) {
+    deleteAllBtn.addEventListener('click', function() {
+        Swal.fire({
+            title: 'Clear Entire Cart?',
+            text: "This will remove all items you have added!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e74c3c',
+            cancelButtonColor: '#2c3e50',
+            confirmButtonText: 'Yes, clear all!',
+            cancelButtonText: 'No, keep them'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'cart.php?delete_all';
+            }
+        });
+    });
+}
+
+// 3. Show Toast Messages (For Quantity Updates or Additions)
+<?php if(isset($message)): ?>
+    <?php foreach($message as $msg): ?>
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: '<?= $msg['type']; ?>',
+            title: '<?= $msg['text']; ?>',
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true
+        });
+    <?php endforeach; ?>
+<?php endif; ?>
+</script>
 
 </body>
 </html>
