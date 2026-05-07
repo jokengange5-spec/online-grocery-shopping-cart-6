@@ -154,6 +154,23 @@ if(isset($message)){
       ";
    }
 }
+         
+    <?php if($show_success): ?>
+        Swal.fire({
+            title: 'Success!',
+            text: ' <?php echo $name; ?> successfully login ',
+            icon: 'success',
+            background: '#2c2c2c',
+            color: '#ffffff',
+            confirmButtonColor: '#2ecc71',
+            confirmButtonText: 'Login Now'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'home.php';
+            }
+        });
+    <?php endif; ?>
+
 ?>
 </script>
 
