@@ -41,8 +41,13 @@ if(isset($_POST['order'])){
          $product_info = $check_stock->fetch(PDO::FETCH_ASSOC);
 
          if($cart_item['quantity'] > $product_info['stock']){
-            $message[] = 'Insufficient stock for this product ' . $product_info['name'] . '. we have only ' . $product_info['stock'] . ' available.';
+            // I-check nato kung wala pa bay message para dili mag-duplicate
+            if(empty($message)){
+               $message[] = 'The quantity you entered exceeds the available stocks.';
+            }
             $out_of_stock = true;
+            // Pwede sab nimo i-break ang loop para undangon na ang pag-check sa uban items
+            // break; 
          }
          // --- END SA STOCK VALIDATION ---
 
