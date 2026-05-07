@@ -39,7 +39,7 @@ if(isset($_POST['update_product'])){
    $price = htmlspecialchars($_POST['price'] ?? '', ENT_QUOTES, 'UTF-8');
    $category = htmlspecialchars($_POST['category'] ?? '', ENT_QUOTES, 'UTF-8');
    $details = htmlspecialchars($_POST['details'] ?? '', ENT_QUOTES, 'UTF-8');
-   $stock = filter_var($_POST['stock'], FILTER_SANITIZE_NUMBER_INT); // Siguroha nga integer ang stock
+   $stock = filter_var($_POST['stock'], FILTER_SANITIZE_NUMBER_INT); 
 
    // Check if new image is uploaded
    if(!empty($_FILES['image']['name'])){
@@ -56,7 +56,6 @@ if(isset($_POST['update_product'])){
          $update_product = $conn->prepare("UPDATE products SET name=?, category=?, details=?, price=?, image=?, stock=? WHERE id=?");
          $update_product->execute([$name, $category, $details, $price, $image_data, $stock, $update_id]);
          
-         // REDIRECT human sa update aron ma-clear ang form data
          header("location:admin_update_product.php?update=" . $update_id . "&msg=updated");
          exit();
       }
@@ -64,7 +63,6 @@ if(isset($_POST['update_product'])){
       $update_product = $conn->prepare("UPDATE products SET name=?, category=?, details=?, price=?, stock=? WHERE id=?");
       $update_product->execute([$name, $category, $details, $price, $stock, $update_id]);
       
-      // REDIRECT human sa update aron ma-clear ang form data
       header("location:admin_update_product.php?update=" . $update_id . "&msg=updated");
       exit();
    }
@@ -181,8 +179,9 @@ if(isset($_GET['msg']) && $_GET['msg'] == 'updated'){
 <?php include 'admin_header.php'; ?>
 
 <?php
+// GIGAMITAN OG (array) PARA DILI MAG-ERROR KUNG DILI ARRAY ANG SULOD
 if(isset($message)){
-   foreach($message as $msg){
+   foreach((array)$message as $msg){
       echo '<div class="message"><span>'.$msg.'</span> <i class="fas fa-times" onclick="this.parentElement.remove();"></i></div>';
    }
 }
