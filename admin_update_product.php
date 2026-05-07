@@ -178,15 +178,6 @@ if(isset($_GET['msg']) && $_GET['msg'] == 'updated'){
    
 <?php include 'admin_header.php'; ?>
 
-<?php
-// GIGAMITAN OG (array) PARA DILI MAG-ERROR KUNG DILI ARRAY ANG SULOD
-if(isset($message)){
-   foreach((array)$message as $msg){
-      echo '<div class="message"><span>'.$msg.'</span> <i class="fas fa-times" onclick="this.parentElement.remove();"></i></div>';
-   }
-}
-?>
-
 <section class="update-product">
    <h1 class="title">Update Product</h1>
 
