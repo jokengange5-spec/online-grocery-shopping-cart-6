@@ -3,6 +3,10 @@
 @include 'config.php';
 session_start();
 
+$show_success = false; // Flag para sa success alert
+$redirect_url = '';   // Asa dapit mo redirect
+$user_name = '';      // Pangalan sa user
+
 if(isset($_POST['submit'])){
 
    $email = trim($_POST['email']);
@@ -17,16 +21,15 @@ if(isset($_POST['submit'])){
    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
    if($row){
+      $user_name = $row['name']; // Siguroha nga naay 'name' column sa imong database
+      $show_success = true;
+
       if($row['user_type'] == 'admin'){
          $_SESSION['admin_id'] = $row['id'];
-         header('location:admin_page.php');
-         exit;
-      }
-
-      if($row['user_type'] == 'user'){
+         $redirect_url = 'admin_page.php';
+      }else{
          $_SESSION['user_id'] = $row['id'];
-         header('location:home.php');
-         exit;
+         $redirect_url = 'home.php';
       }
    }else{
       $message[] = 'Incorrect email or password!';
@@ -47,12 +50,7 @@ if(isset($_POST['submit'])){
    <style>
    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
 
-   *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:'Poppins',sans-serif;
-   }
+   *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
 
    body{
       height:100vh;
@@ -83,10 +81,7 @@ if(isset($_POST['submit'])){
       color:white;
    }
 
-   .form-container h3{
-      font-size:26px;
-      margin-bottom:20px;
-   }
+   .form-container h3{ font-size:26px; margin-bottom:20px; }
 
    .box{
       width:100%;
@@ -110,67 +105,59 @@ if(isset($_POST['submit'])){
       margin-top: 10px;
    }
 
-   .btn:hover{
-      background:#27ae60;
-   }
+   .btn:hover{ background:#27ae60; }
 
-   /* Styling for SweetAlert to match your theme */
    .swal2-popup {
       background: #2c2c2c !important;
       color: #fff !important;
       border-radius: 15px !important;
    }
    </style>
-
 </head>
 <body>
 
 <section class="form-container">
-
    <form action="" method="POST">
       <h3><i class="fas fa-user"></i> Login</h3>
-
       <input type="email" name="email" class="box" placeholder="Enter your email" required>
       <input type="password" name="pass" class="box" placeholder="Enter your password" required>
-
       <input type="submit" value="Login" class="btn" name="submit">
-
       <p style="margin-top:15px;">Don't have an account? <a href="register.php" style="color:#2ecc71;">Register</a></p>
    </form>
-
 </section>
 
 <script>
 <?php
+// Error Message
 if(isset($message)){
    foreach($message as $msg){
       echo "
       Swal.fire({
-         icon: 'error',
-         title: 'Oops...',
-         text: '$msg',
-         confirmButtonColor: '#e74c3c'
+          icon: 'error',
+          title: 'Oops...',
+          text: '$msg',
+          confirmButtonColor: '#e74c3c'
       });
       ";
    }
 }
-         
-    <?php if($show_success): ?>
-        Swal.fire({
-            title: 'Success!',
-            text: ' <?php echo $name; ?> successfully login ',
-            icon: 'success',
-            background: '#2c2c2c',
-            color: '#ffffff',
-            confirmButtonColor: '#2ecc71',
-            confirmButtonText: 'Login Now'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = 'home.php';
-            }
-        });
-    <?php endif; ?>
 
+// Success Message
+if($show_success){
+   echo "
+   Swal.fire({
+       title: 'Success!',
+       text: 'Welcome $user_name, you have successfully logged in!',
+       icon: 'success',
+       confirmButtonColor: '#2ecc71',
+       confirmButtonText: 'Proceed'
+   }).then((result) => {
+       if (result.isConfirmed) {
+           window.location.href = '$redirect_url';
+       }
+   });
+   ";
+}
 ?>
 </script>
 
