@@ -35,15 +35,12 @@ if(isset($_POST['order'])){
       while($cart_item = $cart_query->fetch(PDO::FETCH_ASSOC)){
          $p_id = $cart_item['product_id'] ?? $cart_item['pid'] ?? null;
          
-         // 1. I-CHECK ANG STOCK
          $check_stock = $conn->prepare("SELECT name, stock FROM products WHERE id = ?");
          $check_stock->execute([$p_id]);
          $product_info = $check_stock->fetch(PDO::FETCH_ASSOC);
 
-         // 2. KUNG KULANG ANG STOCK, I-SET ANG FLAG
          if($cart_item['quantity'] > $product_info['stock']){
             $out_of_stock = true;
-            // Dili na nato i-insert ang message dire sa sulod sa loop
          }
 
          $cart_products[] = $cart_item['name'].' ( '.$cart_item['quantity'].' )';
@@ -60,14 +57,11 @@ if(isset($_POST['order'])){
 
    $total_products = implode(', ', $cart_products);
 
-   // --- DINHI ANG PAG-HANDLE SA ERROR MESSAGES (GAWAS SA LOOP) ---
    if($cart_total == 0){
       $message[] = 'Your cart is empty';
    } elseif($out_of_stock) {
-      // KAUSA RA NI MO GAWAS BISAN PILA PA KA ITEMS ANG KULANG
       $message[] = 'The quantity you entered exceeds the available stocks.';
    } else {
-      // PADAYON SA ORDER KUNG WALAY PROBLEM
       if($method == 'gcash'){
           $_SESSION['pending_order'] = [
              'user_id' => $user_id,
@@ -113,243 +107,235 @@ if(isset($_POST['order'])){
    
    <style>
       :root{
-         --green: #27ae60;
-         --black: #333;
-         --white: #fff;
-         --light-bg: #f6f6f6;
-         --border: 1px solid #ddd;
-         --shadow: 0 .5rem 1rem rgba(0,0,0,.1);
-         --gcash-blue: #007bff;
+          --green: #27ae60;
+          --black: #333;
+          --white: #fff;
+          --light-bg: #f6f6f6;
+          --border: 1px solid #ddd;
+          --shadow: 0 .5rem 1rem rgba(0,0,0,.1);
+          --gcash-blue: #007bff;
       }
 
       body {
-         background-color: var(--light-bg);
-         font-family: 'Poppins', sans-serif;
-         margin: 0; padding: 0;
+          background-color: var(--light-bg);
+          font-family: 'Poppins', sans-serif;
+          margin: 0; padding: 0;
       }
 
       .checkout-container {
-         max-width: 1200px;
-         margin: 2rem auto;
-         padding: 0 2rem;
-         display: flex;
-         flex-wrap: wrap;
-         gap: 2rem;
-         align-items: flex-start;
+          max-width: 1200px;
+          margin: 2rem auto;
+          padding: 0 2rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 2rem;
+          align-items: flex-start;
       }
 
       .display-orders {
-         flex: 1 1 40rem;
-         background: var(--white);
-         padding: 2rem;
-         border-radius: 1rem;
-         box-shadow: var(--shadow);
-         border: var(--border);
+          flex: 1 1 40rem;
+          background: var(--white);
+          padding: 2rem;
+          border-radius: 1rem;
+          box-shadow: var(--shadow);
+          border: var(--border);
       }
 
       .display-orders h3 {
-         font-size: 2rem;
-         color: var(--black);
-         margin-bottom: 1.5rem;
-         border-bottom: var(--border);
-         padding-bottom: 1rem;
+          font-size: 2rem;
+          color: var(--black);
+          margin-bottom: 1.5rem;
+          border-bottom: var(--border);
+          padding-bottom: 1rem;
       }
 
       .display-orders p {
-         display: flex;
-         justify-content: space-between;
-         font-size: 1.6rem;
-         color: #666;
-         margin: 1rem 0;
-         padding: 0.5rem 0;
+          display: flex;
+          justify-content: space-between;
+          font-size: 1.6rem;
+          color: #666;
+          margin: 1rem 0;
+          padding: 0.5rem 0;
       }
 
       .display-orders p span {
-         color: var(--green);
-         font-weight: bold;
+          color: var(--green);
+          font-weight: bold;
       }
 
       .grand-total {
-         margin-top: 1.5rem;
-         padding-top: 1.5rem;
-         border-top: 2px solid var(--light-bg);
-         font-size: 2.2rem;
-         color: var(--black);
-         display: flex;
-         justify-content: space-between;
+          margin-top: 1.5rem;
+          padding-top: 1.5rem;
+          border-top: 2px solid var(--light-bg);
+          font-size: 2.2rem;
+          color: var(--black);
+          display: flex;
+          justify-content: space-between;
       }
 
       .grand-total span {
-         color: var(--green);
-         font-weight: 800;
+          color: var(--green);
+          font-weight: 800;
       }
 
       .checkout-orders {
-         flex: 1 1 60rem;
-         background: var(--white);
-         padding: 2rem;
-         border-radius: 1rem;
-         box-shadow: var(--shadow);
-         border: var(--border);
+          flex: 1 1 60rem;
+          background: var(--white);
+          padding: 2rem;
+          border-radius: 1rem;
+          box-shadow: var(--shadow);
+          border: var(--border);
       }
 
       .checkout-orders h3 {
-         font-size: 2.2rem;
-         color: var(--black);
-         margin-bottom: 2rem;
-         text-transform: capitalize;
+          font-size: 2.2rem;
+          color: var(--black);
+          margin-bottom: 2rem;
+          text-transform: capitalize;
       }
 
       .checkout-orders .flex {
-         display: flex;
-         flex-wrap: wrap;
-         gap: 1.5rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1.5rem;
       }
 
       .checkout-orders .inputBox {
-         flex: 1 1 28rem;
+          flex: 1 1 28rem;
       }
 
       .checkout-orders .inputBox span {
-         display: block;
-         font-size: 1.4rem;
-         color: #666;
-         margin-bottom: 0.8rem;
+          display: block;
+          font-size: 1.4rem;
+          color: #666;
+          margin-bottom: 0.8rem;
       }
 
       .checkout-orders .inputBox .box {
-         width: 100%;
-         background: var(--light-bg);
-         padding: 1.2rem 1.4rem;
-         font-size: 1.6rem;
-         color: var(--black);
-         border: var(--border);
-         border-radius: .5rem;
+          width: 100%;
+          background: var(--light-bg);
+          padding: 1.2rem 1.4rem;
+          font-size: 1.6rem;
+          color: var(--black);
+          border: var(--border);
+          border-radius: .5rem;
       }
 
       .checkout-orders .inputBox .box:focus {
-         border-color: var(--green);
-         background: var(--white);
+          border-color: var(--green);
+          background: var(--white);
       }
 
       .btn {
-         width: 100%;
-         margin-top: 2rem;
-         padding: 1.5rem;
-         font-size: 1.8rem;
-         background: var(--green);
-         color: var(--white);
-         border: none;
-         border-radius: .5rem;
-         cursor: pointer;
-         transition: all .3s ease;
-         font-weight: 600;
-         text-transform: uppercase;
-         letter-spacing: 1px;
+          width: 100%;
+          margin-top: 2rem;
+          padding: 1.5rem;
+          font-size: 1.8rem;
+          background: var(--green);
+          color: var(--white);
+          border: none;
+          border-radius: .5rem;
+          cursor: pointer;
+          transition: all .3s ease;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 1px;
       }
 
       .btn:hover {
-         background: var(--black);
-         transform: translateY(-3px);
-         box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
+          background: var(--black);
+          transform: translateY(-3px);
+          box-shadow: 0 1rem 2rem rgba(0,0,0,0.2);
       }
 
       .btn.disabled {
-         background: #ccc;
-         cursor: not-allowed;
-         opacity: 0.7;
+          background: #ccc;
+          cursor: not-allowed;
+          opacity: 0.7;
       }
 
       .payment-info {
-         background: #e8f5e9;
-         padding: 1rem 1.5rem;
-         border-radius: 0.5rem;
-         margin: 1rem 0;
-         border-left: 4px solid var(--green);
-         display: none;
+          background: #e8f5e9;
+          padding: 1rem 1.5rem;
+          border-radius: 0.5rem;
+          margin: 1rem 0;
+          border-left: 4px solid var(--green);
+          display: none;
       }
 
       .payment-info.gcash {
-         background: #e3f2fd;
-         border-left-color: var(--gcash-blue);
+          background: #e3f2fd;
+          border-left-color: var(--gcash-blue);
       }
 
       .payment-info.show {
-         display: block;
+          display: block;
       }
 
       .payment-info i {
-         margin-right: 0.5rem;
+          margin-right: 0.5rem;
       }
 
       .payment-info.gcash i {
-         color: var(--gcash-blue);
+          color: var(--gcash-blue);
       }
 
       .message {
-         background: #fff;
-         padding: 1rem 2rem;
-         margin: 1rem auto;
-         width: 80%;
-         border-radius: 0.5rem;
-         box-shadow: var(--shadow);
-         text-align: center;
-         font-size: 1.6rem;
-         color: #e74c3c;
+          background: #fff;
+          padding: 1rem 2rem;
+          margin: 1rem auto;
+          width: 80%;
+          border-radius: 0.5rem;
+          box-shadow: var(--shadow);
+          text-align: center;
+          font-size: 1.6rem;
+          color: #e74c3c;
       }
 
       @media (max-width: 768px) {
-         .checkout-container { flex-direction: column; }
-         .display-orders, .checkout-orders { flex: 1 1 100%; }
+          .checkout-container { flex-direction: column; }
+          .display-orders, .checkout-orders { flex: 1 1 100%; }
       }
 
       .popup-message {
-         position: fixed;
-         top: 50%; left: 50%;
-         transform: translate(-50%, -50%);
-         background: var(--white);
-         padding: 2rem 4rem;
-         border-radius: 1rem;
-         box-shadow: 0 1rem 3rem rgba(0,0,0,0.3);
-         z-index: 10000;
-         text-align: center;
-         border-top: .5rem solid var(--green);
-         display: none;
+          position: fixed;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          background: var(--white);
+          padding: 2rem 4rem;
+          border-radius: 1rem;
+          box-shadow: 0 1rem 3rem rgba(0,0,0,0.3);
+          z-index: 10000;
+          text-align: center;
+          border-top: .5rem solid var(--green);
+          display: none;
       }
 
       .popup-message i {
-         font-size: 5rem;
-         color: var(--green);
-         margin-bottom: 1rem;
+          font-size: 5rem;
+          color: var(--green);
+          margin-bottom: 1rem;
       }
 
       .popup-message p {
-         font-size: 2rem;
-         color: var(--black);
-         font-weight: 600;
+          font-size: 2rem;
+          color: var(--black);
+          font-weight: 600;
       }
 
       .popup-overlay {
-         position: fixed;
-         top: 0; left: 0;
-         width: 100%; height: 100%;
-         background: rgba(0,0,0,0.5);
-         z-index: 9999;
-         display: none;
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background: rgba(0,0,0,0.5);
+          z-index: 9999;
+          display: none;
       }
    </style>
 </head>
 <body>
    
 <?php include 'header.php'; ?>
-
-<?php
-if(!empty($message)){
-   foreach($message as $msg){
-      echo '<div class="message"><span>'.$msg.'</span> <i class="fas fa-times" onclick="this.parentElement.remove();"></i></div>';
-   }
-}
-?>
 
 <div class="checkout-container">
 
