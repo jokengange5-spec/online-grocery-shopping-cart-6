@@ -35,7 +35,7 @@ if(isset($_POST['update_profile'])){
    // Update basic info
    $update_profile = $conn->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
    $update_profile->execute([$name, $email, $user_id]);
-   $message[] = 'Profile information updated!';
+   $message[] = ['text' => 'Profile information updated!', 'type' => 'success'];
 
    // Password Update Logic
    if(!empty($_POST['update_pass']) || !empty($_POST['new_pass'])){
@@ -44,13 +44,13 @@ if(isset($_POST['update_profile'])){
       $confirm_pass = md5($_POST['confirm_pass']);
 
       if($old_pass != $fetch_profile['password']){
-         $message[] = 'Old password does not match!';
+         $message[] = ['text' => 'Old password does not match!', 'type' => 'error'];
       }elseif($new_pass != $confirm_pass){
-         $message[] = 'Confirm password does not match!';
+         $message[] = ['text' => 'Confirm password does not match!', 'type' => 'error'];
       }else{
          $update_pass_query = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
          $update_pass_query->execute([$confirm_pass, $user_id]);
-         $message[] = 'Password updated successfully!';
+         $message[] = ['text' => 'Password updated successfully!', 'type' => 'success'];
       }
    }
 }
@@ -65,6 +65,7 @@ if(isset($_POST['update_profile'])){
    <title>Update Profile - Joken's Grocery</title>
 
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    
    <style>
       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
@@ -161,6 +162,8 @@ if(isset($_POST['update_profile'])){
           text-decoration: none;
           color: var(--white);
           transition: .3s;
+          font-weight: 500;
+          display: inline-block;
       }
 
       .btn { background: var(--primary-color); }
@@ -168,19 +171,7 @@ if(isset($_POST['update_profile'])){
       .option-btn { background: var(--black); }
       .logout-btn { background: var(--red); }
 
-      .message-display {
-          margin-bottom: 2rem;
-      }
-
-      .message {
-          background: #d4edda;
-          color: #155724;
-          padding: 1rem;
-          margin-bottom: 1rem;
-          border-radius: .5rem;
-          font-size: 1.4rem;
-          list-style: none;
-      }
+      .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 15px !important; }
    </style>
 </head>
 <body>
@@ -193,16 +184,7 @@ if(isset($_POST['update_profile'])){
       
       <h1 class="title">Update My Profile</h1>
 
-      <?php
-      if(isset($message)){
-         foreach($message as $msg){
-            echo '<div class="message">'.$msg.'</div>';
-         }
-      }
-      ?>
-
       <div class="flex">
-         <!-- Personal Info Column -->
          <div class="inputBox">
             <span>Username :</span>
             <input type="text" name="name" value="<?= $fetch_profile['name']; ?>" class="box" required>
@@ -210,7 +192,6 @@ if(isset($_POST['update_profile'])){
             <input type="email" name="email" value="<?= $fetch_profile['email']; ?>" class="box" required>
          </div>
 
-         <!-- Password Update Column -->
          <div class="inputBox">
             <span>Old Password :</span>
             <input type="password" name="update_pass" placeholder="Enter old password" class="box">
@@ -224,7 +205,7 @@ if(isset($_POST['update_profile'])){
       <div class="btn-container">
          <input type="submit" name="update_profile" value="Save Changes" class="btn">
          <a href="home.php" class="option-btn">Back to Home</a>
-         <a href="update_profile.php?logout=1" class="logout-btn" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
+         <a href="javascript:void(0);" class="logout-btn" id="logout-link">Logout</a>
       </div>
 
    </form>
@@ -232,6 +213,44 @@ if(isset($_POST['update_profile'])){
 </section>
 
 <?php include 'footer.php'; ?>
+
+<script>
+// 1. Logout Confirmation logic
+document.getElementById('logout-link').addEventListener('click', function() {
+    Swal.fire({
+        title: 'Logout?',
+        text: "Are you sure you want to logout?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#2c3e50',
+        confirmButtonText: 'Yes, logout',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'update_profile.php?logout=1';
+        }
+    });
+});
+
+// 2. Success and Error Notifications (Toasts)
+<?php if(isset($message)): ?>
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+
+    <?php foreach($message as $msg): ?>
+        Toast.fire({
+          icon: '<?= $msg['type']; ?>',
+          title: '<?= $msg['text']; ?>'
+        });
+    <?php endforeach; ?>
+<?php endif; ?>
+</script>
 
 </body>
 </html>
