@@ -13,7 +13,7 @@ if(!isset($admin_id)){
 
 $message = []; 
 
-// ✅ HELPER FUNCTION: I-restore ang stock
+// ✅ HELPER FUNCTION: Restore stock
 function restoreStock($conn, $order_id){
    $get_order = $conn->prepare("SELECT total_products FROM orders WHERE id = ?");
    $get_order->execute([$order_id]);
@@ -47,7 +47,6 @@ if(isset($_POST['update_order'])){
       $old_status = strtolower($current['payment_status']);
       $new_status = strtolower($update_payment);
 
-      // I-restore ang stock kung gi-cancel ang order
       if($new_status === 'cancelled' && $old_status !== 'cancelled'){
           restoreStock($conn, $order_id);
           $message[] = ['text' => 'Order Cancelled. Stock restored!', 'type' => 'info'];
@@ -61,7 +60,6 @@ if(isset($_POST['update_order'])){
       }
    }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -94,13 +92,17 @@ if(isset($_POST['update_order'])){
       .drop-down{ width:100%; padding:12px; border:none; border-radius:10px; margin:15px 0; background: #fff; font-size: 1.4rem; }
       .flex-btn{ display:flex; gap:10px; }
       .option-btn{ flex:1; text-align:center; padding:12px; border-radius:10px; text-decoration:none; font-weight:600; cursor:pointer; border:none; font-size: 1.4rem; background: linear-gradient(90deg, #00f260, #0575e6); color:white; }
-      
-      .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 15px !important; }
    </style>
 </head>
 <body>
-   
-<?php include 'admin_header.php'; ?>
+
+<?php 
+/* 
+   IMPORTANT: Only include admin_header.php if THIS file is NOT admin_header.php. 
+   If this file IS the header, remove the include line below.
+*/
+// include 'components/admin_header.php'; 
+?>
 
 <section class="Placed-orders">
    <h1 class="title">Manage Orders</h1>
@@ -144,8 +146,7 @@ if(isset($_POST['update_order'])){
 </section>
 
 <script>
-// Para sa mga Feedback Toasts (Update/Cancelled)
-<?php if(isset($message) && !empty($message)): ?>
+<?php if(!empty($message)): ?>
     const Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
@@ -156,13 +157,12 @@ if(isset($_POST['update_order'])){
 
     <?php foreach($message as $msg): ?>
         Toast.fire({
-          icon: '<?= $msg['type']; ?>',
-          title: '<?= $msg['text']; ?>'
+          icon: '<?php echo $msg['type']; ?>',
+          title: '<?php echo $msg['text']; ?>'
         });
     <?php endforeach; ?>
 <?php endif; ?>
 </script>
 
-<script src="js/script.js"></script>
 </body>
 </html>
