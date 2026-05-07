@@ -29,7 +29,7 @@ if(isset($_POST['submit'])){
          exit;
       }
    }else{
-      $message[] = 'incorrect email or password!';
+      $message[] = 'Incorrect email or password!';
    }
 }
 ?>
@@ -37,117 +37,97 @@ if(isset($_POST['submit'])){
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Joken's Grocery</title>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Login - Joken's Grocery</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+   <style>
+   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
 
-*{
-   margin:0;
-   padding:0;
-   box-sizing:border-box;
-   font-family:'Poppins',sans-serif;
-}
+   *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Poppins',sans-serif;
+   }
 
-body{
-   height:100vh;
-   display:flex;
-   align-items:center;
-   justify-content:center;
-   background: url('image_products/picture7.jpg') no-repeat center center fixed;
-   background-size: cover;
-}
+   body{
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: url('image_products/picture7.jpg') no-repeat center center fixed;
+      background-size: cover;
+   }
 
-body::before{
-   content:'';
-   position:fixed;
-   width:100%;
-   height:100%;
-   background:rgba(0,0,0,0.45);
-   z-index:-1;
-}
+   body::before{
+      content:'';
+      position:fixed;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.45);
+      z-index:-1;
+   }
 
-.form-container{
-   width:370px;
-   padding:40px;
-   border-radius:20px;
-   background: rgba(255,255,255,0.15);
-   backdrop-filter: blur(15px);
-   box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-   text-align:center;
-   color:white;
-}
+   .form-container{
+      width:370px;
+      padding:40px;
+      border-radius:20px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      text-align:center;
+      color:white;
+   }
 
-.form-container h3{
-   font-size:26px;
-   margin-bottom:20px;
-}
+   .form-container h3{
+      font-size:26px;
+      margin-bottom:20px;
+   }
 
-.box{
-   width:100%;
-   padding:12px;
-   margin:10px 0;
-   border:none;
-   border-radius:10px;
-   outline:none;
-}
+   .box{
+      width:100%;
+      padding:12px;
+      margin:10px 0;
+      border:none;
+      border-radius:10px;
+      outline:none;
+      background: rgba(255, 255, 255, 0.9);
+   }
 
-.btn{
-   width:100%;
-   padding:12px;
-   border:none;
-   border-radius:10px;
-   background:#2ecc71;
-   color:white;
-   font-weight:bold;
-   cursor:pointer;
-}
+   .btn{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#2ecc71;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top: 10px;
+   }
 
-.btn:hover{
-   background:#27ae60;
-}
+   .btn:hover{
+      background:#27ae60;
+   }
 
-.message{
-   position:fixed; /* Changed to fixed for better visibility */
-   top:20px;
-   background:#e74c3c;
-   color:#fff;
-   padding:10px 15px;
-   border-radius:10px;
-   display:flex;
-   gap:10px;
-   z-index: 1000;
-}
-
-.message i{
-   cursor:pointer;
-}
-</style>
+   /* Styling for SweetAlert to match your theme */
+   .swal2-popup {
+      background: #2c2c2c !important;
+      color: #fff !important;
+      border-radius: 15px !important;
+   }
+   </style>
 
 </head>
 <body>
 
-<?php
-if(isset($message)){
-   foreach($message as $msg){
-      echo '
-      <div class="message">
-         <span>'.$msg.'</span>
-         <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
-      </div>
-      ';
-   }
-}
-?>
-
 <section class="form-container">
 
-   <!-- ✅ ADDED: onsubmit attribute -->
-   <form action="" method="POST" onsubmit="return confirmLogin()">
+   <form action="" method="POST">
       <h3><i class="fas fa-user"></i> Login</h3>
 
       <input type="email" name="email" class="box" placeholder="Enter your email" required>
@@ -160,18 +140,21 @@ if(isset($message)){
 
 </section>
 
-<!-- ✅ JAVASCRIPT LOGIC -->
 <script>
-function confirmLogin() {
-   // Kini nga popup mohatag og OK (Yes) ug Cancel (No) nga options
-   var response = confirm("Proceed to log in?");
-   
-   if (response) {
-      return true; // Mo-proceed sa PHP processing
-   } else {
-      return false; // Dili mo-submit, pabilin sa login page
+<?php
+if(isset($message)){
+   foreach($message as $msg){
+      echo "
+      Swal.fire({
+         icon: 'error',
+         title: 'Oops...',
+         text: '$msg',
+         confirmButtonColor: '#e74c3c'
+      });
+      ";
    }
 }
+?>
 </script>
 
 </body>
