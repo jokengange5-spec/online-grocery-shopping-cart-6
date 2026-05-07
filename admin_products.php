@@ -99,7 +99,7 @@ if(isset($_GET['delete'])){
          transform: translateX(-50%);
          z-index: 10001;
          width: 90%; max-width: 400px;
-         pointer-events: none; /* Allows clicks to pass through to elements behind */
+         pointer-events: none; 
       }
 
       .message {
@@ -112,7 +112,7 @@ if(isset($_GET['delete'])){
          box-shadow: 0 10px 20px rgba(0,0,0,0.3);
          margin-bottom: 10px;
          animation: slideIn 0.3s ease;
-         pointer-events: auto; /* Re-enables clicking for the message box itself */
+         pointer-events: auto;
       }
       .message.success { border-left: 5px solid #2ecc71; color: #27ae60; }
       .message.error { border-left: 5px solid #e74c3c; color: #c0392b; }
@@ -129,20 +129,38 @@ if(isset($_GET['delete'])){
       .btn{ display:block; width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(45deg,#00f260,#0575e6); color:white; font-weight:600; cursor:pointer; transition:0.3s; margin-top: 10px;}
       .btn:hover{ transform:scale(1.02); opacity: 0.9; }
 
-      .show-products .box-container{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:30px; }
-      .show-products .box{ background:rgba(255,255,255,0.08); backdrop-filter: blur(15px); padding:20px; border-radius:20px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.4); position: relative; border: 1px solid rgba(255,255,255,0.1); color: white; }
-      .show-products img{ width:100%; height:180px; object-fit:cover; border-radius:15px; margin-bottom:10px; }
+      /* ADJUSTED PRODUCT SPACING */
+      .show-products .box-container{ 
+         display:grid; 
+         grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); /* Gi-increase gamay ang width sa box */
+         gap: 35px; /* Dinhi ang spacing sa tunga sa mga products */
+         padding: 30px 5%; /* Nag add og 5% sa kilid para dili dikit sa screen */
+      }
+      
+      .show-products .box{ 
+         background:rgba(255,255,255,0.08); 
+         backdrop-filter: blur(15px); 
+         padding:25px; /* Gi-increase ang padding sa sulod sa box */
+         border-radius:20px; 
+         text-align:center; 
+         box-shadow:0 10px 30px rgba(0,0,0,0.4); 
+         position: relative; 
+         border: 1px solid rgba(255,255,255,0.1); 
+         color: white; 
+      }
+      
+      .show-products img{ width:100%; height:180px; object-fit:cover; border-radius:15px; margin-bottom:15px; }
       
       .stock-display { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
       .stock-low { color: #ff4d4d; border: 1px solid #ff4d4d; } 
 
-      .price{ font-size:18px; color:#00f260; font-weight:600; margin-bottom: 5px;}
-      .name{ font-size:18px; font-weight:600; margin:5px 0; color:#fff; }
+      .price{ font-size:20px; color:#00f260; font-weight:600; margin-bottom: 5px;}
+      .name{ font-size:20px; font-weight:600; margin:10px 0; color:#fff; }
       .cat{ font-size:14px; color:#bbb; text-transform: uppercase; letter-spacing: 1px; }
-      .details{ font-size:13px; color:#ddd; margin:10px 0; line-height: 1.5; }
+      .details{ font-size:14px; color:#ddd; margin:15px 0; line-height: 1.5; }
       
-      .flex-btn { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-      .option-btn, .delete-btn{ flex: 1; padding:10px; border-radius:10px; text-decoration:none; font-weight:600; font-size: 14px; text-align: center; }
+      .flex-btn { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+      .option-btn, .delete-btn{ flex: 1; padding:12px; border-radius:10px; text-decoration:none; font-weight:600; font-size: 14px; text-align: center; }
       .option-btn{ background:#3498db; color:white; }
       .delete-btn{ background:#e74c3c; color:white; }
    </style>
