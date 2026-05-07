@@ -188,8 +188,8 @@ function validateStock(event, form) {
             
             Swal.fire({
                 icon: 'error',
-                title: 'Mali ang Quantity!',
-                text: orderQty + ' ang iyong nilagay pero ' + stockLevel + ' lang ang stock ng ' + productName + '. Pakibawasan ang quantity.',
+                title: 'Invalid Quantity!',
+              text: 'Invalid Quantity! You entered ' + orderQty + ' of ' + productName + ', but the stock is only ' + stockLevel + '. Please input a valid quantity.'
                 confirmButtonColor: '#e74c3c',
                 background: '#fff',
                 color: '#333'
