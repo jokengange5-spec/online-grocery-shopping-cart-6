@@ -5,36 +5,27 @@ session_start();
 
 if(isset($_POST['submit'])){
 
-   // ERROR HANDLER ARRAY
    $message = [];
 
    $name = trim($_POST['name']);
    $email = trim($_POST['email']);
    $pass = md5($_POST['pass']); 
    
-   // FIX: Gi-hardcode nato nga 'user' permi ang i-save
    $user_type = 'user'; 
 
-   // =========================
    // ERROR HANDLERS
-   // =========================
-
-   // EMPTY FIELDS
    if(empty($name) || empty($email) || empty($_POST['pass'])){
       $message[] = "Please fill all fields!";
    }
 
-   // VALID EMAIL
    if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
       $message[] = "Invalid email format!";
    }
 
-   // PASSWORD LENGTH
    if(strlen($_POST['pass']) < 6){
       $message[] = "Password must be at least 6 characters!";
    }
 
-   // CHECK KUNG EXISTING NA ANG EMAIL
    $check = $conn->prepare("SELECT * FROM users WHERE email = ?");
    $check->execute([$email]);
 
@@ -42,20 +33,17 @@ if(isset($_POST['submit'])){
       $message[] = "User already exists!";
    }
 
-   // ONLY INSERT IF NO ERRORS
    if(empty($message)){
-
-      // INSERT AS USER
       $insert = $conn->prepare("
-         INSERT INTO users(name, email, password, user_type)
-         VALUES(?,?,?,?)
+          INSERT INTO users(name, email, password, user_type)
+          VALUES(?,?,?,?)
       ");
 
-     if($insert->execute([$name, $email, $pass, $user_type])){
-
-   $message[] = "Successfully registered!";
-
-}else{
+      if($insert->execute([$name, $email, $pass, $user_type])){
+         // Kung successful, i-redirect nato sa login.php
+         header('location:login.php');
+         exit();
+      }else{
          $message[] = "Registration failed!";
       }
    }
@@ -120,9 +108,9 @@ if(isset($_POST['submit'])){
          margin-bottom: 15px;
       }
       .success{
-   background: rgba(46, 204, 113, 0.2);
-   color: #2ecc71;
-}
+         background: rgba(46, 204, 113, 0.2);
+         color: #2ecc71;
+      }
       p {
          text-align: center;
          font-size: 14px;
@@ -137,22 +125,20 @@ if(isset($_POST['submit'])){
 
 <div class="form-container">
 
-   <form method="POST">
+   <!-- Gidugangan og ID ang form para sa JavaScript -->
+   <form method="POST" id="registerForm">
       <h3>Register Now</h3>
 
       <?php
       if(isset($message)){
          foreach($message as $msg){
-            if($msg == "Successfully registered!"){
-   echo '<div class="message success">'.$msg.'</div>';
-}else{
-   echo '<div class="message">'.$msg.'</div>';
-}
+            echo '<div class="message">'.$msg.'</div>';
          }
       }
       ?>
 
-      <input type="text" name="name" placeholder="Enter Name" required>
+      <!-- Gidugangan og ID ang Name input -->
+      <input type="text" name="name" id="userName" placeholder="Enter Name" required>
       <input type="email" name="email" placeholder="Enter Email" required>
       <input type="password" name="pass" placeholder="Enter Password" required>
 
@@ -161,6 +147,26 @@ if(isset($_POST['submit'])){
    </form>
 
 </div>
+
+<script>
+   // Kini nga script ang mo-handle sa confirmation
+   const form = document.getElementById('registerForm');
+   const nameInput = document.getElementById('userName');
+
+   form.onsubmit = function() {
+      const name = nameInput.value;
+      // Mo gawas ang confirmation box
+      const confirmAction = confirm("Do you want to register as " + name + "?");
+      
+      if (confirmAction) {
+         // If "Yes/OK", mo padayon ang form submission sa PHP
+         return true;
+      } else {
+         // If "No/Cancel", mo stop ang submission ug magpabilin sa register page
+         return false;
+      }
+   };
+</script>
 
 </body>
 </html>
