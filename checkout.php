@@ -27,6 +27,7 @@ if(isset($_POST['order'])){
    $cart_products = []; 
    $cart_items_detail = [];
    $out_of_stock = false; 
+   $items_out_of_stock = []; // Sudlanan para sa ngalan sa mga items nga kulang og stock
 
    $cart_query = $conn->prepare("SELECT * FROM cart WHERE user_id = ?");
    $cart_query->execute([$user_id]);
@@ -41,6 +42,7 @@ if(isset($_POST['order'])){
 
          if($cart_item['quantity'] > $product_info['stock']){
             $out_of_stock = true;
+            $items_out_of_stock[] = '"' . $product_info['name'] . '"';
          }
 
          $cart_products[] = $cart_item['name'].' ( '.$cart_item['quantity'].' )';
@@ -60,7 +62,8 @@ if(isset($_POST['order'])){
    if($cart_total == 0){
       $message[] = 'Your cart is empty';
    } elseif($out_of_stock) {
-      $message[] = 'The quantity you entered exceeds the available stocks.';
+      $product_names_str = implode(', ', array_unique($items_out_of_stock));
+      $message[] = 'The quantity of ' . $product_names_str . ' that you entered exceeds the available stocks.';
    } else {
       if($method == 'gcash'){
           $_SESSION['pending_order'] = [
