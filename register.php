@@ -3,6 +3,8 @@ ob_start();
 @include 'config.php';
 session_start();
 
+$show_success = false; // Flag for the alert
+
 if(isset($_POST['submit'])){
 
    $message = [];
@@ -40,11 +42,10 @@ if(isset($_POST['submit'])){
       ");
 
       if($insert->execute([$name, $email, $pass, $user_type])){
-         // Kung successful, i-redirect nato sa login.php
-         header('location:login.php');
-         exit();
+          // Instead of header(), we set this to true to trigger the JS alert
+          $show_success = true;
       }else{
-         $message[] = "Registration failed!";
+          $message[] = "Registration failed!";
       }
    }
 }
@@ -54,7 +55,9 @@ if(isset($_POST['submit'])){
 <html lang="en">
 <head>
    <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Register</title>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    <style>
       body{
          font-family: 'Poppins', sans-serif;
@@ -84,6 +87,8 @@ if(isset($_POST['submit'])){
          border: none;
          border-radius: 6px;
          box-sizing: border-box;
+         background: #3d3d3d;
+         color: white;
       }
       button{
          width: 100%;
@@ -106,10 +111,7 @@ if(isset($_POST['submit'])){
          border-radius: 5px;
          text-align: center;
          margin-bottom: 15px;
-      }
-      .success{
-         background: rgba(46, 204, 113, 0.2);
-         color: #2ecc71;
+         font-size: 14px;
       }
       p {
          text-align: center;
@@ -125,8 +127,7 @@ if(isset($_POST['submit'])){
 
 <div class="form-container">
 
-   <!-- Gidugangan og ID ang form para sa JavaScript -->
-   <form method="POST" id="registerForm">
+   <form method="POST">
       <h3>Register Now</h3>
 
       <?php
@@ -137,8 +138,7 @@ if(isset($_POST['submit'])){
       }
       ?>
 
-      <!-- Gidugangan og ID ang Name input -->
-      <input type="text" name="name" id="userName" placeholder="Enter Name" required>
+      <input type="text" name="name" placeholder="Enter Name" required>
       <input type="email" name="email" placeholder="Enter Email" required>
       <input type="password" name="pass" placeholder="Enter Password" required>
 
@@ -149,23 +149,22 @@ if(isset($_POST['submit'])){
 </div>
 
 <script>
-   // Kini nga script ang mo-handle sa confirmation
-   const form = document.getElementById('registerForm');
-   const nameInput = document.getElementById('userName');
-
-   form.onsubmit = function() {
-      const name = nameInput.value;
-      // Mo gawas ang confirmation box
-      const confirmAction = confirm("Do you want to register as " + name + "?");
-      
-      if (confirmAction) {
-         // If "Yes/OK", mo padayon ang form submission sa PHP
-         return true;
-      } else {
-         // If "No/Cancel", mo stop ang submission ug magpabilin sa register page
-         return false;
-      }
-   };
+    // This only runs if the PHP registration was successful
+    <?php if($show_success): ?>
+        Swal.fire({
+            title: 'Success!',
+            text: 'Account created successfully for <?php echo $name; ?>',
+            icon: 'success',
+            background: '#2c2c2c',
+            color: '#ffffff',
+            confirmButtonColor: '#2ecc71',
+            confirmButtonText: 'Login Now'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'login.php';
+            }
+        });
+    <?php endif; ?>
 </script>
 
 </body>
