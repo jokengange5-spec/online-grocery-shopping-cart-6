@@ -13,7 +13,6 @@ if(!$user_id){
 
 $message = [];
 
-// Process order when form is submitted
 if(isset($_POST['order'])){
    $name = htmlspecialchars(trim($_POST['name']));
    $number = htmlspecialchars(trim($_POST['number']));
@@ -27,17 +26,27 @@ if(isset($_POST['order'])){
    $cart_total = 0;
    $cart_products = []; 
    $cart_items_detail = [];
+   $out_of_stock = false; // Flag para sa validation
 
    $cart_query = $conn->prepare("SELECT * FROM cart WHERE user_id = ?");
    $cart_query->execute([$user_id]);
    
    if($cart_query->rowCount() > 0){
       while($cart_item = $cart_query->fetch(PDO::FETCH_ASSOC)){
-         $cart_products[] = $cart_item['name'].' ( '.$cart_item['quantity'].' )';
-         
-         // Gi-secure nato ang product ID para sa stock deduction later
          $p_id = $cart_item['product_id'] ?? $cart_item['pid'] ?? null;
+         
+         // --- START SA STOCK VALIDATION ---
+         $check_stock = $conn->prepare("SELECT name, stock FROM products WHERE id = ?");
+         $check_stock->execute([$p_id]);
+         $product_info = $check_stock->fetch(PDO::FETCH_ASSOC);
 
+         if($cart_item['quantity'] > $product_info['stock']){
+            $message[] = 'Insufficient stock for this product ' . $product_info['name'] . '. we have only ' . $product_info['stock'] . ' available.';
+            $out_of_stock = true;
+         }
+         // --- END SA STOCK VALIDATION ---
+
+         $cart_products[] = $cart_item['name'].' ( '.$cart_item['quantity'].' )';
          $cart_items_detail[] = [
             'pid' => $p_id,
             'name' => $cart_item['name'],
@@ -53,7 +62,9 @@ if(isset($_POST['order'])){
 
    if($cart_total == 0){
       $message[] = 'Your cart is empty';
-   }else{
+   } elseif($out_of_stock) {
+      // Dili mopadayon kay naay item nga molapas sa stock
+   } else {
       if($method == 'gcash'){
          $_SESSION['pending_order'] = [
             'user_id' => $user_id,
@@ -74,11 +85,11 @@ if(isset($_POST['order'])){
          $insert_order = $conn->prepare("INSERT INTO orders(user_id, name, number, email, method, address, total_products, total_price, placed_on, payment_status) VALUES(?,?,?,?,?,?,?,?,?,?)");
          $insert_order->execute([$user_id, $name, $number, $email, $method, $address, $total_products, $cart_total, $placed_on, 'pending']);
 
-         // ✅ DEDUCT STOCK (Gi-fix ang Undefined Array Key Error diri)
+         // DEDUCT STOCK
          foreach($cart_items_detail as $item){
             if($item['pid']){
-               $deduct_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?");
-               $deduct_stock->execute([$item['quantity'], $item['pid'], $item['quantity']]);
+               $deduct_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
+               $deduct_stock->execute([$item['quantity'], $item['pid']]);
             }
          }
 
