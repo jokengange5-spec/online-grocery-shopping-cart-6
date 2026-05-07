@@ -85,16 +85,21 @@ if(isset($_GET['delete'])){
          margin: 0; padding: 0;
       }
 
-      /* FIXED HEADER & Z-INDEX */
-      header { z-index: 1000 !important; position: relative; }
+      /* FIXED HEADER FIXES */
+      header { 
+         z-index: 1000 !important; 
+         position: sticky !important; 
+         top: 0;
+      }
 
-      /* MESSAGE STYLES */
+      /* MESSAGE STYLES - FIXED CLICK ISSUE */
       .message-container {
          position: fixed;
          top: 2rem; left: 50%;
          transform: translateX(-50%);
-         z-index: 10001; /* Mas taas pa sa header */
+         z-index: 10001;
          width: 90%; max-width: 400px;
+         pointer-events: none; /* Allows clicks to pass through to elements behind */
       }
 
       .message {
@@ -107,6 +112,7 @@ if(isset($_GET['delete'])){
          box-shadow: 0 10px 20px rgba(0,0,0,0.3);
          margin-bottom: 10px;
          animation: slideIn 0.3s ease;
+         pointer-events: auto; /* Re-enables clicking for the message box itself */
       }
       .message.success { border-left: 5px solid #2ecc71; color: #27ae60; }
       .message.error { border-left: 5px solid #e74c3c; color: #c0392b; }
@@ -144,7 +150,6 @@ if(isset($_GET['delete'])){
 <body>
    
 <?php 
-// Displaying messages before the header to clear them out
 if(!empty($message)){
    echo '<div class="message-container">';
    foreach($message as $msg){
@@ -153,7 +158,7 @@ if(!empty($message)){
       echo '<div class="message '.$type.'"><span>'.$text.'</span> <i class="fas fa-times" onclick="this.parentElement.remove();"></i></div>';
    }
    echo '</div>';
-   unset($message); // Clear for header safety
+   unset($message);
 }
 
 include 'admin_header.php'; 
