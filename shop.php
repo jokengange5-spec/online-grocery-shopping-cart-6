@@ -33,7 +33,7 @@ if(isset($_POST['add_to_wishlist'])){
    }
 }
 
-/* ADD TO CART LOGIC */
+/* ADD TO CART LOGIC WITH STOCK VALIDATION */
 if(isset($_POST['add_to_cart'])){
    $pid = htmlspecialchars(trim($_POST['pid']));
    $p_name = substr(htmlspecialchars(trim($_POST['p_name'])), 0, 255);
@@ -41,18 +41,27 @@ if(isset($_POST['add_to_cart'])){
    $p_image = $_POST['p_image'];
    $p_qty = htmlspecialchars(trim($_POST['p_qty']));
 
-   $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
-   $check->execute([$p_name, $user_id]);
+   // Server-side Stock Check (Safety net)
+   $check_stock = $conn->prepare("SELECT stock FROM products WHERE id = ?");
+   $check_stock->execute([$pid]);
+   $fetch_stock = $check_stock->fetch(PDO::FETCH_ASSOC);
 
-   if($check->rowCount() > 0){
-      $message[] = ['text' => 'Already added to cart!', 'type' => 'error'];
-   }else{
-      $delete_wish = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
-      $delete_wish->execute([$p_name, $user_id]);
-      
-      $insert = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?, ?, ?, ?, ?, ?)");
-      $insert->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
-      $message[] = ['text' => 'Added to cart successfully!', 'type' => 'success'];
+   if($p_qty > $fetch_stock['stock']){
+      $message[] = ['text' => 'Insufficient stock! Only ' . $fetch_stock['stock'] . ' left.', 'type' => 'error'];
+   } else {
+      $check = $conn->prepare("SELECT * FROM cart WHERE name = ? AND user_id = ?");
+      $check->execute([$p_name, $user_id]);
+
+      if($check->rowCount() > 0){
+         $message[] = ['text' => 'Already added to cart!', 'type' => 'error'];
+      }else{
+         $delete_wish = $conn->prepare("DELETE FROM wishlist WHERE name = ? AND user_id = ?");
+         $delete_wish->execute([$p_name, $user_id]);
+         
+         $insert = $conn->prepare("INSERT INTO cart(user_id, pid, name, price, quantity, image) VALUES(?, ?, ?, ?, ?, ?)");
+         $insert->execute([$user_id, $pid, $p_name, $p_price, $p_qty, $p_image]);
+         $message[] = ['text' => 'Added to cart successfully!', 'type' => 'success'];
+      }
    }
 }
 ?>
@@ -89,26 +98,26 @@ if(isset($_POST['add_to_cart'])){
       }
 
       .message-container {
-         position: fixed;
-         top: 2rem;
-         left: 50%;
-         transform: translateX(-50%);
-         z-index: 10000;
-         width: 90%;
-         max-width: 450px;
+          position: fixed;
+          top: 2rem;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 10000;
+          width: 90%;
+          max-width: 450px;
       }
 
       .message {
-         padding: 1.2rem 2rem;
-         display: flex;
-         align-items: center;
-         justify-content: space-between;
-         gap: 1.5rem;
-         border-radius: .8rem;
-         margin-bottom: 1rem;
-         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-         animation: slideDown 0.4s ease forwards;
-         background: #fff;
+          padding: 1.2rem 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1.5rem;
+          border-radius: .8rem;
+          margin-bottom: 1rem;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+          animation: slideDown 0.4s ease forwards;
+          background: #fff;
       }
 
       .message.success { background: #d4edda; color: #155724; border-left: 6px solid #28a745; }
@@ -118,8 +127,8 @@ if(isset($_POST['add_to_cart'])){
       .message i.fa-times { font-size: 1.8rem; cursor: pointer; }
 
       @keyframes slideDown {
-         0% { transform: translateY(-100%); opacity: 0; }
-         100% { transform: translateY(0); opacity: 1; }
+          0% { transform: translateY(-100%); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
       }
 
       .p-category { display: flex; justify-content: center; gap: 1.5rem; padding: 2rem; flex-wrap: wrap; background: var(--white); }
@@ -148,7 +157,6 @@ if(isset($_POST['add_to_cart'])){
 <body>
 
 <?php 
-// 1. I-display ang messages gamit ang bag-ong logic sa shop.php
 if(isset($message)){
    echo '<div class="message-container">';
    foreach($message as $msg){
@@ -157,14 +165,12 @@ if(isset($message)){
       $icon = ($typeClass == 'success') ? 'fa-check-circle' : 'fa-exclamation-circle';
       echo '
       <div class="message '.$typeClass.'">
-         <span><i class="fas '.$icon.'"></i> '.$text.'</span>
-         <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
+          <span><i class="fas '.$icon.'"></i> '.$text.'</span>
+          <i class="fas fa-times" onclick="this.parentElement.remove();"></i>
       </div>
       ';
    }
    echo '</div>';
-   
-   // 2. IMPORTANT: I-clear ang $message para dili na mag-error sa header.php
    unset($message);
 }
 
@@ -188,7 +194,7 @@ include 'header.php';
       if($select_products->rowCount() > 0){
          while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){ 
    ?>
-   <form action="" class="box" method="POST">
+   <form action="" class="box" method="POST" onsubmit="return validateStock(this);">
       <div class="price">₱<span><?= $fetch_products['price']; ?></span></div>
       <a href="view_page.php?pid=<?= $fetch_products['id']; ?>" class="fas fa-eye"></a>
       <img src="<?= $fetch_products['image']; ?>" alt="">
@@ -199,6 +205,9 @@ include 'header.php';
       <input type="hidden" name="p_name" value="<?= $fetch_products['name']; ?>">
       <input type="hidden" name="p_price" value="<?= $fetch_products['price']; ?>">
       <input type="hidden" name="p_image" value="<?= $fetch_products['image']; ?>">
+      
+      <input type="hidden" name="p_stock" value="<?= $fetch_products['stock']; ?>">
+      
       <input type="number" min="1" value="1" name="p_qty" class="qty">
       
       <input type="submit" value="Wishlist" class="option-btn" name="add_to_wishlist">
@@ -214,6 +223,36 @@ include 'header.php';
 </section>
 
 <?php include 'footer.php'; ?>
+
+<script>
+function validateStock(form) {
+    // Kinukuha ang quantity input field
+    const qtyInput = form.querySelector('.qty');
+    const orderQty = parseInt(qtyInput.value);
+    
+    // Kinukuha ang stock value mula sa hidden input
+    const stockLevel = parseInt(form.querySelector('input[name="p_stock"]').value);
+    const productName = form.querySelector('.name').innerText;
+
+    // Check kung ang submit button ay "Add to Cart" lang (Hindi kasama ang Wishlist validation)
+    const clickedButton = event.submitter.name;
+    
+    if (clickedButton === 'add_to_cart') {
+        if (orderQty > stockLevel) {
+            // Error notification
+            alert('Mali: ' + orderQty + ' ang iyong nilagay pero ' + stockLevel + ' lang ang stock ng ' + productName + '. Pakibawasan ang quantity.');
+            
+            // I-highlight ang field at i-focus
+            qtyInput.focus();
+            qtyInput.style.border = "2px solid #e74c3c";
+            
+            return false; // Pipigilan ang form submission
+        }
+    }
+    
+    return true; // Itutuloy ang process kung wishlist o valid quantity
+}
+</script>
 
 <script src="js/script.js"></script>
 </body>
