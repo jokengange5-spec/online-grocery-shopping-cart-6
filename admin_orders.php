@@ -83,7 +83,31 @@ if(isset($_POST['update_order'])){
          font-family: 'Poppins', sans-serif; 
          margin: 0; padding: 0; 
       }
-      .title{ text-align:center; font-size:2.3rem; margin:30px 0; font-weight:700; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+      /* Back Button Style */
+      .back-btn-container {
+         padding: 20px 30px 0;
+      }
+      .back-btn {
+         display: inline-flex;
+         align-items: center;
+         gap: 10px;
+         background: rgba(255, 255, 255, 0.1);
+         color: #fff;
+         padding: 10px 20px;
+         border-radius: 10px;
+         text-decoration: none;
+         font-weight: 500;
+         backdrop-filter: blur(5px);
+         border: 1px solid rgba(255, 255, 255, 0.2);
+         transition: 0.3s;
+      }
+      .back-btn:hover {
+         background: #0575e6;
+         color: #fff;
+         transform: translateX(-5px);
+      }
+
+      .title{ text-align:center; font-size:2.3rem; margin:10px 0 30px; font-weight:700; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
       .box-container{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:25px; padding:30px; }
       .box{ background:rgba(255,255,255,0.1); backdrop-filter:blur(15px); border-radius:20px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
       .box:hover { transform: translateY(-5px); border-color: #00f260; }
@@ -96,13 +120,13 @@ if(isset($_POST['update_order'])){
 </head>
 <body>
 
-<?php 
-/* 
-   IMPORTANT: Only include admin_header.php if THIS file is NOT admin_header.php. 
-   If this file IS the header, remove the include line below.
-*/
-// include 'components/admin_header.php'; 
-?>
+<!-- BACK BUTTON START -->
+<div class="back-btn-container">
+   <a href="admin_products.php" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Products
+   </a>
+</div>
+<!-- BACK BUTTON END -->
 
 <section class="Placed-orders">
    <h1 class="title">Manage Orders</h1>
