@@ -3,7 +3,7 @@ ob_start();
 @include 'config.php';
 session_start();
 
-$show_success = false; // Flag for the alert
+$show_success = false; 
 
 if(isset($_POST['submit'])){
 
@@ -11,12 +11,13 @@ if(isset($_POST['submit'])){
 
    $name = trim($_POST['name']);
    $email = trim($_POST['email']);
-   $pass = md5($_POST['pass']); 
+   $pass = $_POST['pass']; 
+   $cpass = $_POST['cpass']; // Added Confirm Password variable
    
    $user_type = 'user'; 
 
    // ERROR HANDLERS
-   if(empty($name) || empty($email) || empty($_POST['pass'])){
+   if(empty($name) || empty($email) || empty($pass) || empty($cpass)){
       $message[] = "Please fill all fields!";
    }
 
@@ -24,8 +25,13 @@ if(isset($_POST['submit'])){
       $message[] = "Invalid email format!";
    }
 
-   if(strlen($_POST['pass']) < 6){
+   if(strlen($pass) < 6){
       $message[] = "Password must be at least 6 characters!";
+   }
+
+   // NEW: Check if passwords match
+   if($pass != $cpass){
+      $message[] = "Passwords do not match!";
    }
 
    $check = $conn->prepare("SELECT * FROM users WHERE email = ?");
@@ -36,13 +42,15 @@ if(isset($_POST['submit'])){
    }
 
    if(empty($message)){
+      // Encrypt after all checks are passed
+      $secure_pass = md5($pass); 
+
       $insert = $conn->prepare("
           INSERT INTO users(name, email, password, user_type)
           VALUES(?,?,?,?)
       ");
 
-      if($insert->execute([$name, $email, $pass, $user_type])){
-          // Instead of header(), we set this to true to trigger the JS alert
+      if($insert->execute([$name, $email, $secure_pass, $user_type])){
           $show_success = true;
       }else{
           $message[] = "Registration failed!";
@@ -64,7 +72,7 @@ if(isset($_POST['submit'])){
          display: flex;
          justify-content: center;
          align-items: center;
-         height: 100vh;
+         min-height: 100vh; /* Changed to min-height for better scrolling on small screens */
          background: #1f1f1f;
          color: white;
          margin: 0;
@@ -141,6 +149,8 @@ if(isset($_POST['submit'])){
       <input type="text" name="name" placeholder="Enter Name" required>
       <input type="email" name="email" placeholder="Enter Email" required>
       <input type="password" name="pass" placeholder="Enter Password" required>
+      <!-- Added Confirm Password input -->
+      <input type="password" name="cpass" placeholder="Confirm Password" required>
 
       <button type="submit" name="submit">Register Now</button>
       <p>Already have an account? <a href="login.php">Login here</a></p>
@@ -149,7 +159,6 @@ if(isset($_POST['submit'])){
 </div>
 
 <script>
-    // This only runs if the PHP registration was successful
     <?php if($show_success): ?>
         Swal.fire({
             title: 'Success!',
