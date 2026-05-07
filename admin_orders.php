@@ -13,21 +13,19 @@ if(!isset($admin_id)){
 
 $message = []; 
 
-// ✅ HELPER FUNCTION: I-restore ang stock (Gamiton kini kung i-Cancel o i-Delete ang order)
+// ✅ HELPER FUNCTION: I-restore ang stock
 function restoreStock($conn, $order_id){
    $get_order = $conn->prepare("SELECT total_products FROM orders WHERE id = ?");
    $get_order->execute([$order_id]);
    $order_data = $get_order->fetch(PDO::FETCH_ASSOC);
 
    if($order_data){
-      // I-parse ang string (pananglitan: "Eggplant ( 2 ), Apple ( 5 )")
       $items = explode(', ', $order_data['total_products']);
       foreach($items as $item){
          preg_match('/^(.+)\s*\(\s*(\d+)\s*\)$/', trim($item), $matches);
          if(count($matches) === 3){
             $product_name = trim($matches[1]);
             $qty = (int)$matches[2];
-            // I-add balik ang stock sa products table base sa ngalan
             $restore = $conn->prepare("UPDATE products SET stock = stock + ? WHERE name = ?");
             $restore->execute([$qty, $product_name]);
          }
@@ -49,18 +47,16 @@ if(isset($_POST['update_order'])){
       $old_status = strtolower($current['payment_status']);
       $new_status = strtolower($update_payment);
 
-      // ✅ LOGIC: Kung i-CANCEL ang order, i-uli ang stock.
-      // Dili na kita mag-reduce stock diri kay nabuhat na to sa checkout.php
       if($new_status === 'cancelled' && $old_status !== 'cancelled'){
-         restoreStock($conn, $order_id);
-         $message[] = 'Order Cancelled. Stock has been restored to inventory!';
+          restoreStock($conn, $order_id);
+          $message[] = ['text' => 'Order Cancelled. Stock restored!', 'type' => 'info'];
       }
 
       $update_orders = $conn->prepare("UPDATE orders SET payment_status = ? WHERE id = ?");
       $update_orders->execute([$update_payment, $order_id]);
       
       if(empty($message)){
-         $message[] = 'Payment status has been updated!';
+          $message[] = ['text' => 'Payment status has been updated!', 'type' => 'success'];
       }
    }
 }
@@ -73,15 +69,13 @@ if(isset($_GET['delete'])){
    $check_status->execute([$delete_id]);
    $current = $check_status->fetch(PDO::FETCH_ASSOC);
 
-   // ✅ LOGIC: Kung i-delete ang order nga wala pa ma-complete (e.g., Pending gihapon), 
-   // i-uli ang stock para dili mausik ang inventory.
    if($current && strtolower($current['payment_status']) !== 'completed' && strtolower($current['payment_status']) !== 'cancelled'){
       restoreStock($conn, $delete_id);
    }
 
    $delete_orders = $conn->prepare("DELETE FROM orders WHERE id = ?");
    $delete_orders->execute([$delete_id]);
-   header('location:admin_orders.php');
+   header('location:admin_orders.php?deleted=1'); // Added flag for success toast
    exit();
 }
 
@@ -96,6 +90,8 @@ if(isset($_GET['delete'])){
    <title>Admin Orders</title>
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
    <link rel="stylesheet" href="css/admin_style.css">
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   
    <style>
       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
       body { 
@@ -117,20 +113,14 @@ if(isset($_GET['delete'])){
       .option-btn, .delete-btn{ flex:1; text-align:center; padding:12px; border-radius:10px; text-decoration:none; font-weight:600; cursor:pointer; border:none; font-size: 1.4rem; }
       .option-btn{ background: linear-gradient(90deg, #00f260, #0575e6); color:white; }
       .delete-btn{ background:#e74c3c; color:white; }
-      .message-box { background: rgba(46, 204, 113, 0.9); color: white; text-align: center; padding: 1.2rem; font-size: 1.6rem; margin: 1rem 2rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+      
+      /* SweetAlert custom font */
+      .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 15px !important; }
    </style>
 </head>
 <body>
    
 <?php include 'admin_header.php'; ?>
-
-<?php
-if(isset($message) && is_array($message)){
-   foreach($message as $msg){
-      echo '<div class="message-box">'.$msg.'</div>';
-   }
-}
-?>
 
 <section class="Placed-orders">
    <h1 class="title">Manage Orders</h1>
@@ -159,7 +149,7 @@ if(isset($message) && is_array($message)){
             </select>
             <div class="flex-btn">
                <input type="submit" name="update_order" class="option-btn" value="Update">
-               <a href="admin_orders.php?delete=<?= $fetch_orders['id']; ?>" class="delete-btn" onclick="return confirm('Delete this order? (Stock will be restored if not completed)');">Delete</a>
+               <a href="javascript:void(0);" class="delete-btn" onclick="confirmDelete(<?= $fetch_orders['id']; ?>)">Delete</a>
             </div>
          </form>
       </div>
@@ -171,6 +161,57 @@ if(isset($message) && is_array($message)){
       ?>
    </div>
 </section>
+
+<script>
+// Function para sa Delete Confirmation
+function confirmDelete(id) {
+    Swal.fire({
+        title: 'Delete this order?',
+        text: "Stock will be restored if payment status is not Completed.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#2c3e50',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = 'admin_orders.php?delete=' + id;
+        }
+    });
+}
+
+// Para sa mga Feedback Toasts (Update/Cancelled)
+<?php if(isset($message) && !empty($message)): ?>
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+
+    <?php foreach($message as $msg): ?>
+        Toast.fire({
+          icon: '<?= $msg['type']; ?>',
+          title: '<?= $msg['text']; ?>'
+        });
+    <?php endforeach; ?>
+<?php endif; ?>
+
+// Toast para sa successful delete (after page redirect)
+<?php if(isset($_GET['deleted'])): ?>
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Order deleted successfully!',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+    });
+<?php endif; ?>
+</script>
 
 <script src="js/script.js"></script>
 </body>
