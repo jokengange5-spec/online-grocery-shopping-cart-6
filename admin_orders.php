@@ -47,6 +47,7 @@ if(isset($_POST['update_order'])){
       $old_status = strtolower($current['payment_status']);
       $new_status = strtolower($update_payment);
 
+      // I-restore ang stock kung gi-cancel ang order
       if($new_status === 'cancelled' && $old_status !== 'cancelled'){
           restoreStock($conn, $order_id);
           $message[] = ['text' => 'Order Cancelled. Stock restored!', 'type' => 'info'];
@@ -56,27 +57,9 @@ if(isset($_POST['update_order'])){
       $update_orders->execute([$update_payment, $order_id]);
       
       if(empty($message)){
-          $message[] = ['text' => 'Payment status has been updated!', 'type' => 'success'];
+          $message[] = ['text' => 'Order status has been updated!', 'type' => 'success'];
       }
    }
-}
-
-// DELETE ORDER
-if(isset($_GET['delete'])){
-   $delete_id = $_GET['delete'];
-
-   $check_status = $conn->prepare("SELECT payment_status FROM orders WHERE id = ?");
-   $check_status->execute([$delete_id]);
-   $current = $check_status->fetch(PDO::FETCH_ASSOC);
-
-   if($current && strtolower($current['payment_status']) !== 'completed' && strtolower($current['payment_status']) !== 'cancelled'){
-      restoreStock($conn, $delete_id);
-   }
-
-   $delete_orders = $conn->prepare("DELETE FROM orders WHERE id = ?");
-   $delete_orders->execute([$delete_id]);
-   header('location:admin_orders.php?deleted=1'); // Added flag for success toast
-   exit();
 }
 
 ?>
@@ -110,11 +93,8 @@ if(isset($_GET['delete'])){
       .box span{ color:#fff; font-weight:600; }
       .drop-down{ width:100%; padding:12px; border:none; border-radius:10px; margin:15px 0; background: #fff; font-size: 1.4rem; }
       .flex-btn{ display:flex; gap:10px; }
-      .option-btn, .delete-btn{ flex:1; text-align:center; padding:12px; border-radius:10px; text-decoration:none; font-weight:600; cursor:pointer; border:none; font-size: 1.4rem; }
-      .option-btn{ background: linear-gradient(90deg, #00f260, #0575e6); color:white; }
-      .delete-btn{ background:#e74c3c; color:white; }
+      .option-btn{ flex:1; text-align:center; padding:12px; border-radius:10px; text-decoration:none; font-weight:600; cursor:pointer; border:none; font-size: 1.4rem; background: linear-gradient(90deg, #00f260, #0575e6); color:white; }
       
-      /* SweetAlert custom font */
       .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 15px !important; }
    </style>
 </head>
@@ -144,12 +124,13 @@ if(isset($_GET['delete'])){
             <select name="update_payment" class="drop-down">
                <option value="" selected disabled><?= $fetch_orders['payment_status']; ?></option>
                <option value="Pending">Pending</option>
-               <option value="Completed">Completed</option>
+               <option value="Preparing">Preparing</option>
+               <option value="Out for Delivery">Out for Delivery</option>
+               <option value="Delivered">Delivered</option>
                <option value="Cancelled">Cancelled</option>
             </select>
             <div class="flex-btn">
-               <input type="submit" name="update_order" class="option-btn" value="Update">
-               <a href="javascript:void(0);" class="delete-btn" onclick="confirmDelete(<?= $fetch_orders['id']; ?>)">Delete</a>
+               <input type="submit" name="update_order" class="option-btn" value="Update Status">
             </div>
          </form>
       </div>
@@ -163,24 +144,6 @@ if(isset($_GET['delete'])){
 </section>
 
 <script>
-// Function para sa Delete Confirmation
-function confirmDelete(id) {
-    Swal.fire({
-        title: 'Delete this order?',
-        text: "Stock will be restored if payment status is not Completed.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#e74c3c',
-        cancelButtonColor: '#2c3e50',
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = 'admin_orders.php?delete=' + id;
-        }
-    });
-}
-
 // Para sa mga Feedback Toasts (Update/Cancelled)
 <?php if(isset($message) && !empty($message)): ?>
     const Toast = Swal.mixin({
@@ -197,19 +160,6 @@ function confirmDelete(id) {
           title: '<?= $msg['text']; ?>'
         });
     <?php endforeach; ?>
-<?php endif; ?>
-
-// Toast para sa successful delete (after page redirect)
-<?php if(isset($_GET['deleted'])): ?>
-    Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Order deleted successfully!',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true
-    });
 <?php endif; ?>
 </script>
 
