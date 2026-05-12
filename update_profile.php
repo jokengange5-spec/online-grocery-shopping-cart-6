@@ -60,7 +60,6 @@ if(isset($_POST['update_profile'])){
 <html lang="en">
 <head>
    <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Update Profile - Joken's Grocery</title>
 
@@ -68,110 +67,152 @@ if(isset($_POST['update_profile'])){
    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    
    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
 
       :root{
-          --primary-color: #2ecc71;
-          --secondary-color: #27ae60;
+          --primary: #27ae60;
+          --secondary: #2ecc71;
+          --dark: #2c3e50;
+          --white: #ffffff;
           --red: #e74c3c;
-          --black: #2c3e50;
-          --white: #fff;
-          --light-bg: #f0f2f5;
-          --shadow: 0 .5rem 1rem rgba(0,0,0,.1);
-          --border: .1rem solid rgba(0,0,0,.1);
+          --light-gray: #f8f9fa;
+          --transition: all 0.3s ease;
       }
 
       body {
-         background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('image products/picture7.jpg') no-repeat;
-         background-size: cover;
-         background-position: center;
-         background-attachment: fixed;
-         font-family: 'Poppins', sans-serif;
-         margin: 0;
-         padding: 0;
+          background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('image products/picture7.jpg') no-repeat;
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
+          font-family: 'Outfit', sans-serif;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
       }
 
       .update-profile {
-          min-height: 100vh;
+          flex: 1;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 2rem;
+          padding: 40px 20px;
       }
 
-      .update-profile form {
+      .container-card {
           width: 100%;
-          max-width: 800px;
-          background: var(--white);
-          padding: 3rem;
-          border-radius: 1.5rem;
-          box-shadow: var(--shadow);
+          max-width: 900px;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      }
+
+      .form-header {
+          background: var(--primary);
+          color: white;
+          padding: 30px;
           text-align: center;
       }
 
-      .update-profile form .title {
-          font-size: 2.5rem;
-          color: var(--black);
-          margin-bottom: 2rem;
-          text-transform: uppercase;
+      .form-header h1 {
+          margin: 0;
+          font-size: 2rem;
+          letter-spacing: 1px;
+      }
+
+      .form-header p {
+          margin-top: 5px;
+          opacity: 0.9;
+          font-weight: 300;
+      }
+
+      form {
+          padding: 40px;
+      }
+
+      .form-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 40px;
+      }
+
+      .section-title {
+          font-size: 1.2rem;
+          color: var(--primary);
+          margin-bottom: 20px;
+          border-bottom: 2px solid var(--light-gray);
+          padding-bottom: 10px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .inputBox {
+          margin-bottom: 15px;
+      }
+
+      .inputBox span {
+          display: block;
+          font-size: 0.9rem;
+          color: #666;
+          margin-bottom: 8px;
           font-weight: 600;
       }
 
-      .flex {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 2rem;
-          text-align: left;
-      }
-
-      .flex .inputBox {
-          flex: 1 1 35rem;
-      }
-
-      .flex .inputBox span {
-          display: block;
-          font-size: 1.5rem;
-          color: #666;
-          margin: 1rem 0;
-      }
-
-      .flex .inputBox .box {
+      .box {
           width: 100%;
-          padding: 1.2rem 1.4rem;
-          font-size: 1.6rem;
-          border-radius: .5rem;
-          background: var(--light-bg);
-          border: var(--border);
-          color: var(--black);
+          padding: 12px 15px;
+          font-size: 1rem;
+          border: 2px solid #eee;
+          border-radius: 8px;
+          background: var(--light-gray);
+          transition: var(--transition);
+          box-sizing: border-box;
+      }
+
+      .box:focus {
+          border-color: var(--primary);
+          background: #fff;
+          outline: none;
       }
 
       .btn-container {
-          margin-top: 2rem;
+          margin-top: 40px;
           display: flex;
-          gap: 1rem;
           justify-content: center;
+          gap: 15px;
           flex-wrap: wrap;
       }
 
-      .btn, .option-btn, .logout-btn {
-          padding: 1.2rem 3rem;
-          font-size: 1.6rem;
-          border-radius: .5rem;
+      .action-btn {
+          padding: 12px 30px;
+          font-size: 1rem;
+          border-radius: 50px;
           cursor: pointer;
           border: none;
           text-decoration: none;
-          color: var(--white);
-          transition: .3s;
-          font-weight: 500;
-          display: inline-block;
+          font-weight: 600;
+          transition: var(--transition);
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
       }
 
-      .btn { background: var(--primary-color); }
-      .btn:hover { background: var(--secondary-color); }
-      .option-btn { background: var(--black); }
-      .logout-btn { background: var(--red); }
+      .btn-save { background: var(--primary); color: white; }
+      .btn-save:hover { background: var(--secondary); transform: translateY(-2px); }
 
-      .swal2-popup { font-family: 'Poppins', sans-serif !important; border-radius: 15px !important; }
+      .btn-back { background: var(--dark); color: white; }
+      .btn-back:hover { opacity: 0.9; transform: translateY(-2px); }
+
+      .btn-logout { background: #fee2e2; color: var(--red); }
+      .btn-logout:hover { background: var(--red); color: white; transform: translateY(-2px); }
+
+      @media (max-width: 768px) {
+          form { padding: 20px; }
+          .form-header h1 { font-size: 1.5rem; }
+      }
    </style>
 </head>
 <body>
@@ -180,52 +221,75 @@ if(isset($_POST['update_profile'])){
 
 <section class="update-profile">
 
-   <form action="" method="POST">
-      
-      <h1 class="title">Update My Profile</h1>
-
-      <div class="flex">
-         <div class="inputBox">
-            <span>Username :</span>
-            <input type="text" name="name" value="<?= $fetch_profile['name']; ?>" class="box" required>
-            <span>Email :</span>
-            <input type="email" name="email" value="<?= $fetch_profile['email']; ?>" class="box" required>
-         </div>
-
-         <div class="inputBox">
-            <span>Old Password :</span>
-            <input type="password" name="update_pass" placeholder="Enter old password" class="box">
-            <span>New Password :</span>
-            <input type="password" name="new_pass" placeholder="Enter new password" class="box">
-            <span>Confirm Password :</span>
-            <input type="password" name="confirm_pass" placeholder="Confirm new password" class="box">
-         </div>
+   <div class="container-card">
+      <div class="form-header">
+         <h1><i class="fas fa-user-circle"></i> Profile Settings</h1>
+         <p>Manage your account details and security</p>
       </div>
 
-      <div class="btn-container">
-         <input type="submit" name="update_profile" value="Save Changes" class="btn">
-         <a href="home.php" class="option-btn">Back to Home</a>
-         <a href="javascript:void(0);" class="logout-btn" id="logout-link">Logout</a>
-      </div>
+      <form action="" method="POST">
+         <div class="form-grid">
+            <!-- Account Section -->
+            <div class="section">
+               <h2 class="section-title"><i class="fas fa-id-card"></i> Personal Info</h2>
+               <div class="inputBox">
+                  <span>Username</span>
+                  <input type="text" name="name" value="<?= $fetch_profile['name']; ?>" class="box" required>
+               </div>
+               <div class="inputBox">
+                  <span>Email Address</span>
+                  <input type="email" name="email" value="<?= $fetch_profile['email']; ?>" class="box" required>
+               </div>
+            </div>
 
-   </form>
+            <!-- Password Section -->
+            <div class="section">
+               <h2 class="section-title"><i class="fas fa-shield-alt"></i> Security</h2>
+               <div class="inputBox">
+                  <span>Current Password</span>
+                  <input type="password" name="update_pass" placeholder="••••••••" class="box">
+               </div>
+               <div class="inputBox">
+                  <span>New Password</span>
+                  <input type="password" name="new_pass" placeholder="••••••••" class="box">
+               </div>
+               <div class="inputBox">
+                  <span>Confirm New Password</span>
+                  <input type="password" name="confirm_pass" placeholder="••••••••" class="box">
+               </div>
+            </div>
+         </div>
+
+         <div class="btn-container">
+            <button type="submit" name="update_profile" class="action-btn btn-save">
+               <i class="fas fa-check"></i> Save Changes
+            </button>
+            <a href="home.php" class="action-btn btn-back">
+               <i class="fas fa-arrow-left"></i> Home
+            </a>
+            <a href="javascript:void(0);" class="action-btn btn-logout" id="logout-link">
+               <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+         </div>
+      </form>
+   </div>
 
 </section>
 
 <?php include 'footer.php'; ?>
 
 <script>
-// 1. Logout Confirmation logic
+// Logout Confirmation
 document.getElementById('logout-link').addEventListener('click', function() {
     Swal.fire({
         title: 'Logout?',
-        text: "Are you sure you want to logout?",
-        icon: 'warning',
+        text: "You will need to login again to access your cart.",
+        icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#e74c3c',
+        confirmButtonColor: '#27ae60',
         cancelButtonColor: '#2c3e50',
         confirmButtonText: 'Yes, logout',
-        cancelButtonText: 'Cancel'
+        cancelButtonText: 'Stay logged in'
     }).then((result) => {
         if (result.isConfirmed) {
             window.location.href = 'update_profile.php?logout=1';
@@ -233,7 +297,7 @@ document.getElementById('logout-link').addEventListener('click', function() {
     });
 });
 
-// 2. Success and Error Notifications (Toasts)
+// Toast Notifications
 <?php if(isset($message)): ?>
     const Toast = Swal.mixin({
       toast: true,
